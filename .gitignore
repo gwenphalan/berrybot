@@ -1,11 +1,3 @@
-#discord
-dist
-node_modules
-config/development.ts
-config/production.ts
-docker-compose.yaml
-docs
-
 # Logs
 logs
 *.log
