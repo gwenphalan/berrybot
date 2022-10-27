@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prod": "npm run build && export NODE_ENV=production && node .",
-    "dev": "npm run build && export NODE_ENV=development && npm run deploy && node .",
+    "dev": "npm run build && export NODE_ENV=development && node .",
     "deploy": "node dist/src/register_commands.js",
     "start": "npm run prod",
     "build": "tsc"
@@ -22,10 +22,14 @@
   },
   "homepage": "https://github.com/gwenphalan/berrybot#readme",
   "devDependencies": {
+    "@types/glob": "^8.0.0",
     "@types/node": "^18.11.5",
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "discord.js": "^14.6.0"
+    "ascii-table": "^0.0.9",
+    "discord.js": "^14.6.0",
+    "glob": "^8.0.3",
+    "mongoose": "^6.7.0"
   }
 }

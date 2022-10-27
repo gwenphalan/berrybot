@@ -9,4 +9,12 @@ export interface Config {
      * Your bot client id.
      */
     client_id: string;
+    /**
+     * MongoDB Connection String
+     */
+    mongo_string: string;
+    /**
+     * Developer Account ID
+     */
+    developer: string;
 }
