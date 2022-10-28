@@ -21,6 +21,8 @@ loadEvents(client);
 // Bot commands
 client.commands = new Collection();
 
+client.subCommands = new Collection();
+
 
 // Login to Discord Bot
 
