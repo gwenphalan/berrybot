@@ -5,7 +5,7 @@ export interface GuildSettings extends mongoose.Document {
 }
 
 const GuildSettingsSchema = new mongoose.Schema({
-    guild: String,
+    guild: String
 });
 
 export const GuildSettings = mongoose.model<GuildSettings>('GuildSettings', GuildSettingsSchema);

@@ -5,12 +5,10 @@ import { config } from '../config';
 const { Guilds, GuildMembers, GuildMessages } = GatewayIntentBits;
 const { User, Message, GuildMember, ThreadMember, Reaction } = Partials;
 
-const client = new Client(
-    {
-        intents: [Guilds, GuildMembers, GuildMessages],
-        partials: [User, Message, GuildMember, ThreadMember, Reaction]
-    }
-);
+const client = new Client({
+    intents: [Guilds, GuildMembers, GuildMessages],
+    partials: [User, Message, GuildMember, ThreadMember, Reaction]
+});
 
 import { loadEvents } from './handlers/EventHandler';
 
@@ -22,7 +20,6 @@ loadEvents(client);
 client.commands = new Collection();
 
 client.subCommands = new Collection();
-
 
 // Login to Discord Bot
 
