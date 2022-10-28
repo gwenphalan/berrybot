@@ -1,32 +1,37 @@
-import { Client } from "../interfaces/Client";
-import { Event } from "../interfaces/event";
-import { loadFiles } from '../util/fileLoader';
- 
+import type {Client} from '../interfaces/Client';
+import {loadFiles} from '../util/fileLoader';
+
 export const loadEvents = async (client: Client) => {
-    const ascii = require("ascii-table");
-    const table = new ascii().setHeading("Events", "Status");
+	const ascii = require('ascii-table');
+	const table = new ascii().setHeading('Events', 'Status');
 
-    await client.events.clear();
+	await client.events.clear();
 
-    const Files = await loadFiles("events");
+	const Files = await loadFiles('events');
 
-    Files.forEach((file) => {
-        const event: Event = require(file).event;
+	Files.forEach(file => {
+		const {event} = require(file);
 
-        const execute = (...args: any[]) => event.execute(...args, client);
-        client.events.set(event.name, execute);
+		const execute = (...args: any[]) => {
+			event.execute(...args, client);
+		};
 
-        if(event.rest) {
-            if(event.once) client.rest.on(event.name, execute);
-            else 
-            client.rest.on(event.name, execute);
-        } else {
-            if(event.once) client.once(event.name, execute);
-            else client.on(event.name, execute);
-        }
+		client.events.set(event.name, execute);
 
-        table.addRow(event.name, "🟩");
-    })
+		if (event.rest) {
+			if (event.once) {
+				client.rest.on(event.name, execute);
+			} else {
+				client.rest.on(event.name, execute);
+			}
+		} else if (event.once) {
+			client.once(event.name, execute);
+		} else {
+			client.on(event.name, execute);
+		}
 
-    return console.log(table.toString(), "\nLoaded Events")
-}
+		table.addRow(event.name, '🟩');
+	});
+
+	console.log(table.toString(), '\nLoaded Events');
+};

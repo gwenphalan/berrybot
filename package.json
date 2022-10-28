@@ -9,7 +9,19 @@
     "dev": "npm run build && export NODE_ENV=development && node .",
     "deploy": "node dist/src/register_commands.js",
     "start": "npm run prod",
-    "build": "tsc"
+    "lint": "eslint ./src/**/*.ts --fix",
+    "clean": "rm -rf dist/*",
+    "reinstall": "yarn cleanCache && yarn deleteModules && yarn deleteLock && yarn installModules",
+    "build": "tsc",
+    "cleanCache": "npm cache clean --force",
+    "deleteModules": "rm -rf node_modules/*",
+    "deleteLock": "rm yarn.lock",
+    "installModules": "yarn install"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "precise-commits && yarn lint"
+    }
   },
   "repository": {
     "type": "git",
@@ -24,7 +36,17 @@
   "devDependencies": {
     "@types/glob": "^8.0.0",
     "@types/node": "^18.11.5",
-    "typescript": "^4.8.4"
+    "@typescript-eslint/eslint-plugin": ">=5.31.0",
+    "@typescript-eslint/parser": ">=5.31.0",
+    "eslint": ">=8.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-xo": "^0.42.0",
+    "eslint-config-xo-typescript": "^0.53.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.1",
+    "precise-commits": "^1.0.2",
+    "prettier": "^2.7.1",
+    "typescript": ">=4.4"
   },
   "dependencies": {
     "ascii-table": "^0.0.9",

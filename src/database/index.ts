@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import { config } from '../../config';
-import { GuildSettings } from './schemas/GuildSettings';
+import {config} from '../../config';
+import {GuildSettings} from './schemas/GuildSettings';
 
 // Connect to MongoDB Database
 mongoose.connect(config.mongo_string, {
@@ -8,24 +8,27 @@ mongoose.connect(config.mongo_string, {
 const db = mongoose.connection;
 
 // Log Database Errors
-db.on('error', err => console.error(err));
+db.on('error', err => {
+	console.error(err);
+});
 
 // Log a message once the Database connection is made
-db.once('open', () => console.log(`Connected to MongoDB Atlas at ${db.name}!`, 'DB'));
+db.once('open', () => {
+	console.log(`Connected to MongoDB Atlas at ${db.name}!`, 'DB');
+});
 
 export const database = {
-    guildSettings: GuildSettings
-}
+	guildSettings: GuildSettings,
+};
 
 export const guildSettings = {
-    get: async (guildId: string) => {
-    return (
-        (await GuildSettings.findOne({ guild: guildId })) ||
-        (await GuildSettings.create({
-            guild: guildId
+	get: async (guildId: string) => (
+		(await GuildSettings.findOne({guild: guildId}))
+        || (await GuildSettings.create({
+        	guild: guildId,
         }))
-    )},
-    update: async (guildId: string, settings: GuildSettings) => {
-        await GuildSettings.updateOne({ guild: guildId }, settings);
-    },
+	),
+	async update(guildId: string, settings: GuildSettings) {
+		await GuildSettings.updateOne({guild: guildId}, settings);
+	},
 };
