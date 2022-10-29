@@ -1,26 +1,23 @@
-import { Collection, GatewayIntentBits, Partials } from 'discord.js';
-import { Client } from './interfaces/Client';
+import { ShardingManager } from 'discord.js';
 import { config } from '../config';
 
-const { Guilds, GuildMembers, GuildMessages } = GatewayIntentBits;
-const { User, Message, GuildMember, ThreadMember, Reaction } = Partials;
-
-const client = new Client({
-    intents: [Guilds, GuildMembers, GuildMessages],
-    partials: [User, Message, GuildMember, ThreadMember, Reaction]
+const manager: ShardingManager = new ShardingManager('./dist/src/bot.js', {
+    token: config.token
 });
 
-import { loadEvents } from './handlers/EventHandler';
+manager.on('shardCreate', shard => {
+    // Listeing for the ready event on shard.
+    shard.on('spawn', () => {
+        console.log(
+            `${
+                new Date().getMonth() + 1
+            }.${new Date().getDate()}.${new Date().getFullYear()} > ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()} > SHARD MANAGER > Shard ${
+                shard.id
+            } connected to Discord's Gateway.`
+        );
+        // Sending the data to the shard.
+        shard.send({ type: 'shardId', data: { shardId: shard.id } });
+    });
+});
 
-// Bot events
-client.events = new Collection();
-loadEvents(client);
-
-// Bot commands
-client.commands = new Collection();
-
-client.subCommands = new Collection();
-
-// Login to Discord Bot
-
-client.login(config.token);
+manager.spawn().catch(_e => console.error(`[ERROR/SHARD] Shard failed to spawn.`));

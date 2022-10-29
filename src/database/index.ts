@@ -13,7 +13,7 @@ db.on('error', err => {
 
 // Log a message once the Database connection is made
 db.once('open', () => {
-    console.log(`Connected to MongoDB Atlas at ${db.name}!`, 'DB');
+    console.log(`Connected to MongoDB Atlas at ${db.name}!`);
 });
 
 export const guildSettings = {
