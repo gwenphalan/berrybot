@@ -2,6 +2,9 @@ import { Collection, GatewayIntentBits, Partials } from 'discord.js';
 import { Client } from './interfaces/Client';
 import { config } from '../config';
 import { loadEvents } from './handlers/EventHandler';
+import { loadButtons } from './handlers/ButtonHandler';
+import { loadSelectMenus } from './handlers/SelectMenuHandler';
+import { loadModals } from './handlers/ModalHandler';
 
 var shardId: any;
 
@@ -25,7 +28,6 @@ const setLogPrefix = () => {
     };
 };
 
-// This is where your Discord bot's code is.
 process.on('message', (message: any) => {
     if (!message.type) return false;
 
@@ -34,8 +36,6 @@ process.on('message', (message: any) => {
         return setLogPrefix();
     }
 });
-
-// adding a tag to all console logs!
 
 const { Guilds, GuildMembers, GuildMessages } = GatewayIntentBits;
 const { User, Message, GuildMember, ThreadMember, Reaction } = Partials;
@@ -48,11 +48,14 @@ const client = new Client({
 // Bot events
 client.events = new Collection();
 loadEvents(client);
-
-// Bot commands
 client.commands = new Collection();
-
 client.subCommands = new Collection();
+client.buttons = new Collection();
+loadButtons(client);
+client.selectMenus = new Collection();
+loadSelectMenus(client);
+client.modals = new Collection();
+loadModals(client);
 
 // Login to Discord Bot
 

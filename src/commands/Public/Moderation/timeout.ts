@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js';
-import { Command } from '../../interfaces/command';
-import { formatDuration, parseDuration } from '../../util/timeUtilities';
+import { Command } from '../../../interfaces/command';
+import { formatDuration, parseDuration } from '../../../util/timeUtilities';
 
 const command: Command = {
     data: new SlashCommandBuilder()

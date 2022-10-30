@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "ascii-table": "^0.0.9",
+    "canvas": "^2.10.2",
     "discord.js": "^14.6.0",
     "glob": "^8.0.3",
     "mongoose": "^6.7.0"

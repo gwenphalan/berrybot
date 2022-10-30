@@ -1,4 +1,12 @@
-// Returns duration as milliseconds. (e.g. 1m = 60000ms, 1h 1m = 3660000ms, 1d 1h 1m = 90060000ms)
+/**
+ * Converts a time string into milliseconds
+ * @param duration  The time string to convert (e.g. 1h 30m 10s)
+ * @returns The time in milliseconds (e.g. 5430000)
+ * @example
+ * parseDuration('1h 30m 10s'); // returns 5430000
+ * parseDuration('1h'); // returns 3600000
+ * parseDuration('30m'); // returns 1800000
+ */
 export function parseDuration(duration: string): number {
     // if string is empty, return null
     if (!duration) return 0;
@@ -51,6 +59,17 @@ export function parseDuration(duration: string): number {
 }
 
 // Returns a string of the duration. (e.g. 60000ms = 1 minute, 3660000ms = 1 hour 1 minute, 90060000ms = 1 day 1 hour 1 minute)
+
+/**
+ * Format a duration in milliseconds into a readable string.
+ * @param duration The duration in milliseconds (eg. 60000)
+ * @returns The duration in a string (eg. 1h 30m 10s)
+ * @example
+ * formatDuration(60000); // returns 1m
+ * formatDuration(3660000); // returns 1h 1m
+ * formatDuration(90060000); // returns 1d 1h 1m
+ * formatDuration(90000000); // returns 1d 1h
+ */
 export function formatDuration(duration: number): string {
     // If the duration is 0, return 0.
     if (duration === 0) return '0';
