@@ -17,6 +17,7 @@ const proGlob = promisify(glob);
  * // => [ 'event1.js', 'event2.js', 'event3.js' ]
  */
 export default async (dirName: string) => {
+    // Load all files in the directory that end with .js
     const Files = await proGlob(`${process.cwd().replace(/\\/g, '/')}/dist/src/${dirName}/**/*.js`);
     Files.forEach(file => {
         delete require.cache[require.resolve(file)];

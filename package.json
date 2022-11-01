@@ -1,58 +1,59 @@
 {
-  "name": "berrybot",
-  "description": "BerryBot is an Open Source discord bot, created to replace the corrupt discord bots that have monopolized discord.",
-  "version": "0.0.1",
-  "main": "dist/src/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prod": "npm run build && export NODE_ENV=production && node .",
-    "dev": "npm run build && export NODE_ENV=development && node .",
-    "deploy": "node dist/src/register_commands.js",
-    "start": "npm run prod",
-    "lint": "eslint ./src/**/*.ts --fix",
-    "clean": "rm -rf dist/*",
-    "reinstall": "yarn cleanCache && yarn deleteModules && yarn deleteLock && yarn installModules",
-    "build": "tsc",
-    "cleanCache": "npm cache clean --force",
-    "deleteModules": "rm -rf node_modules/*",
-    "deleteLock": "rm yarn.lock",
-    "installModules": "yarn install"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "precise-commits && yarn lint"
+    "name": "berrybot",
+    "description": "BerryBot is an Open Source discord bot, created to replace the corrupt discord bots that have monopolized discord.",
+    "version": "0.0.1",
+    "main": "dist/src/index.js",
+    "scripts": {
+        "pm2": "pm2 start --name BerryBot npm -- run dev --watch --ignore-watch dist/* && pm2 monit 1",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "prod": "npm run build && export NODE_ENV=production && node .",
+        "dev": "npm run build && export NODE_ENV=development && node .",
+        "deploy": "node dist/src/register_commands.js",
+        "start": "npm run prod",
+        "lint": "eslint ./src/**/*.ts --fix",
+        "clean": "rm -rf dist/*",
+        "reinstall": "yarn cleanCache && yarn deleteModules && yarn deleteLock && yarn installModules",
+        "build": "tsc",
+        "cleanCache": "npm cache clean --force",
+        "deleteModules": "rm -rf node_modules/*",
+        "deleteLock": "rm yarn.lock",
+        "installModules": "yarn install"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "precise-commits && yarn lint"
+        }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gwenphalan/berrybot.git"
+    },
+    "author": "Gwen Phalan",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/gwenphalan/berrybot/issues"
+    },
+    "homepage": "https://github.com/gwenphalan/berrybot#readme",
+    "devDependencies": {
+        "@types/glob": "^8.0.0",
+        "@types/node": "^18.11.5",
+        "@typescript-eslint/eslint-plugin": ">=5.31.0",
+        "@typescript-eslint/parser": ">=5.31.0",
+        "eslint": ">=8.0.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-config-xo": "^0.42.0",
+        "eslint-config-xo-typescript": "^0.53.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "husky": "^8.0.1",
+        "precise-commits": "^1.0.2",
+        "prettier": "^2.7.1",
+        "typescript": ">=4.4"
+    },
+    "dependencies": {
+        "ascii-table": "^0.0.9",
+        "canvas": "^2.10.2",
+        "discord.js": "^14.6.0",
+        "glob": "^8.0.3",
+        "mongoose": "^6.7.0"
     }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gwenphalan/berrybot.git"
-  },
-  "author": "Gwen Phalan",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/gwenphalan/berrybot/issues"
-  },
-  "homepage": "https://github.com/gwenphalan/berrybot#readme",
-  "devDependencies": {
-    "@types/glob": "^8.0.0",
-    "@types/node": "^18.11.5",
-    "@typescript-eslint/eslint-plugin": ">=5.31.0",
-    "@typescript-eslint/parser": ">=5.31.0",
-    "eslint": ">=8.0.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-config-xo": "^0.42.0",
-    "eslint-config-xo-typescript": "^0.53.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "husky": "^8.0.1",
-    "precise-commits": "^1.0.2",
-    "prettier": "^2.7.1",
-    "typescript": ">=4.4"
-  },
-  "dependencies": {
-    "ascii-table": "^0.0.9",
-    "canvas": "^2.10.2",
-    "discord.js": "^14.6.0",
-    "glob": "^8.0.3",
-    "mongoose": "^6.7.0"
-  }
 }

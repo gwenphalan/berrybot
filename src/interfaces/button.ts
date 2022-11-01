@@ -1,4 +1,7 @@
+import { ButtonInteraction } from 'discord.js';
+import { Client } from './Client';
+
 export type Button = {
     custom_id: string;
-    execute(...args: any[]): void;
+    execute(interaction: ButtonInteraction, client: Client, label?: string): void;
 };

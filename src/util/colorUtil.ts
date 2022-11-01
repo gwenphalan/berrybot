@@ -1,4 +1,4 @@
-import { HexColorString, RGBTuple } from 'discord.js';
+import { Guild, HexColorString, RGBTuple } from 'discord.js';
 import { createCanvas, loadImage } from 'canvas';
 
 type ColorName =
@@ -148,4 +148,36 @@ export function hexToRGB(hex: HexColorString): RGBTuple {
  */
 export function rgbToHex(r: number, g: number, b: number): HexColorString {
     return <HexColorString>('#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join(''));
+}
+export async function getGuildColor(guild: Guild): Promise<HexColorString>;
+export async function getGuildColor(guild: Guild, rgb: true): Promise<RGBTuple>;
+
+/**
+ * Returns the Average Color of the provided guild's icon.
+ * @param {Guild} guild The guild to get the average color of.
+ * @param {boolean} [rgb=false] Whether to return the RGBtuple or the hex color string.
+ * @returns The hex color string. (eg #02f2f2) or the RGBtuple. (eg [2, 242, 242])
+ * @example
+ * getGuildColor(message.guild); // returns #02f2f2
+ * getGuildColor(message.guild, true); // returns [2, 242, 242]
+ */
+export async function getGuildColor(guild: Guild, rgb?: boolean): Promise<HexColorString | RGBTuple> {
+    const iconURL = guild.iconURL({ size: 2048, extension: 'png' });
+    const hex = iconURL != null ? await getAverageColor(iconURL) : colorToHex('Aqua');
+    return rgb ? hexToRGB(hex) : hex;
+}
+
+/**
+ * Returns the Dominant Color of the provided guild's icon.
+ * @param {Guild} guild The guild to get the dominant color of.
+ * @param {boolean} [rgb=false] Whether to return the RGBtuple or the hex color string.
+ * @returns The hex color string. (eg #02f2f2) or the RGBtuple. (eg [2, 242, 242])
+ * @example
+ * getGuildColor(message.guild); // returns #02f2f2
+ * getGuildColor(message.guild, true); // returns [2, 242, 242]
+ */
+export async function getGuildDominantColor(guild: Guild, rgb?: boolean): Promise<HexColorString | RGBTuple> {
+    const iconURL = guild.iconURL({ size: 2048, extension: 'png' });
+    const hex = iconURL != null ? await getDominantColor(iconURL) : colorToHex('Aqua');
+    return rgb ? hexToRGB(hex) : hex;
 }

@@ -1,4 +1,4 @@
-import { colorToHex, getAverageColor, getDominantColor, rgbToHex, hexToRGB } from './colorUtil';
+import { colorToHex, getAverageColor, getDominantColor, rgbToHex, hexToRGB, getGuildColor } from './colorUtil';
 import loadFiles from './fileLoader';
 import { getRegionNameAndEmoji } from './regionUtil';
 import { formatDuration, parseDuration } from './timeUtilities';
@@ -12,7 +12,8 @@ export default {
         getAverageColor,
         getDominantColor,
         rgbToHex,
-        hexToRGB
+        hexToRGB,
+        getGuildColor
     },
     region: {
         getRegionNameAndEmoji

@@ -8,7 +8,13 @@ export const event: Event = {
     execute(interaction: SelectMenuInteraction, client: Client) {
         if (!interaction.isSelectMenu()) return;
 
-        const selectMenu: SelectMenu | undefined = client.selectMenus.get(interaction.customId);
+        // Get the label from the custom_id (e.g. 'role-select["Role Category"] => 'Role Category')
+        const label = interaction.customId.match(/(?<=\[").+?(?=\"])/g)?.[0];
+
+        // Remove the label, if there is one, from the customId and put it into a variable, (e.g. custom_id = 'test-button["test"]' -> custom_id = 'test-button'; custom_id = 'role-select["pronoun"]' -> custom_id = 'role-select'; custom_id = 'role-select' -> custom_id = 'role-select')
+        const customId = interaction.customId.replace(/\[.+\]/g, '');
+
+        const selectMenu: SelectMenu | undefined = client.selectMenus.get(customId);
 
         if (!selectMenu) return;
 
@@ -34,7 +40,7 @@ export const event: Event = {
             }
 
             // Execute the single select menu
-            selectMenu.execute(interaction, selectedOption);
+            selectMenu.execute(interaction, selectedOption, client);
         } else {
             // Get the selected options
             const selectedOptionsArray = interactionOptions.filter(option => selectedOptions.includes(option.value));
@@ -45,7 +51,7 @@ export const event: Event = {
             }
 
             // Execute the multi select menu
-            return selectMenu.execute(interaction, selectedOptionsArray);
+            return selectMenu.execute(interaction, selectedOptionsArray, client, label);
         }
     }
 };

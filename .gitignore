@@ -55,6 +55,9 @@ typings/
 # TypeScript cache
 *.tsbuildinfo
 
+package-lock.json
+yarn.lock
+
 # Optional npm cache directory
 .npm
 
@@ -110,3 +113,5 @@ dist
 
 # TernJS port file
 .tern-port
+
+*.lock

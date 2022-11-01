@@ -37,11 +37,11 @@ process.on('message', (message: any) => {
     }
 });
 
-const { Guilds, GuildMembers, GuildMessages } = GatewayIntentBits;
+const { Guilds, GuildMembers, GuildMessages, GuildMessageReactions } = GatewayIntentBits;
 const { User, Message, GuildMember, ThreadMember, Reaction } = Partials;
 
 const client = new Client({
-    intents: [Guilds, GuildMembers, GuildMessages],
+    intents: [Guilds, GuildMembers, GuildMessages, GuildMessageReactions],
     partials: [User, Message, GuildMember, ThreadMember, Reaction]
 });
 
