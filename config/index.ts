@@ -1,4 +1,4 @@
-export const config: Config = require(`./${process.env.NODE_ENV}`).default;
+export const config: Config = require(`./${process.env.NODE_ENV || 'development'}`).default;
 
 export interface Config {
     /**
@@ -17,4 +17,8 @@ export interface Config {
      * Developer Account ID
      */
     developer: string;
+    /**
+     * The MongoDB Databse you would like to connect to (ie. 'test', 'production')
+     */
+    database: string;
 }
