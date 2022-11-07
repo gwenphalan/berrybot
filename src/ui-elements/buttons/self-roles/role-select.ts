@@ -37,7 +37,7 @@ const button: Button = {
         const roleIds = category.roles;
 
         // Create an ActionRow with a SelectMenu that contains the roles. The SelectMenu will have a custom_id of 'role-select-category'
-        const selectMenu = new SelectMenuBuilder().setCustomId('role-select').setPlaceholder(`Select your roles`).setMinValues(0);
+        const selectMenu = new SelectMenuBuilder().setCustomId(`role-select["${label}"]`).setPlaceholder(`Select your roles`).setMinValues(0);
 
         const member = await interaction.guild.members.fetch(interaction.user.id);
 

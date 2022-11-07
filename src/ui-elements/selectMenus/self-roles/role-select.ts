@@ -5,7 +5,7 @@ import { SelectMenu } from '../../../interfaces/selectMenu';
 const selectMenu: SelectMenu = {
     custom_id: 'role-select',
     multi_select: true,
-    async execute(interaction: SelectMenuInteraction, selected: APISelectMenuOption[], client: Client) {
+    async execute(interaction: SelectMenuInteraction, selected: APISelectMenuOption[], client: Client, label: string) {
         if (!interaction.guild || !interaction.guildId) return;
 
         // Get the category from the database
@@ -33,44 +33,54 @@ const selectMenu: SelectMenu = {
             (interaction.component as SelectMenuComponent).options.map(opt => opt.value).includes(role.id)
         );
 
-        // Get the category from the database that contains all the roleIds in interaction.component.options
-        const category = database.selfRoles.categories.find(cat => cat.roles.every(role => roleOptions.map(opt => opt.id).includes(role)));
+        const category = database.selfRoles.categories.find(cat => cat.name === label);
+
+        if (!category) return;
 
         const member = await interaction.guild.members.fetch(interaction.user.id);
 
         let addedRoles: string[] = [];
         let removedRoles: string[] = [];
 
-        const memberRoles = member.roles.cache;
+        // Put the member's roles in a constant and filter out any role that's not in the category
+        let memberRoles = member.roles.cache;
 
-        // For each role in roleOptions, if the role is not in selectedRoles, remove it from the member, otherwise add it
-        memberRoles.forEach(role => {
-            if (!selectedRoles.has(role.id)) {
+        await roleOptions.forEach(async role => {
+            if (!selectedRoles.has(role.id) && memberRoles.has(role.id)) {
+                console.log(`Removed ${role.name}`);
                 member.roles.remove(role);
                 removedRoles.push(role.toString());
-            } else if (!member.roles.cache.has(role.id)) {
+            } else if (selectedRoles.has(role.id) && !memberRoles.has(role.id)) {
+                console.log(`Added ${role.name}`);
                 member.roles.add(role);
                 addedRoles.push(role.toString());
             }
         });
 
+        const embed = new EmbedBuilder()
+            .setTitle(`Roles Updated - ${category?.name}`)
+            .setDescription(
+                `${memberRoles
+                    .filter(role => selectedRoles.has(role.id))
+                    .map(role => role.toString())
+                    .join(', ')}`
+            )
+            .setColor(await client.util.color.getGuildColor(interaction.guild));
+
+        if (removedRoles.length > 0) {
+            embed.addFields({
+                name: 'Removed',
+                value: ' • ' + removedRoles.join('\n • ')
+            });
+        } else if (addedRoles.length > 0) {
+            embed.addFields({
+                name: 'Added',
+                value: ' • ' + addedRoles.join('\n • ')
+            });
+        }
         // Reply to the interaction with an embed containing the fields with a list of roles added and removed to the member, with bullet points
         return interaction.update({
-            embeds: [
-                new EmbedBuilder()
-                    .setTitle(`Roles Updated - ${category?.name}`)
-                    .addFields(
-                        {
-                            name: 'Added',
-                            value: addedRoles.length > 0 ? addedRoles.join('\n') : 'None'
-                        },
-                        {
-                            name: 'Removed',
-                            value: removedRoles.length > 0 ? removedRoles.join('\n') : 'None'
-                        }
-                    )
-                    .setColor(await client.util.color.getGuildColor(interaction.guild))
-            ],
+            embeds: [embed],
             components: []
         });
     }
