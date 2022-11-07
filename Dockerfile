@@ -1,12 +1,14 @@
-FROM node:alpine
-LABEL maintainer="GwenPhalan"
-WORKDIR /src
+FROM node
 
-RUN apk update && apk add -y --no-install-recommends build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev  && apt-get clean && rm -rf /var/lib/apt/lists/*
+WORKDIR /src/app
 
-COPY package.json /src/package.json
-RUN yarn
+COPY package*.json ./
 
-COPY . /src
+RUN npm install
 
-CMD yarn start
+COPY . .
+
+RUN npm run build
+
+EXPOSE 4000
+CMD node start
