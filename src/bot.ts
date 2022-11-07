@@ -25,7 +25,7 @@ const setLogPrefix = () => {
 
         // 3. Pass along arguments to console.log
         log.apply(console, args);
-    };
+    };    
 };
 
 process.on('message', (message: any) => {
