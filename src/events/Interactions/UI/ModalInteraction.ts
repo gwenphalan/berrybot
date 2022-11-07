@@ -1,7 +1,7 @@
 import { Events, ModalSubmitInteraction } from 'discord.js';
-import { Client } from '../../interfaces/Client';
-import { Event } from '../../interfaces/event';
-import { Modal } from '../../interfaces/modal';
+import { Client } from '../../../interfaces/Client';
+import { Event } from '../../../interfaces/event';
+import { Modal } from '../../../interfaces/modal';
 
 export const event: Event = {
     name: Events.InteractionCreate,

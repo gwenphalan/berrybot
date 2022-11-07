@@ -2,9 +2,9 @@ import { Collection, GatewayIntentBits, Partials } from 'discord.js';
 import { Client } from './interfaces/Client';
 import { config } from '../config';
 import { loadEvents } from './handlers/EventHandler';
-import { loadButtons } from './handlers/ButtonHandler';
-import { loadSelectMenus } from './handlers/SelectMenuHandler';
-import { loadModals } from './handlers/ModalHandler';
+import { loadButtons } from './handlers/UI/ButtonHandler';
+import { loadSelectMenus } from './handlers/UI/SelectMenuHandler';
+import { loadModals } from './handlers/UI/ModalHandler';
 
 var shardId: any;
 
@@ -25,7 +25,7 @@ const setLogPrefix = () => {
 
         // 3. Pass along arguments to console.log
         log.apply(console, args);
-    };    
+    };
 };
 
 process.on('message', (message: any) => {
