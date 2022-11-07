@@ -4,7 +4,6 @@ import { config } from '../config';
 const manager: ShardingManager = new ShardingManager('./dist/src/bot.js', {
     token: config.token
 });
-
 manager.on('shardCreate', shard => {
     // Listeing for the ready event on shard.
     shard.on('spawn', () => {

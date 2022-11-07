@@ -39,8 +39,10 @@ const selectMenu: SelectMenu = {
         let addedRoles: string[] = [];
         let removedRoles: string[] = [];
 
+        const memberRoles = member.roles.cache;
+
         // For each role in roleOptions, if the role is not in selectedRoles, remove it from the member, otherwise add it
-        roleOptions.forEach(role => {
+        memberRoles.forEach(role => {
             if (!selectedRoles.has(role.id)) {
                 member.roles.remove(role);
                 removedRoles.push(role.toString());

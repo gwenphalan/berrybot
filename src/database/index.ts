@@ -3,7 +3,9 @@ import { config } from '../../config';
 import { GuildSettings } from './schemas/GuildSettings';
 
 // Connect to MongoDB Database
-mongoose.connect(config.mongo_string, {});
+mongoose.connect(config.mongo_string, {
+    dbName: config.database
+});
 const db = mongoose.connection;
 
 // Log Database Errors
