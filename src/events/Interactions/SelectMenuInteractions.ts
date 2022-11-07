@@ -1,4 +1,4 @@
-import { SelectMenuInteraction, Events, APISelectMenuComponent } from 'discord.js';
+import { SelectMenuInteraction, Events, SelectMenuComponent } from 'discord.js';
 import { Client } from '../../interfaces/Client';
 import { Event } from '../../interfaces/event';
 import { SelectMenu } from '../../interfaces/selectMenu';
@@ -27,7 +27,7 @@ export const event: Event = {
         const selectedOptions = interaction.values;
 
         // Put the Interaction Options into an array
-        const interactionOptions = (interaction.component as APISelectMenuComponent).options;
+        const interactionOptions = (interaction.component as SelectMenuComponent).options;
 
         // If the Select Menu is a single select menu, execute the single select menu, otherwise execute the multi select menu
         if (!selectMenu.multi_select) {

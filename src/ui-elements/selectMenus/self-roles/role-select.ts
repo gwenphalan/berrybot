@@ -1,4 +1,4 @@
-import { APISelectMenuComponent, APISelectMenuOption, EmbedBuilder, PermissionFlagsBits, SelectMenuInteraction } from 'discord.js';
+import { APISelectMenuOption, EmbedBuilder, PermissionFlagsBits, SelectMenuComponent, SelectMenuInteraction } from 'discord.js';
 import { Client } from '../../../interfaces/Client';
 import { SelectMenu } from '../../../interfaces/selectMenu';
 
@@ -30,7 +30,7 @@ const selectMenu: SelectMenu = {
         const selectedRoles = interaction.guild.roles.cache.filter(role => selected.map(sel => sel.value).includes(role.id));
 
         const roleOptions = interaction.guild.roles.cache.filter(role =>
-            (interaction.component as APISelectMenuComponent).options.map(opt => opt.value).includes(role.id)
+            (interaction.component as SelectMenuComponent).options.map(opt => opt.value).includes(role.id)
         );
 
         // Get the category from the database that contains all the roleIds in interaction.component.options
