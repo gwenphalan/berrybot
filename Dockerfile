@@ -1,6 +1,6 @@
 FROM node:18
 
-WORKDIR /src/app
+WORKDIR /dist/
 
 COPY package*.json ./
 
@@ -11,4 +11,4 @@ COPY . .
 RUN npm run build
 
 EXPOSE 4000
-CMD node start
+CMD node run start
