@@ -1,8 +1,9 @@
 import { ShardingManager } from 'discord.js';
 import { config } from './config';
-import * as util from './util';
-import * as handlers from './handlers';
-import * as interfaces from './interfaces';
+export * as util from './util';
+export * as handlers from './handlers';
+export * as interfaces from './interfaces';
+export * as messages from './messages';
 
 const manager: ShardingManager = new ShardingManager(__dirname + '/bot.js', {
     token: config.token
@@ -30,10 +31,3 @@ manager
             }.${new Date().getDate()}.${new Date().getFullYear()} > ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()} > SHARD MANAGER > Shard failed to spawn.`
         )
     );
-
-export default {
-    util,
-    handlers,
-    interfaces,
-    config
-};
