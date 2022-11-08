@@ -18,5 +18,5 @@ export const example: MessageBuilder = {
             embeds: this.embeds,
             components: this.components
         };
-    }
+    },
 };
