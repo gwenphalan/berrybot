@@ -1,5 +1,0 @@
-export default {
-    token: '', // Your bot token
-    client_id: '', // Bot Client ID
-    mongo_string: '' // MongoDB Connection String
-};

@@ -1,8 +1,8 @@
 // Modal Interaction Handler
 
-import fileLoader from '../util/fileLoader';
-import { Client } from '../interfaces/Client';
-import { Modal } from '../interfaces/modal';
+import fileLoader from '../../util/fileLoader';
+import { Client } from '../../interfaces/Client';
+import { Modal } from '../../interfaces/modal';
 
 export async function loadModals(client: Client) {
     const ascii = require('ascii-table');

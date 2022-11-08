@@ -1,7 +1,7 @@
 // Button Interaction Handler
-import loadFiles from '../util/fileLoader';
-import { Client } from '../interfaces/Client';
-import { Button } from '../interfaces/button';
+import loadFiles from '../../util/fileLoader';
+import { Client } from '../../interfaces/Client';
+import { Button } from '../../interfaces/button';
 
 export async function loadButtons(client: Client) {
     const ascii = require('ascii-table');

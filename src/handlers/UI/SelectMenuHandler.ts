@@ -1,8 +1,8 @@
 // Select Menu Interaction Handler
 
-import loadFiles from '../util/fileLoader';
-import { Client } from '../interfaces/Client';
-import { SelectMenu } from '../interfaces/selectMenu';
+import loadFiles from '../../util/fileLoader';
+import { Client } from '../../interfaces/Client';
+import { SelectMenu } from '../../interfaces/selectMenu';
 
 export async function loadSelectMenus(client: Client) {
     const ascii = require('ascii-table');

@@ -1,7 +1,7 @@
 import { SelectMenuInteraction, Events, SelectMenuComponent } from 'discord.js';
-import { Client } from '../../interfaces/Client';
-import { Event } from '../../interfaces/event';
-import { SelectMenu } from '../../interfaces/selectMenu';
+import { Client } from '../../../interfaces/Client';
+import { Event } from '../../../interfaces/event';
+import { SelectMenu } from '../../../interfaces/selectMenu';
 
 export const event: Event = {
     name: Events.InteractionCreate,

@@ -2,6 +2,10 @@ import mongoose from 'mongoose';
 import { config } from '../../config';
 import { GuildSettings } from './schemas/GuildSettings';
 
+if (!config.mongo_string) {
+    throw new Error('No MongoDB connection string provided.');
+}
+
 // Connect to MongoDB Database
 mongoose.connect(config.mongo_string, {
     dbName: config.database

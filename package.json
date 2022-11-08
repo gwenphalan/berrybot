@@ -7,7 +7,7 @@
         "pm2": "pm2 start --name BerryBot npm -- run dev --watch --ignore-watch dist/* && pm2 monit 1",
         "test": "echo \"Error: no test specified\" && exit 1",
         "prod": "npm run build && export NODE_ENV=production && node .",
-        "dev": "npm run build && export NODE_ENV=development && node .",
+        "dev": "npm run build && node .",
         "deploy": "node dist/src/register_commands.js",
         "start": "npm run prod",
         "lint": "eslint ./src/**/*.ts --fix",
@@ -50,12 +50,14 @@
         "prettier": "^2.7.1",
         "ts-node": "^10.9.1",
         "tsconfig-paths": "^4.1.0",
-        "typescript": ">=4.8.4"
+        "typescript": "^4.8.4"
     },
     "dependencies": {
+        "@types/dotenv": "^8.2.0",
         "ascii-table": "^0.0.9",
         "canvas": "^2.10.2",
         "discord.js": "^14.6.0",
+        "dotenv": "^16.0.3",
         "glob": "^8.0.3",
         "mongoose": "^6.7.0"
     }
