@@ -5,7 +5,7 @@
     "main": "build/index.js",
     "scripts": {
         "build": "tsc",
-        "start": "yarn build && node build/index.js",
+        "start": "yarn build && node -r dotenv/config build/index.js",
         "lint": "eslint ./src/**/*.ts --fix",
         "clean": "rm -rf build/*",
         "deleteModules": "rm -rf node_modules/*",
@@ -38,7 +38,8 @@
         "canvas": "^2.10.2",
         "discord.js": "^14.6.0",
         "dotenv": "^16.0.3",
-        "glob": "^8.0.3"
+        "glob": "^8.0.3",
+        "mongoose": "^6.7.2"
     },
     "devDependencies": {
         "@types/glob": "^8.0.0",
@@ -52,7 +53,7 @@
         "eslint-plugin-prettier": "^4.2.1",
         "husky": "^8.0.1",
         "prettier": "^2.7.1",
-        "yarn": "^1.22.19",
-        "typescript": "^4.8.4"
+        "typescript": "^4.8.4",
+        "yarn": "^1.22.19"
     }
 }

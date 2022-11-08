@@ -1,5 +1,6 @@
 import { Collection, Client as BaseClient } from 'discord.js';
 import { config } from '../config';
+import { database } from '../database';
 import { loadComponents, loadEvents } from '../handlers';
 import type { BaseCommand, SubCommand } from './Command';
 import type { Event } from './Event';
@@ -10,6 +11,7 @@ export class Client extends BaseClient {
     subCommands = new Collection<string, SubCommand>();
     events = new Collection<string, Event['execute']>();
     messageComponents = new Collection<string, BaseMessageComponent | MessageComponent>();
+    database = database;
 
     async init() {
         this.events = new Collection();
