@@ -1,5 +1,5 @@
-import type { Client } from '../interfaces/Client';
-import loadFiles from '../util/fileLoader';
+import type { Client } from '../interfaces';
+import { Files } from '../util';
 
 export const loadEvents = async (client: Client) => {
     const ascii = require('ascii-table');
@@ -7,30 +7,36 @@ export const loadEvents = async (client: Client) => {
 
     await client.events.clear();
 
-    const Files = await loadFiles('events');
+    const files = await Files.load('events');
 
-    Files.forEach(file => {
-        const { event } = require(file);
+    files.forEach(file => {
+        try {
+            const { event } = require(file);
 
-        const execute = (...args: any[]) => {
-            event.execute(...args, client);
-        };
+            const execute = (...args: any[]) => {
+                event.execute(...args, client);
+            };
 
-        client.events.set(event.name, execute);
+            client.events.set(event.name, execute);
 
-        if (event.rest) {
-            if (event.once) {
-                client.rest.on(event.name, execute);
+            if (event.rest) {
+                if (event.once) {
+                    client.rest.on(event.name, execute);
+                } else {
+                    client.rest.on(event.name, execute);
+                }
+            } else if (event.once) {
+                client.once(event.name, execute);
             } else {
-                client.rest.on(event.name, execute);
+                client.on(event.name, execute);
             }
-        } else if (event.once) {
-            client.once(event.name, execute);
-        } else {
-            client.on(event.name, execute);
-        }
 
-        table.addRow(event.name, '🟩');
+            table.addRow(event.name, '🟩');
+        } catch (error) {
+            const eventName = file.split('/')[file.split('/').length - 1].split('.')[0];
+            console.log(`Error loading event ${eventName}: ${error}`);
+            table.addRow(eventName, '🟥');
+        }
     });
 
     console.log('\n' + table.toString());

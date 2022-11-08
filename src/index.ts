@@ -1,12 +1,14 @@
 import { ShardingManager } from 'discord.js';
-import { config } from '../config';
+import { config } from './config';
+import * as util from './util';
+import * as handlers from './handlers';
+import * as interfaces from './interfaces';
 
-const manager: ShardingManager = new ShardingManager('./dist/src/bot.js', {
+const manager: ShardingManager = new ShardingManager(__dirname + '/bot.js', {
     token: config.token
 });
 
 manager.on('shardCreate', shard => {
-    // Listeing for the ready event on shard.
     shard.on('spawn', () => {
         console.log(
             `${
@@ -15,9 +17,23 @@ manager.on('shardCreate', shard => {
                 shard.id
             } connected to Discord's Gateway.`
         );
-        // Sending the data to the shard.
         shard.send({ type: 'shardId', data: { shardId: shard.id } });
     });
 });
 
-manager.spawn().catch(_e => console.error(`[ERROR/SHARD] Shard failed to spawn.`));
+manager
+    .spawn()
+    .catch(_e =>
+        console.log(
+            `${
+                new Date().getMonth() + 1
+            }.${new Date().getDate()}.${new Date().getFullYear()} > ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()} > SHARD MANAGER > Shard failed to spawn.`
+        )
+    );
+
+export default {
+    util,
+    handlers,
+    interfaces,
+    config
+};

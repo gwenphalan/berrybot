@@ -1,7 +1,7 @@
-import { Event } from '../../interfaces/event';
+import { Event } from '../../interfaces';
 import { Events } from 'discord.js';
-import { loadCommands } from '../../handlers/CommandHandler';
-import { Client } from '../../interfaces/Client';
+import { loadCommands } from '../../handlers';
+import { Client } from '../../interfaces';
 
 export const event: Event = {
     name: Events.ClientReady,

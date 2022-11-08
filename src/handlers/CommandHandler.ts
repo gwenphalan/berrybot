@@ -1,7 +1,7 @@
 import type { ApplicationCommandDataResolvable } from 'discord.js';
 import type { Client } from '../interfaces/Client';
-import type { Command, SubCommand } from '../interfaces/command';
-import loadFiles from '../util/fileLoader';
+import type { Command, SubCommand } from '../interfaces';
+import { Files } from '../util';
 
 export async function loadCommands(client: Client) {
     const ascii = require('ascii-table');
@@ -12,20 +12,26 @@ export async function loadCommands(client: Client) {
 
     const commandsArray: ApplicationCommandDataResolvable[] = [];
 
-    const files = await loadFiles('commands');
+    const files = await Files.load('commands');
 
     files.forEach(f => {
-        const command: Command = require(f);
+        try {
+            const command: Command = require(f);
 
-        if (command.subCommand !== null && command.subCommand !== undefined) {
-            return client.subCommands.set(command.subCommand, <SubCommand>command);
+            if (command.subCommand !== null && command.subCommand !== undefined) {
+                return client.subCommands.set(command.subCommand, <SubCommand>command);
+            }
+
+            client.commands.set(command.data.name, command);
+
+            commandsArray.push(command.data.toJSON());
+
+            return table.addRow(command.data.name, '🟩');
+        } catch (error) {
+            const commandName = f.split('/')[f.split('/').length - 1].split('.')[0];
+            console.log(`Error loading command ${commandName}: ${error}`);
+            return table.addRow(commandName, '🟥');
         }
-
-        client.commands.set(command.data.name, command);
-
-        commandsArray.push(command.data.toJSON());
-
-        return table.addRow(command.data.name, '🟩');
     });
 
     client.application?.commands.set(commandsArray);
