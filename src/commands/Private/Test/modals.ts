@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
+import { modals } from '../../../components';
 import { Command } from '../../../interfaces';
 
 const command: Command = {
@@ -9,12 +9,9 @@ const command: Command = {
             return interaction.reply({ content: 'This command can only be used in a server.', ephemeral: true });
         }
 
-        const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
-            new TextInputBuilder().setCustomId('test-modal-input').setPlaceholder('Test Input').setStyle(TextInputStyle.Short).setLabel('Test Input')
-        );
-        const modal = new ModalBuilder().setTitle('Test Modal').setCustomId('test-modal').setComponents([row]);
+        const modal = await modals.TestModal.build(_client);
 
-        return interaction.showModal(modal);
+        return await interaction.showModal(modal);
     }
 };
 

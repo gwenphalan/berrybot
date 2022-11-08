@@ -1,10 +1,19 @@
 // test modal
 
+import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 import { ModalComponent, ComponentTypes } from '../../interfaces/MessageComponent';
 
-const modal: ModalComponent = {
+export const MessageComponent: ModalComponent = {
     id: 'test-modal',
     type: ComponentTypes.Modal,
+
+    async build(_client) {
+        const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
+            new TextInputBuilder().setCustomId('test-modal-input').setPlaceholder('Test Input').setStyle(TextInputStyle.Short).setLabel('Test Input')
+        );
+        return new ModalBuilder().setTitle('Test Modal').setCustomId('test-modal').setComponents([row]);
+    },
+
     async execute(interaction, _client, fields) {
         // Log the response to the console in a ascii table.
         console.log(
@@ -16,4 +25,4 @@ const modal: ModalComponent = {
     }
 };
 
-module.exports = modal;
+export default MessageComponent;

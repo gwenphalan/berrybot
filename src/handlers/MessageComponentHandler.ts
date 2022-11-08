@@ -16,7 +16,7 @@ export const loadComponents = async (client: Client) => {
         for (const c of components) {
             const componentName = c.split('/')[c.split('/').length - 1].split('.')[0];
             try {
-                const component: BaseMessageComponent = require(c);
+                const component: BaseMessageComponent = require(c).MessageComponent;
 
                 const name = component.id;
 

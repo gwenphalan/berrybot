@@ -7,7 +7,7 @@
         "build": "tsc",
         "start": "yarn build && node -r dotenv/config build/index.js",
         "lint": "eslint ./src/**/*.ts --fix",
-        "clean": "rm -rf build/*",
+        "clean": "rm -rf build/* && rm -rf tsconfig.tsbuildinfo",
         "deleteModules": "rm -rf node_modules/*",
         "deleteLock": "rm yarn.lock",
         "installModules": "yarn install",
