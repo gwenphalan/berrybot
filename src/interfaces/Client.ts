@@ -19,7 +19,7 @@ export class Client extends BaseClient {
         return this.login(config.token);
     }
 
-    async getCustomID(id: string, data: any): Promise<string> {
+    getCustomID(id: string, data: any): string {
         const dataString = JSON.stringify(data, null, 0);
 
         const value = `${id}[${dataString}]`;
