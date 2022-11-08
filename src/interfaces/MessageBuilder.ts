@@ -4,5 +4,5 @@ import { Client } from './Client';
 export interface MessageBuilder {
     embeds: discord.EmbedBuilder[];
     components: discord.ActionRowBuilder<discord.ButtonBuilder | discord.SelectMenuBuilder>[];
-    build(client: Client, ...args: any): discord.BaseMessageOptions;
+    build(client: Client, ...args: any): Promise<discord.BaseMessageOptions>;
 }

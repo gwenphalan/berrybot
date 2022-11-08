@@ -5,7 +5,7 @@ import { example } from '../../../messages';
 const command: Command = {
     subCommand: 'test.embed',
     async execute(interaction: ChatInputCommandInteraction, client) {
-        return interaction.reply(example.build(client));
+        return interaction.reply(await example.build(client));
     }
 };
 
