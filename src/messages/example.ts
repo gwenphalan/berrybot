@@ -4,7 +4,7 @@ import { MessageBuilder } from '../interfaces';
 export const example: MessageBuilder = {
     embeds: [new EmbedBuilder().setTitle('Example').setDescription('This is an example message.')],
     components: [new ActionRowBuilder<ButtonBuilder>()],
-    build(client) {
+    async build(client) {
         const testJSON = {
             boolean: true,
             number: 1,
@@ -18,5 +18,5 @@ export const example: MessageBuilder = {
             embeds: this.embeds,
             components: this.components
         };
-    }
+    },
 };

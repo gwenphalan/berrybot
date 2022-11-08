@@ -1,4 +1,5 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { buttons } from '../../../components';
 import { Command } from '../../../interfaces';
 
 const command: Command = {
@@ -6,24 +7,12 @@ const command: Command = {
     async execute(interaction: ChatInputCommandInteraction, client) {
         // Return if the interaction wasn't used in a guild.
         if (!interaction.guild) {
-            return interaction.reply({ content: 'This command can only be used in a server.', ephemeral: true });
+            return await interaction.reply({ content: 'This command can only be used in a server.', ephemeral: true });
         }
 
-        const testJSON = {
-            boolean: true,
-            number: 1,
-            string: 'test',
-            array: [1, 2, 3]
-        };
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(await buttons.TestButton.build(client));
 
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-                .setCustomId(await client.getCustomID('test-button', testJSON))
-                .setLabel('Test Button')
-                .setStyle(ButtonStyle.Primary)
-        );
-
-        return interaction.reply({ content: 'Test Button', components: [row] });
+        return await interaction.reply({ content: 'Test Button', components: [row] });
     }
 };
 

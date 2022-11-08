@@ -1,4 +1,5 @@
 import { ActionRowBuilder, ChatInputCommandInteraction, SelectMenuBuilder } from 'discord.js';
+import { selectMenus } from '../../../components';
 import { Command } from '../../../interfaces';
 
 const command: Command = {
@@ -13,31 +14,16 @@ const command: Command = {
 
         const row = new ActionRowBuilder<SelectMenuBuilder>();
 
-        const menu = new SelectMenuBuilder()
-            .setCustomId('test-select')
-            .setPlaceholder('Test Select')
-            .setMinValues(1)
-            .addOptions([
-                {
-                    label: 'Test Option 1',
-                    value: 'test-option-1'
-                },
-                {
-                    label: 'Test Option 2',
-                    value: 'test-option-2'
-                },
-                {
-                    label: 'Test Option 3',
-                    value: 'test-option-3'
-                }
-            ]);
+        switch (type) {
+            case 'single':
+                row.addComponents(await selectMenus.TestSelect.build(_client));
+                break;
+            case 'multi':
+                row.addComponents(await selectMenus.TestMultiSelect.build(_client));
+                break;
+        }
 
-        if (type === 'single') menu.setMaxValues(1);
-        else menu.setCustomId('test-multi-select').setMaxValues(3);
-
-        row.addComponents(menu);
-
-        return interaction.reply({ content: 'Test Select Menu', components: [row] });
+        return await interaction.reply({ content: 'Test Select Menu', components: [row] });
     }
 };
 

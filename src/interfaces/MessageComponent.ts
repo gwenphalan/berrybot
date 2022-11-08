@@ -1,7 +1,7 @@
-import { APISelectMenuOption, ButtonInteraction, Collection, Guild, ModalSubmitInteraction, SelectMenuInteraction, TextInputComponent } from 'discord.js';
+import * as discord from 'discord.js';
 import { Client } from './';
 
-type ComponentInteraction = ButtonInteraction | SelectMenuInteraction | ModalSubmitInteraction;
+type ComponentInteraction = discord.ButtonInteraction | discord.SelectMenuInteraction | discord.ModalSubmitInteraction;
 export enum ComponentTypes {
     Button = 'BUTTON',
     SelectMenu = 'SELECT_MENU',
@@ -17,27 +17,43 @@ export interface BaseMessageComponent {
         interaction: ComponentInteraction,
         client: Client,
         data?: { [key: string]: any },
-        guild?: Guild,
-        response?: Collection<string, TextInputComponent>,
-        selected?: APISelectMenuOption | APISelectMenuOption[]
+        guild?: discord.Guild,
+        response?: discord.Collection<string, discord.TextInputComponent>,
+        selected?: discord.APISelectMenuOption | discord.APISelectMenuOption[]
     ): void;
+    build(client: Client, ...args: any): Promise<discord.ButtonBuilder> | Promise<discord.SelectMenuBuilder> | Promise<discord.ModalBuilder>;
 }
 
 export interface ButtonComponent extends Omit<BaseMessageComponent, 'multi_select'> {
     type: ComponentTypes.Button;
-    execute(interaction: ButtonInteraction, client: Client, data?: { [key: string]: any }, guild?: Guild): void;
+    execute(interaction: discord.ButtonInteraction, client: Client, data?: { [key: string]: any }, guild?: discord.Guild): void;
+    build(client: Client, ...args: any): Promise<discord.ButtonBuilder>;
 }
 
-export interface SingleSelectMenuComponent extends Omit<BaseMessageComponent, 'execute'> {
+export interface SingleSelectMenuComponent extends Omit<BaseMessageComponent, 'execute' | 'multi_select'> {
     type: ComponentTypes.SelectMenu;
     multi_select?: false;
-    execute(interaction: SelectMenuInteraction, client: Client, selected: APISelectMenuOption, data?: { [key: string]: any }, guild?: Guild): void;
+    execute(
+        interaction: discord.SelectMenuInteraction,
+        client: Client,
+        selected: discord.APISelectMenuOption,
+        data?: { [key: string]: any },
+        guild?: discord.Guild
+    ): void;
+    build(client: Client, ...args: any): Promise<discord.SelectMenuBuilder>;
 }
 
 export interface MultiSelectMenuComponent extends Omit<BaseMessageComponent, 'execute'> {
     type: ComponentTypes.SelectMenu;
     multi_select: true;
-    execute(interaction: SelectMenuInteraction, client: Client, selected: APISelectMenuOption[], data?: { [key: string]: any }, guild?: Guild): void;
+    execute(
+        interaction: discord.SelectMenuInteraction,
+        client: Client,
+        selected: discord.APISelectMenuOption[],
+        data?: { [key: string]: any },
+        guild?: discord.Guild
+    ): void;
+    build(client: Client, ...args: any): Promise<discord.SelectMenuBuilder>;
 }
 
 export type SelectMenuComponent = SingleSelectMenuComponent | MultiSelectMenuComponent;
@@ -48,10 +64,11 @@ export interface ModalComponent extends Omit<BaseMessageComponent, 'execute' | '
     execute(
         interaction: ComponentInteraction,
         client: Client,
-        response: Collection<string, TextInputComponent>,
+        response: discord.Collection<string, discord.TextInputComponent>,
         data?: { [key: string]: any },
-        guild?: Guild
+        guild?: discord.Guild
     ): void;
+    build(client: Client, ...args: any): Promise<discord.ModalBuilder>;
 }
 
 export type MessageComponent = ButtonComponent | SelectMenuComponent | ModalComponent;
