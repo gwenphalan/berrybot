@@ -20,7 +20,7 @@ export const loadComponents = async (client: Client) => {
 
                 const name = component.id;
 
-                client.messageComponents.set(name, component);
+                client.messageComponents.set(name + ':' + types[i], component);
 
                 table.addRow(types[i], name, '🟩');
             } catch (error) {
