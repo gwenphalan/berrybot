@@ -24,18 +24,28 @@ export const event: Event = {
 
         const data = parseData(interaction.customId);
 
+        let type: 'button' | 'selectMenu' | 'modal';
+
         if (interaction.isButton()) {
-            const button: ButtonComponent | undefined = client.messageComponents.find(
-                component => component.id === data.id && component.type === 'BUTTON'
-            ) as ButtonComponent;
+            type = 'button';
+        } else if (interaction.isSelectMenu()) {
+            type = 'selectMenu';
+        } else {
+            type = 'modal';
+        }
+
+        const componentName = `${data.id}:${type}`;
+
+        if (interaction.isButton()) {
+            const button: ButtonComponent | undefined = client.messageComponents.get(componentName) as ButtonComponent;
 
             if (!button) return;
 
             button.execute(interaction, client, data.data);
         } else if (interaction.isSelectMenu()) {
-            const selectMenu: SingleSelectMenuComponent | MultiSelectMenuComponent | undefined = client.messageComponents.find(
-                component => component.id === data.id && component.type === 'SELECT_MENU'
-            ) as SingleSelectMenuComponent | MultiSelectMenuComponent;
+            const selectMenu: SingleSelectMenuComponent | MultiSelectMenuComponent | undefined = client.messageComponents.get(componentName) as
+                | SingleSelectMenuComponent
+                | MultiSelectMenuComponent;
 
             if (!selectMenu) return;
 
@@ -59,9 +69,7 @@ export const event: Event = {
                 selectMenu.execute(interaction, client, selectedOption, data.data);
             }
         } else if (interaction.isModalSubmit()) {
-            const modal: ModalComponent | undefined = client.messageComponents.find(
-                component => component.id === data.id && component.type === 'MODAL'
-            ) as ModalComponent;
+            const modal: ModalComponent | undefined = client.messageComponents.get(componentName) as ModalComponent;
 
             if (!modal) return;
 
