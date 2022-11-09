@@ -57,7 +57,7 @@ export const MessageComponent: ModalComponent = {
         if (database.selfRoles && database.selfRoles.categories?.find(c => c.name === name))
             return interaction.reply({ content: 'A category with that name already exists!', ephemeral: true });
 
-        const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents([await RoleSelect.build(client, 'create', name)]);
+        const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents([await RoleSelect.build(client, interaction.guild, 'create', name)]);
 
         return interaction.reply({ components: [row] });
     }

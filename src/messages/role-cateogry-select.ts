@@ -10,19 +10,19 @@ export const roleCategorySelect: MessageBuilder = {
         const categories = (await client.database.guildSettings.get(guild.id))?.selfRoles?.categories;
 
         if (!categories || categories.length === 0) {
-            this.embeds.push(
+            this.embeds = [
                 new EmbedBuilder()
                     .setDescription(`This server has no Self Role categories.`)
                     .setTitle(`${guild.name}'s Self Roles`)
                     .setColor(await util.Color.getGuildColor(guild))
-            );
-            this.components.push(
+            ];
+            this.components = [
                 new ActionRowBuilder<ButtonBuilder>().addComponents([
                     new ButtonBuilder().setCustomId('role-category[{"action":"create"}]').setLabel('Create').setStyle(ButtonStyle.Success).setEmoji('➕')
                 ])
-            );
+            ];
         } else {
-            this.components.push(new ActionRowBuilder<SelectMenuBuilder>().addComponents(await RoleCategory.build(client, guild, action)));
+            this.components = [new ActionRowBuilder<SelectMenuBuilder>().addComponents(await RoleCategory.build(client, guild, action))];
         }
 
         return {

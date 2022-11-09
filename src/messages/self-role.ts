@@ -23,7 +23,10 @@ export const selfRoleSettings: MessageBuilder = {
 
         this.embeds[0].setColor(await color.getGuildColor(guild));
 
-        if (categories && categories.length > 0) this.embeds[0].setDescription(`**Categories:**\n${categories.map(c => c.name).join(', ')}`);
+        const emojis = client.emojis.cache;
+
+        if (categories && categories.length > 0)
+            this.embeds[0].setDescription(`**Categories:**\n${categories.map(c => `${emojis.get(c.emoji)}${c.name}`).join(', ')}`);
 
         return {
             embeds: this.embeds,

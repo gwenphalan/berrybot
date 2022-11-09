@@ -34,15 +34,14 @@ export const MessageComponent: ButtonComponent = {
 
     async execute(interaction: ButtonInteraction, client, data: { action: 'view' | 'edit' | 'create'; category?: string }) {
         if (!interaction.guild || !interaction.guildId) return;
-        let replyOptions;
 
         switch (data.action) {
             case 'view':
-                replyOptions = await roleCategorySelect.build(client, interaction.guild, 'view');
+                return interaction.update(await roleCategorySelect.build(client, interaction.guild, 'view'));
                 break;
             case 'edit':
-                if (data.category) replyOptions = await RoleCategory.build(client, interaction.guild, 'edit', data.category);
-                else replyOptions = await roleCategorySelect.build(client, interaction.guild, 'edit');
+                if (data.category) return interaction.update(await RoleCategory.build(client, interaction.guild, 'edit', data.category));
+                else return interaction.update(await roleCategorySelect.build(client, interaction.guild, 'edit'));
                 break;
             case 'create':
                 const guildSettings = await client.database.guildSettings.get(interaction.guildId);
@@ -64,8 +63,6 @@ export const MessageComponent: ButtonComponent = {
 
                 return interaction.showModal(await CategoryName.build(client, interaction.guild));
         }
-
-        interaction.update(replyOptions);
     }
 };
 

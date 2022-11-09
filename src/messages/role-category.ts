@@ -5,16 +5,16 @@ import EditButtons from '../components/buttons/category-edit';
 import EditButton from '../components/buttons/role-category';
 
 export const RoleCategory: MessageBuilder = {
-    embeds: [],
-    components: [],
+    embeds: [new EmbedBuilder()],
+    components: [new ActionRowBuilder<ButtonBuilder>()],
     async build(client, guild: Guild, action: 'view' | 'edit', category: string) {
         const c = (await client.database.guildSettings.get(guild.id))?.selfRoles?.categories.find(c => c.name === category);
 
-        const embed = new EmbedBuilder().setTitle(`Self Roles - ${category}`).setColor(await util.Color.getGuildColor(guild));
+        this.embeds[0].setTitle(`Self Roles - ${category}`).setColor(await util.Color.getGuildColor(guild));
 
-        if (!c) embed.setDescription(`This category does not exist.`);
+        if (!c) this.embeds[0].setDescription(`This category does not exist.`);
         else
-            embed.setFields([
+            this.embeds[0].setFields([
                 {
                     name: 'Name',
                     value: c.name,
@@ -31,18 +31,16 @@ export const RoleCategory: MessageBuilder = {
                 }
             ]);
 
-        const row = new ActionRowBuilder<ButtonBuilder>();
-
-        if (action === 'edit')
-            row.addComponents([
+        if (action === 'edit') {
+            this.components[0].setComponents([
                 await EditButtons.build(client, 'name', category),
                 await EditButtons.build(client, 'emoji', category),
                 await EditButtons.build(client, 'roles', category),
                 await EditButtons.build(client, 'delete', category)
             ]);
-        else row.addComponents([await EditButton.build(client, action, category)]);
-
-        this.embeds.push(embed);
+        } else {
+            this.components[0].setComponents([await EditButton.build(client, 'edit', category)]);
+        }
 
         return {
             embeds: this.embeds,

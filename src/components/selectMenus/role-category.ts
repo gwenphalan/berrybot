@@ -1,5 +1,6 @@
 import { Guild, SelectMenuBuilder } from 'discord.js';
 import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
+import { RoleCategory } from '../../messages/role-category';
 
 export const MessageComponent: SelectMenuComponent = {
     id: 'role-category',
@@ -20,9 +21,10 @@ export const MessageComponent: SelectMenuComponent = {
         return builder;
     },
 
-    execute(interaction, _client, selected) {
-        // Reply to the interaction with the selected option's label
-        interaction.reply({ content: `You selected ${selected.label}`, ephemeral: true });
+    async execute(interaction, client, selected, data: { action: 'view' | 'edit' }) {
+        if (!selected || !interaction.guild) return interaction.reply({ content: 'You must select at least one category.', ephemeral: true });
+
+        return interaction.update(await RoleCategory.build(client, interaction.guild, data.action, selected.value));
     }
 };
 

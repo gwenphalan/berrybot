@@ -57,7 +57,7 @@ export const MessageComponent: SelectMenuComponent = {
                 const create_category: SelfRoleCategory = {
                     name: data.category,
                     roles: roles.map(role => role.id),
-                    emoji: '1039520946073116693'
+                    emoji: '1039520885327007804'
                 };
                 if (!database.selfRoles) database.selfRoles = { categories: [create_category] };
                 else if (!database.selfRoles.categories) database.selfRoles.categories = [create_category];
@@ -126,7 +126,7 @@ export const MessageComponent: SelectMenuComponent = {
                 break;
         }
 
-        return await interaction.reply({ embeds: [embed] });
+        return await interaction.update({ embeds: [embed] });
     }
 };
 
