@@ -1,8 +1,9 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
+import { ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder } from 'discord.js';
 import { util } from '../..';
 import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageComponent';
 import { roleCategorySelect } from '../../messages/role-cateogry-select';
 import { RoleCategory } from '../../messages/role-category';
+import CategoryName from '../modals/category-name';
 
 export const MessageComponent: ButtonComponent = {
     id: 'role-category',
@@ -35,8 +36,6 @@ export const MessageComponent: ButtonComponent = {
         if (!interaction.guild || !interaction.guildId) return;
         let replyOptions;
 
-        console.log(data);
-
         switch (data.action) {
             case 'view':
                 replyOptions = await roleCategorySelect.build(client, interaction.guild, 'view');
@@ -63,22 +62,7 @@ export const MessageComponent: ButtonComponent = {
 
                 interaction.deleteReply();
 
-                return interaction.showModal(
-                    new ModalBuilder()
-                        .setCustomId('role-category-create-modal')
-                        .setTitle(`What would you like to name this category?`)
-                        .addComponents([
-                            new ActionRowBuilder<TextInputBuilder>().addComponents([
-                                new TextInputBuilder()
-                                    .setCustomId('category-name-input')
-                                    .setPlaceholder('Category Name')
-                                    .setMinLength(1)
-                                    .setMaxLength(100)
-                                    .setStyle(TextInputStyle.Short)
-                                    .setLabel('Category Name')
-                            ])
-                        ])
-                );
+                return interaction.showModal(await CategoryName.build(client, interaction.guild));
         }
 
         interaction.update(replyOptions);
