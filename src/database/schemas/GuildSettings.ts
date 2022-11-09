@@ -13,7 +13,7 @@ export interface GuildSettings extends mongoose.Document {
 export interface SelfRoleCategory {
     name: string;
     roles: Role['id'][];
-    emoji?: string;
+    emoji: string;
 }
 
 const GuildSettingsSchema = new mongoose.Schema({

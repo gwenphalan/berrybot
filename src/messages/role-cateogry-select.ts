@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Guild, SelectMenuBuilder } from 'discord.js';
 import { util } from '..';
 import { MessageBuilder } from '../interfaces';
+import RoleCategory from '../components/selectMenus/role-category';
 
 export const roleCategorySelect: MessageBuilder = {
     embeds: [],
@@ -21,22 +22,7 @@ export const roleCategorySelect: MessageBuilder = {
                 ])
             );
         } else {
-            this.components.push(
-                new ActionRowBuilder<SelectMenuBuilder>().addComponents([
-                    new SelectMenuBuilder()
-                        .setCustomId(`role-category[{"action":"${action}"}]`)
-                        .setPlaceholder('Select a category')
-                        .addOptions(
-                            categories.map(category => {
-                                return {
-                                    label: category.name,
-                                    value: category.name,
-                                    emoji: category.emoji || '➖'
-                                };
-                            })
-                        )
-                ])
-            );
+            this.components.push(new ActionRowBuilder<SelectMenuBuilder>().addComponents(await RoleCategory.build(client, guild, action)));
         }
 
         return {
