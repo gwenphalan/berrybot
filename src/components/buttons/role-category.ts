@@ -1,4 +1,4 @@
-import { ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder } from 'discord.js';
+import { ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { util } from '../..';
 import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageComponent';
 import { roleCategorySelect } from '../../messages/role-cateogry-select';
@@ -8,6 +8,7 @@ import CategoryName from '../modals/category-name';
 export const MessageComponent: ButtonComponent = {
     id: 'role-category',
     type: ComponentTypes.Button,
+    permissions: [PermissionFlagsBits.ManageRoles],
 
     async build(_client, action: 'view' | 'edit' | 'create', category?: string) {
         const data = {

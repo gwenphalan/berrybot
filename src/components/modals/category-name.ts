@@ -1,6 +1,6 @@
 // test modal
 
-import { ActionRowBuilder, EmbedBuilder, ModalBuilder, SelectMenuBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
+import { ActionRowBuilder, EmbedBuilder, ModalBuilder, PermissionFlagsBits, SelectMenuBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 import { util } from '../..';
 import { Client } from '../../interfaces';
 import { ModalComponent, ComponentTypes } from '../../interfaces/MessageComponent';
@@ -22,6 +22,7 @@ async function build(_client: Client, action: 'create' | 'edit', category?: stri
 export const MessageComponent: ModalComponent = {
     id: 'category-name',
     type: ComponentTypes.Modal,
+    permissions: [PermissionFlagsBits.ManageRoles],
 
     build: build,
 

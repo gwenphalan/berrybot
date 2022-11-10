@@ -1,4 +1,4 @@
-import { EmbedBuilder, Guild, SelectMenuBuilder } from 'discord.js';
+import { EmbedBuilder, Guild, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
 import { util } from '../..';
 import { SelfRoleCategory } from '../../database/schemas/GuildSettings';
 import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
@@ -7,6 +7,7 @@ export const MessageComponent: SelectMenuComponent = {
     id: 'role-select',
     type: ComponentTypes.SelectMenu,
     multi_select: true,
+    permissions: [PermissionFlagsBits.ManageRoles],
 
     async build(client, guild: Guild, action: 'edit' | 'create' | 'assign', category: string) {
         const data = {

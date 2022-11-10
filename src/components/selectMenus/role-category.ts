@@ -1,10 +1,11 @@
-import { Guild, SelectMenuBuilder } from 'discord.js';
+import { Guild, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
 import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
 import { RoleCategory } from '../../messages/role-category';
 
 export const MessageComponent: SelectMenuComponent = {
     id: 'role-category',
     type: ComponentTypes.SelectMenu,
+    permissions: [PermissionFlagsBits.ManageRoles],
 
     async build(client, guild: Guild, action: 'view' | 'edit') {
         const categories = (await client.database.guildSettings.get(guild.id)).selfRoles?.categories;

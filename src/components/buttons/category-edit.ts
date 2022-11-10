@@ -1,9 +1,10 @@
-import { ButtonBuilder, ButtonInteraction, ButtonStyle } from 'discord.js';
+import { ButtonBuilder, ButtonInteraction, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageComponent';
 
 export const MessageComponent: ButtonComponent = {
     id: 'category-edit',
     type: ComponentTypes.Button,
+    permissions: [PermissionFlagsBits.ManageRoles],
 
     async build(client, action: 'name' | 'roles' | 'emoji' | 'delete', category: string) {
         const data = {
