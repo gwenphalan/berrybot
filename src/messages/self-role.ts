@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Guild } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, Guild } from 'discord.js';
 import { util } from '..';
 import { MessageBuilder } from '../interfaces';
 import RoleCategory from '../components/buttons/role-category';
@@ -14,9 +14,7 @@ export const selfRoleSettings: MessageBuilder = {
                 await RoleCategory.build(client, 'edit'),
                 await RoleCategory.build(client, 'create')
             ]),
-            new ActionRowBuilder<ButtonBuilder>().addComponents([
-                new ButtonBuilder().setCustomId('send-role-message').setLabel('Send Role Message').setStyle(ButtonStyle.Primary).setEmoji('📨')
-            ])
+            new ActionRowBuilder<ButtonBuilder>().addComponents([await RoleCategory.build(client, 'message')])
         ];
 
         const color = util.Color;

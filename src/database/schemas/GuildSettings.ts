@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 export interface GuildSettings extends mongoose.Document {
     guild: string;
-    selfRoles?: {
+    selfRoles: {
         message?: string;
         categories: SelfRoleCategory[];
         channel?: string;

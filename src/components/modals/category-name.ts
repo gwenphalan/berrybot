@@ -4,6 +4,7 @@ import { ActionRowBuilder, EmbedBuilder, ModalBuilder, PermissionFlagsBits, Sele
 import { util } from '../..';
 import { Client } from '../../interfaces';
 import { ModalComponent, ComponentTypes } from '../../interfaces/MessageComponent';
+import { RoleMessage } from '../../messages/role-select';
 import RoleSelect from '../selectMenus/role-select';
 
 async function build(_client: Client, action: 'create'): Promise<ModalBuilder>;
@@ -44,6 +45,8 @@ export const MessageComponent: ModalComponent = {
             });
 
             await client.database.guildSettings.update(interaction.guild.id, database);
+
+            await RoleMessage(client, interaction.guild);
 
             return interaction.reply({
                 embeds: [

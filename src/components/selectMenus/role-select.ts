@@ -1,7 +1,8 @@
-import { EmbedBuilder, Guild, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
+import { EmbedBuilder, Guild, GuildMember, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
 import { util } from '../..';
 import { SelfRoleCategory } from '../../database/schemas/GuildSettings';
 import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
+import { RoleMessage } from '../../messages/role-select';
 
 export const MessageComponent: SelectMenuComponent = {
     id: 'role-select',
@@ -9,7 +10,7 @@ export const MessageComponent: SelectMenuComponent = {
     multi_select: true,
     permissions: [PermissionFlagsBits.ManageRoles],
 
-    async build(client, guild: Guild, action: 'edit' | 'create' | 'assign', category: string) {
+    async build(client, guild: Guild, action: 'edit' | 'create' | 'assign', category: string, member?: GuildMember) {
         const data = {
             action: action,
             category: category
@@ -23,7 +24,7 @@ export const MessageComponent: SelectMenuComponent = {
 
         switch (action) {
             case 'create' || 'edit':
-                menu.setOptions(guildRoles.map(r => ({ label: r.name, value: r.id })));
+                menu.setOptions(guildRoles.map(r => ({ label: r.name, value: r.id }))).setMinValues(1);
                 break;
             case 'assign':
                 const database = await client.database.guildSettings.get(guild.id);
@@ -32,10 +33,11 @@ export const MessageComponent: SelectMenuComponent = {
                 if (!database || !database.selfRoles || !_category) return menu.setDisabled(true).setPlaceholder('No roles to select');
 
                 const roles = guildRoles.filter(r => _category.roles?.includes(r.id));
+                const memberRoles = guildRoles.filter(r => member?.roles.cache.has(r.id));
 
                 if (!roles.size) return menu.setDisabled(true).setPlaceholder('No roles to select');
 
-                menu.setOptions(roles.map(r => ({ label: r.name, value: r.id })));
+                menu.setOptions(roles.map(r => ({ label: r.name, value: r.id, default: memberRoles.has(r.id) }))).setMinValues(0);
         }
 
         return menu;
@@ -80,6 +82,8 @@ export const MessageComponent: SelectMenuComponent = {
 
                 await client.database.guildSettings.update(interaction.guild.id, database);
 
+                await RoleMessage(client, interaction.guild);
+
                 embed.setDescription(`Updated roles in the ${edit_category.name} category`);
                 break;
             case 'assign':
@@ -99,19 +103,14 @@ export const MessageComponent: SelectMenuComponent = {
 
                     if (!roles.get(r.id) && member.roles.cache.has(role)) {
                         member.roles.remove(r);
-                        removedRoles.push(role.toString());
+                        removedRoles.push(r.toString());
                     } else if (roles.get(r.id) && !member.roles.cache.has(role)) {
                         member.roles.add(role);
-                        addedRoles.push(role.toString());
+                        addedRoles.push(r.toString());
                     }
                 });
 
-                embed.setTitle(`Self Roles - ${assign_category.name}`).setDescription(
-                    `${member.roles.cache
-                        .filter(role => roles.get(role.id))
-                        .map(role => role.toString())
-                        .join(', ')}`
-                );
+                embed.setTitle(`Self Roles - ${assign_category.name}`).setDescription(`${roles.map(r => r.toString()).join(', ')}`);
 
                 if (removedRoles.length > 0) {
                     embed.addFields({
@@ -127,7 +126,7 @@ export const MessageComponent: SelectMenuComponent = {
                 break;
         }
 
-        return await interaction.update({ embeds: [embed] });
+        return await interaction.update({ embeds: [embed], components: [] });
     }
 };
 
