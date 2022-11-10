@@ -44,7 +44,7 @@ export const MessageComponent: SelectMenuComponent = {
     },
 
     async execute(interaction, client, selected, data: { action: 'edit' | 'create' | 'assign'; category: string }) {
-        if (selected.length === 0) return interaction.reply({ content: 'You must select at least one role.', ephemeral: true });
+        if (selected.length === 0 && data.action !== 'assign') return interaction.reply({ content: 'You must select at least one role.', ephemeral: true });
 
         if (!interaction.guild) return;
 
@@ -110,7 +110,8 @@ export const MessageComponent: SelectMenuComponent = {
                     }
                 });
 
-                embed.setTitle(`Self Roles - ${assign_category.name}`).setDescription(`${roles.map(r => r.toString()).join(', ')}`);
+                embed.setTitle(`Self Roles - ${assign_category.name}`);
+                if (roles.size) embed.setDescription(`${roles.map(r => r.toString()).join(', ')}`);
 
                 if (removedRoles.length > 0) {
                     embed.addFields({
