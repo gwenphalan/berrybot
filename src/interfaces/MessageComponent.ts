@@ -12,6 +12,7 @@ export interface BaseMessageComponent {
     id: string;
     type: ComponentTypes;
     multi_select?: boolean;
+    permissions?: bigint[];
     developer?: boolean;
     execute(
         interaction: ComponentInteraction,
