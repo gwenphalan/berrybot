@@ -1,4 +1,5 @@
-import { BaseInteraction, Events, SelectMenuComponent } from 'discord.js';
+import { BaseInteraction, Events, PermissionsBitField, SelectMenuComponent } from 'discord.js';
+import { config } from '../../config';
 import { Client, Event } from '../../interfaces';
 import { ButtonComponent, ModalComponent, MultiSelectMenuComponent, SingleSelectMenuComponent } from '../../interfaces/MessageComponent';
 
@@ -36,18 +37,31 @@ export const event: Event = {
 
         const componentName = `${data.id}:${type}`;
 
-        if (interaction.isButton()) {
-            const button: ButtonComponent | undefined = client.messageComponents.get(componentName) as ButtonComponent;
+        const component = client.messageComponents.get(componentName);
 
-            if (!button) return;
+        if (!component) return;
+
+        if (component.developer && config.developer !== interaction.user.id)
+            return interaction.reply({ content: 'This is a developer only component.', ephemeral: true });
+
+        const member = interaction.member ? interaction.guild?.members.cache.get(interaction.member.user.id) : null;
+
+        if (member) {
+            const permissions = new PermissionsBitField();
+
+            component.permissions?.forEach(p => permissions.add(p));
+
+            if (!member.permissions.has(permissions)) {
+                return interaction.reply({ content: 'You do not have permission to do this.', ephemeral: true });
+            }
+        }
+
+        if (interaction.isButton()) {
+            const button: ButtonComponent = component as ButtonComponent;
 
             button.execute(interaction, client, data.data);
         } else if (interaction.isSelectMenu()) {
-            const selectMenu: SingleSelectMenuComponent | MultiSelectMenuComponent | undefined = client.messageComponents.get(componentName) as
-                | SingleSelectMenuComponent
-                | MultiSelectMenuComponent;
-
-            if (!selectMenu) return;
+            const selectMenu: SingleSelectMenuComponent | MultiSelectMenuComponent = component as SingleSelectMenuComponent | MultiSelectMenuComponent;
 
             const options = (interaction.component as SelectMenuComponent).options;
             const selectedOptions = interaction.values;
@@ -69,9 +83,7 @@ export const event: Event = {
                 selectMenu.execute(interaction, client, selectedOption, data.data);
             }
         } else if (interaction.isModalSubmit()) {
-            const modal: ModalComponent | undefined = client.messageComponents.get(componentName) as ModalComponent;
-
-            if (!modal) return;
+            const modal: ModalComponent = component as ModalComponent;
 
             const fields = interaction.fields.fields;
 
