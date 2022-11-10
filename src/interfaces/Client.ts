@@ -22,9 +22,7 @@ export class Client extends BaseClient {
     }
 
     getCustomID(id: string, data: any): string {
-        const dataString = JSON.stringify(data, null, 0);
-
-        const value = `${id}[${dataString}]`;
+        const value = data ? `${id}[${JSON.stringify(data, null, 0)}]` : id;
 
         if (value.length > 100) throw new Error('Custom ID is too long. Cannot be longer than 100 characters.');
 
