@@ -1,9 +1,10 @@
-import { ButtonBuilder, ButtonStyle } from 'discord.js';
+import { ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageComponent';
 
 export const MessageComponent: ButtonComponent = {
     id: 'test-button',
     type: ComponentTypes.Button,
+    permissions: [PermissionFlagsBits.ManageEvents, PermissionFlagsBits.ManageRoles],
     async build(client) {
         const testJSON = {
             boolean: true,
