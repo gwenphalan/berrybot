@@ -67,11 +67,6 @@ export const event: Event = {
             const selectedOptions = interaction.values;
             const selectedOption = options.find(option => option.value == selectedOptions[0]);
 
-            // If the selected options are not found, return and send a message.
-            if (!selectedOption) {
-                return interaction.reply({ content: 'Something went wrong with your selection!', ephemeral: true });
-            }
-
             if (selectMenu.multi_select) {
                 selectMenu.execute(
                     interaction,
@@ -80,6 +75,9 @@ export const event: Event = {
                     data.data
                 );
             } else {
+                if (!selectedOption) {
+                    return interaction.reply({ content: 'Something went wrong with your selection!', ephemeral: true });
+                }
                 selectMenu.execute(interaction, client, selectedOption, data.data);
             }
         } else if (interaction.isModalSubmit()) {
