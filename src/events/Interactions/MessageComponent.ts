@@ -68,7 +68,7 @@ export const event: Event = {
             const selectedOption = options.find(option => option.value == selectedOptions[0]);
 
             // If the selected options are not found, return and send a message.
-            if (selectedOptions.length == 0 || !selectedOption) {
+            if (!selectedOption) {
                 return interaction.reply({ content: 'Something went wrong with your selection!', ephemeral: true });
             }
 
