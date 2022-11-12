@@ -2,23 +2,23 @@
     "name": "berrybot",
     "description": "BerryBot is an Open Source discord bot, created to replace the corrupt discord bots that have monopolized discord.",
     "version": "0.0.1",
-    "main": "dist/src/index.js",
+    "main": "build/index.js",
     "scripts": {
-        "pm2": "pm2 start --name BerryBot npm -- run dev --watch --ignore-watch dist/* && pm2 monit 1",
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "prod": "npm run build && export NODE_ENV=production && node .",
-        "dev": "npm run build && node .",
-        "deploy": "node dist/src/register_commands.js",
-        "start": "npm run prod",
-        "lint": "eslint ./src/**/*.ts --fix",
-        "clean": "rm -rf dist/*",
-        "reinstall": "yarn cleanCache && yarn deleteModules && yarn deleteLock && yarn installModules",
         "build": "tsc",
-        "cleanCache": "npm cache clean --force",
+        "start": "yarn build && node -r dotenv/config build/index.js",
+        "dev": "yarn build && node build/bot.js",
+        "lint": "eslint ./src/**/*.ts --fix",
+        "clean": "rm -rf build/* && rm -rf tsconfig.tsbuildinfo",
         "deleteModules": "rm -rf node_modules/*",
         "deleteLock": "rm yarn.lock",
-        "installModules": "yarn install"
+        "installModules": "yarn install",
+        "reinstall": "yarn cleanCache && yarn deleteModules && yarn deleteLock && yarn installModules",
+        "cleanCache": "yarn cache clean"
     },
+    "keywords": [
+        "discord",
+        "typescript"
+    ],
     "husky": {
         "hooks": {
             "pre-commit": "precise-commits && yarn lint"
@@ -34,6 +34,14 @@
         "url": "https://github.com/gwenphalan/berrybot/issues"
     },
     "homepage": "https://github.com/gwenphalan/berrybot#readme",
+    "dependencies": {
+        "ascii-table": "^0.0.9",
+        "canvas": "^2.10.2",
+        "discord.js": "^14.6.0",
+        "dotenv": "^16.0.3",
+        "glob": "^8.0.3",
+        "mongoose": "^6.7.2"
+    },
     "devDependencies": {
         "@types/glob": "^8.0.0",
         "@types/node": "^18.11.5",
@@ -45,20 +53,8 @@
         "eslint-config-xo-typescript": "^0.53.0",
         "eslint-plugin-prettier": "^4.2.1",
         "husky": "^8.0.1",
-        "nodemon": "^2.0.20",
-        "precise-commits": "^1.0.2",
         "prettier": "^2.7.1",
-        "ts-node": "^10.9.1",
-        "tsconfig-paths": "^4.1.0",
-        "typescript": "^4.8.4"
-    },
-    "dependencies": {
-        "@types/dotenv": "^8.2.0",
-        "ascii-table": "^0.0.9",
-        "canvas": "^2.10.2",
-        "discord.js": "^14.6.0",
-        "dotenv": "^16.0.3",
-        "glob": "^8.0.3",
-        "mongoose": "^6.7.0"
+        "typescript": "^4.8.4",
+        "yarn": "^1.22.19"
     }
 }
