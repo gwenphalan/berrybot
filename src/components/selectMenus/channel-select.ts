@@ -1,12 +1,15 @@
 // Test Single Select Menu
 
-import { ChannelType, Guild, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ChannelType, EmbedBuilder, Guild, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
+import { util } from '../../bot';
 import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
 import { RoleMessage } from '../../messages/role-select';
+import BackButton from '../buttons/roles-back';
 
 export const MessageComponent: SelectMenuComponent = {
     id: 'channel-select',
     type: ComponentTypes.SelectMenu,
+    permissions: [PermissionFlagsBits.ManageRoles],
 
     async build(_client, guild: Guild) {
         const channelSelectMenu = new SelectMenuBuilder().setCustomId(this.id).setPlaceholder('Select a channel').setMinValues(1).setMaxValues(1);
@@ -32,7 +35,17 @@ export const MessageComponent: SelectMenuComponent = {
 
         await RoleMessage(client, interaction.guild, selected.value).catch(err => interaction.reply({ content: err.message, components: [], ephemeral: true }));
 
-        interaction.update({ content: `Self Roles Message Sent`, components: [] }).catch(err => console.error(err));
+        return interaction
+            .update({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle('Role Select')
+                        .setDescription(`Sent message to <#${selected.value}>`)
+                        .setColor(await util.Color.getGuildColor(interaction.guild))
+                ],
+                components: [new ActionRowBuilder<ButtonBuilder>().addComponents([await BackButton.build(client)])]
+            })
+            .catch(err => console.error(err));
     }
 };
 

@@ -9,11 +9,14 @@ import {
     SelectMenuBuilder,
     User
 } from 'discord.js';
-import { util } from '../..';
+import { util } from '../../bot';
 import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageComponent';
 import CategoryName from '../modals/category-name';
 import RoleSelect from '../selectMenus/role-select';
 import { RoleMessage } from '../../messages/role-select';
+import BackButton from './roles-back';
+import { RoleCategory } from '../../messages/role-category';
+import { selfRoleSettings } from '../../messages';
 
 export const MessageComponent: ButtonComponent = {
     id: 'category-edit',
@@ -36,7 +39,7 @@ export const MessageComponent: ButtonComponent = {
                 button.setLabel('Roles').setStyle(ButtonStyle.Secondary).setEmoji('🎨');
                 break;
             case 'emoji':
-                button.setLabel('Emoji').setStyle(ButtonStyle.Secondary).setEmoji('📜');
+                button.setLabel('Emoji').setStyle(ButtonStyle.Secondary).setEmoji('😀');
                 break;
             case 'delete':
                 button.setLabel('Delete').setStyle(ButtonStyle.Danger).setEmoji('🗑️');
@@ -60,20 +63,29 @@ export const MessageComponent: ButtonComponent = {
 
         switch (data.action) {
             case 'name':
-                return interaction.showModal(await CategoryName.build(client, 'edit', data.category));
+                return interaction.showModal(await CategoryName.build(client, category.name));
             case 'roles':
                 return interaction.update({
                     embeds: [],
-                    components: [new ActionRowBuilder<SelectMenuBuilder>().addComponents([await RoleSelect.build(client, 'edit', data.category)])]
+                    components: [
+                        new ActionRowBuilder<SelectMenuBuilder>().addComponents([await RoleSelect.build(client, guild, 'edit', data.category)]),
+                        new ActionRowBuilder<ButtonBuilder>().addComponents([await BackButton.build(client, { category: data.category, page: 'edit' })])
+                    ]
                 });
             case 'emoji':
                 await interaction.update({
                     embeds: [embed.setDescription('Please react to this message with the emoji you would like to use.')],
-                    components: []
+                    components: [
+                        new ActionRowBuilder<ButtonBuilder>().addComponents([await BackButton.build(client, { category: data.category, page: 'edit' })])
+                    ]
                 });
                 const message = await interaction.fetchReply();
 
-                const filter = (_reaction: MessageReaction, user: User) => user.id === interaction.user.id;
+                await message.reactions.removeAll();
+
+                const filter = (reaction: MessageReaction, user: User) => {
+                    return user.id === interaction.user.id && client.emojis.cache.get(reaction.emoji.identifier) !== null;
+                };
 
                 const collector = await message.createReactionCollector({
                     filter,
@@ -82,7 +94,7 @@ export const MessageComponent: ButtonComponent = {
                 });
 
                 collector.on('end', async collected => {
-                    if (collected.size >= 0) {
+                    if (collected.size <= 0) {
                         await interaction.editReply({
                             embeds: [embed.setDescription('You did not react with an emoji in time.')]
                         });
@@ -90,15 +102,7 @@ export const MessageComponent: ButtonComponent = {
                 });
 
                 return collector.on('collect', async reaction => {
-                    const emoji = reaction.emoji.id != null ? reaction.emoji.id : reaction.emoji.name;
-
-                    if (!emoji) {
-                        return interaction.editReply({
-                            embeds: [embed.setDescription('You did not react with an emoji.')]
-                        });
-                    }
-
-                    category.emoji = emoji;
+                    category.emoji = reaction.emoji.toString();
 
                     database.selfRoles.categories.map(c => {
                         if (c.name === category.name) return category;
@@ -111,10 +115,7 @@ export const MessageComponent: ButtonComponent = {
 
                     await RoleMessage(client, guild);
 
-                    return await interaction.editReply({
-                        embeds: [embed.setDescription(`The emoji for this category has been updated to ${emoji}.`)],
-                        components: []
-                    });
+                    return await interaction.editReply(await RoleCategory.build(client, guild, 'edit', data.category));
                 });
             case 'delete':
                 database.selfRoles.categories = database.selfRoles.categories.filter(c => c !== category);
@@ -125,7 +126,7 @@ export const MessageComponent: ButtonComponent = {
 
                 await RoleMessage(client, guild);
 
-                return interaction.update({ embeds: [embed], components: [] });
+                return interaction.update(await selfRoleSettings.build(client, guild));
         }
     }
 };

@@ -1,11 +1,12 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
-import { util } from '../..';
+import { util } from '../../bot';
 import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageComponent';
 import { roleCategorySelect } from '../../messages/role-cateogry-select';
 import { RoleCategory } from '../../messages/role-category';
 import CategoryName from '../modals/category-name';
 import RoleSelect from '../selectMenus/role-select';
 import ChannelSelect from '../selectMenus/channel-select';
+import BackButton from '../buttons/roles-back';
 
 export const MessageComponent: ButtonComponent = {
     id: 'role-category',
@@ -78,9 +79,7 @@ export const MessageComponent: ButtonComponent = {
                     return;
                 }
 
-                interaction.deleteReply();
-
-                return interaction.showModal(await CategoryName.build(client, interaction.guild));
+                return interaction.showModal(await CategoryName.build(client));
             case 'assign':
                 if (!data.category || !interaction.member) return;
 
@@ -97,7 +96,10 @@ export const MessageComponent: ButtonComponent = {
                 return interaction.update({
                     content: null,
                     embeds: [],
-                    components: [new ActionRowBuilder<SelectMenuBuilder>().addComponents([await ChannelSelect.build(client, interaction.guild, 'message')])]
+                    components: [
+                        new ActionRowBuilder<SelectMenuBuilder>().addComponents([await ChannelSelect.build(client, interaction.guild, 'message')]),
+                        new ActionRowBuilder<ButtonBuilder>().addComponents([await BackButton.build(client)])
+                    ]
                 });
         }
     }

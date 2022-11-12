@@ -1,5 +1,9 @@
 import { GatewayIntentBits, Partials } from 'discord.js';
 import { Client } from './interfaces';
+export * as util from './util';
+export * as handlers from './handlers';
+export * as interfaces from './interfaces';
+export * as messages from './messages';
 
 var shardId: any;
 

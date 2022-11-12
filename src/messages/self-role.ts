@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, Guild } from 'discord.js';
-import { util } from '..';
+import { util } from '../bot';
 import { MessageBuilder } from '../interfaces';
 import RoleCategory from '../components/buttons/role-category';
 
@@ -21,10 +21,14 @@ export const selfRoleSettings: MessageBuilder = {
 
         this.embeds[0].setColor(await color.getGuildColor(guild));
 
-        const emojis = client.emojis.cache;
-
         if (categories && categories.length > 0)
-            this.embeds[0].setDescription(`**Categories:**\n${categories.map(c => `${emojis.get(c.emoji)}${c.name}`).join(', ')}`);
+            this.embeds[0].setDescription(
+                `**Categories:**\n${categories
+                    .map(c => {
+                        return `• ${c.name}`;
+                    })
+                    .join('\n')}`
+            );
 
         return {
             embeds: this.embeds,

@@ -1,6 +1,6 @@
 import * as discord from 'discord.js';
 import { ButtonBuilder } from 'discord.js';
-import { util } from '..';
+import { util } from '../bot';
 import { Client, MessageBuilder } from '../interfaces';
 import RoleCategory from '../components/buttons/role-category';
 
@@ -11,16 +11,16 @@ export const RoleSelect: MessageBuilder = {
         this.embeds[0]
             .setColor(await util.Color.getGuildColor(guild, true))
             .setTitle(`${guild.name}'s Self Roles`)
-            .setDescription(`Choose a category to view and select the roles you want to add.`)
-            .setThumbnail(guild.iconURL({ extension: 'png', size: 256 }) || '');
+            .setDescription(`Choose a category to view and select the roles you want to add.`);
+
+        if (guild.iconURL()) this.embeds[0].setThumbnail(guild.iconURL({ extension: 'png', size: 256 }));
 
         const rows = [];
-        const guildSettings = await client.database.guildSettings.get(guild.id);
+        const database = await client.database.guildSettings.get(guild.id);
 
         let row = new discord.ActionRowBuilder<ButtonBuilder>();
 
-        for (const category of guildSettings.selfRoles.categories) {
-            console.log(category);
+        for (const category of database.selfRoles.categories) {
             if (row.components.length >= 5) {
                 rows.push(row);
                 row = new discord.ActionRowBuilder();
@@ -33,10 +33,6 @@ export const RoleSelect: MessageBuilder = {
 
         rows.push(row);
 
-        this.components = rows;
-
-        console.log(rows);
-
         return {
             embeds: this.embeds,
             components: rows
@@ -47,16 +43,15 @@ export const RoleSelect: MessageBuilder = {
 export async function RoleMessage(client: Client, guild: discord.Guild, channel?: string) {
     const database = await client.database.guildSettings.get(guild.id);
 
-    let message = await (guild.channels.cache.get(database.selfRoles.channel || '') as discord.TextChannel | null)?.messages.cache.get(
-        database.selfRoles.message || ''
-    );
+    let message =
+        database.selfRoles.channel && database.selfRoles.message
+            ? await (guild.channels.cache.get(database.selfRoles.channel) as discord.TextChannel | null)?.messages.fetch(database.selfRoles.message).catch()
+            : null;
 
     const content = await RoleSelect.build(client, guild);
 
-    console.log(content);
-
     if (channel) {
-        if (message) await message.delete();
+        if (message) await message.delete().then(m => console.log(`Deleted Message with id: ${m.id}`));
 
         message = await (guild.channels.cache.get(channel) as discord.TextChannel | null)?.send(content);
 
@@ -64,8 +59,17 @@ export async function RoleMessage(client: Client, guild: discord.Guild, channel?
             database.selfRoles.channel = message.channel.id;
             database.selfRoles.message = message.id;
             await database.save();
-        } else throw new Error(`Failed to send message: Channel ${channel} not found.`);
-    } else if (message) await message.edit(content);
+        } else console.log(new Error(`Failed to send message: Channel ${channel} not found.`));
+    } else if (message) {
+        await message
+            .edit(content)
+            .then(m => console.log(`Edited Message with id: ${m.id}`))
+            .catch(e => console.log(e));
+    } else {
+        database.selfRoles.channel = undefined;
+        database.selfRoles.message = undefined;
+        await database.save();
+    }
 
     return message;
 }

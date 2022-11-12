@@ -63,7 +63,7 @@ export interface ModalComponent extends Omit<BaseMessageComponent, 'execute' | '
     id: string;
     type: ComponentTypes.Modal;
     execute(
-        interaction: ComponentInteraction,
+        interaction: discord.ModalSubmitInteraction,
         client: Client,
         response: discord.Collection<string, discord.TextInputComponent>,
         data?: { [key: string]: any },

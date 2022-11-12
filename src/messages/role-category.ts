@@ -1,14 +1,17 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, Guild } from 'discord.js';
-import { util } from '..';
+import { util } from '../bot';
 import { MessageBuilder } from '../interfaces';
 import EditButtons from '../components/buttons/category-edit';
 import EditButton from '../components/buttons/role-category';
+import BackButton from '../components/buttons/roles-back';
 
 export const RoleCategory: MessageBuilder = {
     embeds: [new EmbedBuilder()],
-    components: [new ActionRowBuilder<ButtonBuilder>()],
+    components: [],
     async build(client, guild: Guild, action: 'view' | 'edit', category: string) {
         const c = (await client.database.guildSettings.get(guild.id))?.selfRoles?.categories.find(c => c.name === category);
+
+        const components = [];
 
         this.embeds[0].setTitle(`Self Roles - ${category}`).setColor(await util.Color.getGuildColor(guild));
 
@@ -32,19 +35,25 @@ export const RoleCategory: MessageBuilder = {
             ]);
 
         if (action === 'edit') {
-            this.components[0].setComponents([
-                await EditButtons.build(client, 'name', category),
-                await EditButtons.build(client, 'emoji', category),
-                await EditButtons.build(client, 'roles', category),
-                await EditButtons.build(client, 'delete', category)
-            ]);
+            components.push(
+                new ActionRowBuilder<ButtonBuilder>().setComponents([
+                    await EditButtons.build(client, 'name', category),
+                    await EditButtons.build(client, 'emoji', category),
+                    await EditButtons.build(client, 'roles', category),
+                    await EditButtons.build(client, 'delete', category)
+                ])
+            );
+
+            components.push(new ActionRowBuilder<ButtonBuilder>().setComponents([await BackButton.build(client)]));
         } else {
-            this.components[0].setComponents([await EditButton.build(client, 'edit', category)]);
+            components.push(
+                new ActionRowBuilder<ButtonBuilder>().setComponents([await BackButton.build(client), await EditButton.build(client, 'edit', category)])
+            );
         }
 
         return {
             embeds: this.embeds,
-            components: this.components
+            components: components
         };
     }
 };
