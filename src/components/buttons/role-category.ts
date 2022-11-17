@@ -11,7 +11,6 @@ import BackButton from '../buttons/roles-back';
 export const MessageComponent: ButtonComponent = {
     id: 'role-category',
     type: ComponentTypes.Button,
-    permissions: [PermissionFlagsBits.ManageRoles],
 
     async build(client, action: 'view' | 'edit' | 'create' | 'assign' | 'message', category?: string, guild?: string) {
         const data = {
@@ -52,8 +51,14 @@ export const MessageComponent: ButtonComponent = {
     },
 
     async execute(interaction: ButtonInteraction, client, data: { action: 'view' | 'edit' | 'create' | 'assign' | 'message'; category?: string }) {
-        if (!interaction.guild || !interaction.guildId) return;
+        if (!interaction.guild || !interaction.guildId || !interaction.member) return;
         console.log(data);
+
+        const member = interaction.guild?.members.cache.get(interaction.member.user.id);
+
+        if (data.action !== 'assign' && member && !member.permissions.has(PermissionFlagsBits.ManageRoles)) {
+            return interaction.reply({ content: 'You do not have permission to do this.', ephemeral: true });
+        }
 
         switch (data.action) {
             case 'view':
