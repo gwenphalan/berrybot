@@ -6,6 +6,7 @@
     "scripts": {
         "build": "tsc",
         "start": "yarn build && node build/index.js",
+        "dev": "yarn build && node build/bot.js",
         "lint": "eslint ./src/**/*.ts --fix",
         "clean": "rm -rf build/* && rm -rf tsconfig.tsbuildinfo",
         "deleteModules": "rm -rf node_modules/*",
