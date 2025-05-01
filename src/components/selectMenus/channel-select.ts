@@ -1,6 +1,6 @@
 // Test Single Select Menu
 
-import { ActionRowBuilder, ButtonBuilder, ChannelType, EmbedBuilder, Guild, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ChannelType, EmbedBuilder, Guild, PermissionFlagsBits, StringSelectMenuBuilder } from 'discord.js';
 import { util } from '../../bot';
 import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
 import { RoleMessage } from '../../messages/role-select';
@@ -12,7 +12,7 @@ export const MessageComponent: SelectMenuComponent = {
     permissions: [PermissionFlagsBits.ManageRoles],
 
     async build(_client, guild: Guild) {
-        const channelSelectMenu = new SelectMenuBuilder().setCustomId(this.id).setPlaceholder('Select a channel').setMinValues(1).setMaxValues(1);
+        const channelSelectMenu = new StringSelectMenuBuilder().setCustomId(this.id).setPlaceholder('Select a channel').setMinValues(1).setMaxValues(1);
         guild.channels.cache
             .filter(
                 channel =>

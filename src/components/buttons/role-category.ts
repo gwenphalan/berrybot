@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder, PermissionFlagsBits, StringSelectMenuBuilder } from 'discord.js';
 import { util } from '../../bot';
 import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageComponent';
 import { roleCategorySelect } from '../../messages/role-cateogry-select';
@@ -91,7 +91,7 @@ export const MessageComponent: ButtonComponent = {
                 return interaction.reply({
                     ephemeral: true,
                     components: [
-                        new ActionRowBuilder<SelectMenuBuilder>().addComponents([
+                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents([
                             await RoleSelect.build(client, interaction.guild, 'assign', data.category, interaction.member)
                         ])
                     ]
@@ -102,7 +102,7 @@ export const MessageComponent: ButtonComponent = {
                     content: null,
                     embeds: [],
                     components: [
-                        new ActionRowBuilder<SelectMenuBuilder>().addComponents([await ChannelSelect.build(client, interaction.guild, 'message')]),
+                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents([await ChannelSelect.build(client, interaction.guild, 'message')]),
                         new ActionRowBuilder<ButtonBuilder>().addComponents([await BackButton.build(client)])
                     ]
                 });

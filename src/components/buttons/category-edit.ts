@@ -6,7 +6,7 @@ import {
     EmbedBuilder,
     MessageReaction,
     PermissionFlagsBits,
-    SelectMenuBuilder,
+    StringSelectMenuBuilder,
     User
 } from 'discord.js';
 import { util } from '../../bot';
@@ -68,7 +68,7 @@ export const MessageComponent: ButtonComponent = {
                 return interaction.update({
                     embeds: [],
                     components: [
-                        new ActionRowBuilder<SelectMenuBuilder>().addComponents([await RoleSelect.build(client, guild, 'edit', data.category)]),
+                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents([await RoleSelect.build(client, guild, 'edit', data.category)]),
                         new ActionRowBuilder<ButtonBuilder>().addComponents([await BackButton.build(client, { category: data.category, page: 'edit' })])
                     ]
                 });

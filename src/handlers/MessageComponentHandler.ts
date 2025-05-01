@@ -9,6 +9,8 @@ export const loadComponents = async (client: Client) => {
     await client.messageComponents.clear();
 
     const types = ['button', 'selectMenu', 'modal'];
+    
+    console.log('Loading message components...');
 
     for (let i = 0; i < types.length; i++) {
         const components = await Files.load(`components/${types[i]}s`);
