@@ -1,29 +1,17 @@
-import type { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import type { SlashCommandBuilder, ChatInputCommandInteraction, SlashCommandSubcommandBuilder } from 'discord.js';
 import type { Client } from './Client';
 
 export type BaseCommand = {
-    subCommand?: undefined | undefined;
+    parent?: string;
     developer?: boolean;
     guildOnly?: boolean;
-    data: Omit<
-        SlashCommandBuilder,
-        | 'addAttachmentOption'
-        | 'addBooleanOption'
-        | 'addChannelOption'
-        | 'addIntegerOption'
-        | 'addMentionableOption'
-        | 'addNumberOption'
-        | 'addRoleOption'
-        | 'addStringOption'
-        | 'addSubcommand'
-        | 'addSubcommandGroup'
-        | 'addUserOption'
-    >;
+    data: SlashCommandBuilder;
     execute(interaction: ChatInputCommandInteraction, client: Client): void;
 };
 
 export type SubCommand = {
-    subCommand: string;
+    parent: string;
+    data: SlashCommandSubcommandBuilder;
     execute(interaction: ChatInputCommandInteraction, client: Client): void;
 };
 

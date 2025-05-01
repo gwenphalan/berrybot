@@ -1,9 +1,12 @@
-import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction, SlashCommandSubcommandBuilder } from 'discord.js';
 import { buttons } from '../../../components';
 import { Command } from '../../../interfaces';
 
 const command: Command = {
-    subCommand: 'test.buttons',
+    parent: 'test',
+    data: new SlashCommandSubcommandBuilder()
+        .setName('button')
+        .setDescription('Test button'),
     async execute(interaction: ChatInputCommandInteraction, client) {
         // Return if the interaction wasn't used in a guild.
         if (!interaction.guild) {
