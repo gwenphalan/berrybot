@@ -16,7 +16,7 @@ export const guildSettings = {
     get: async (guildId: string) =>
         (await GuildSettings.findOne({ guild: guildId })) ||
         (await GuildSettings.create({
-            guild: guildId
+            guild: guildId,
         })),
     async update(guildId: string, settings: GuildSettings) {
         await GuildSettings.updateOne({ guild: guildId }, settings);
