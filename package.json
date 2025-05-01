@@ -17,16 +17,18 @@
         "deleteLock": "if exist yarn.lock del /f yarn.lock",
         "installModules": "yarn install",
         "reinstall": "yarn cleanCache && yarn deleteModules && yarn deleteLock && yarn installModules",
-        "cleanCache": "yarn cache clean"
+        "cleanCache": "yarn cache clean",
+        "prepare": "husky"
     },
     "keywords": [
         "discord",
         "typescript"
     ],
-    "husky": {
-        "hooks": {
-            "pre-commit": "precise-commits && yarn lint"
-        }
+    "lint-staged": {
+        "src/**/*.{ts,js,json}": [
+            "prettier --write",
+            "eslint --fix"
+        ]
     },
     "repository": {
         "type": "git",
@@ -63,6 +65,7 @@
         "eslint-config-prettier": "^10.0.0",
         "eslint-plugin-prettier": "^5.0.0",
         "husky": "^9.0.11",
+        "lint-staged": "^15.2.2",
         "prettier": "^3.5.3",
         "typescript": "^5.8.3",
         "yarn": "^1.22.22"
