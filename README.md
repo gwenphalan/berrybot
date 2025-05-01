@@ -123,17 +123,11 @@ NODE_ENV=development | production
 1. Clone the repository
 2. Install dependencies:
 ```bash
-// Linux
 yarn install
-
-// Windows
 ```
 3. Build the project:
 ```bash
-// Linux
 yarn build
-
-// Windows
 ```
 4. Start the bot:
 ```bash
