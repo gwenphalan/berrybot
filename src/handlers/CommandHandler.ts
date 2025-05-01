@@ -1,7 +1,7 @@
 import { SlashCommandSubcommandBuilder, type ApplicationCommandDataResolvable } from 'discord.js';
 import type { Client } from '../interfaces/Client';
 import type { Command, SubCommand } from '../interfaces';
-import { Files } from '../util';
+import { Files, logger } from '../util';
 import { BaseCommand } from '../interfaces/Command';
 
 export async function loadCommands(client: Client) {
@@ -16,7 +16,7 @@ export async function loadCommands(client: Client) {
 
     const files = await Files.load('commands');
 
-    console.log('Loading commands...');
+    logger.info('Loading commands...');
 
     files.forEach(f => {
         try {
@@ -29,16 +29,13 @@ export async function loadCommands(client: Client) {
             else
             {
                 client.commands.set(command.data.name, command as BaseCommand);
-
                 commandsArray.push(command);
             }
                 
             return table.addRow(command.parent ? `${command.parent}.${command.data.name}` : command.data.name, '🟩');
-
         } catch (error) {
             const commandName = f.split('/')[f.split('/').length - 1].split('.')[0];
-            console.log(`Error loading command ${commandName}`);
-            console.error(error);
+            logger.error(error);
             return table.addRow(commandName, '🟥');
         }
     });
@@ -60,7 +57,7 @@ export async function loadCommands(client: Client) {
 
     client.application?.commands.set(commandData);
 
-    console.log('\n' + table.toString());
+    logger.info('\n' + table.toString());
 
-    console.log('Commands Loaded.');
+    logger.info('Commands Loaded.');
 }
