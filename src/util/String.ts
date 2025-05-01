@@ -11,8 +11,11 @@ import { Collection } from 'discord.js';
  * @param placeholders - A collection mapping keys to their replacement values.
  * @returns The string with placeholders replaced by their corresponding values from the collection.
  */
-export function parseStringPlaceholders(str: string, placeholders: Collection<string, string>): string {
-    return str.replace(/{{(\w+)}}/g, (match, key) => {
-        return placeholders.get(key) || match;
-    });
+export function parseStringPlaceholders(
+	str: string,
+	placeholders: Collection<string, string>
+): string {
+	return str.replace(/{{(\w+)}}/g, (match, key) => {
+		return placeholders.get(key) || match;
+	});
 }

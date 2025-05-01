@@ -2,23 +2,23 @@ import { Guild, HexColorString, RGBTuple } from 'discord.js';
 import { createCanvas, loadImage } from 'canvas';
 
 type ColorName =
-    | 'Red'
-    | 'Orange'
-    | 'Yellow'
-    | 'Green'
-    | 'Blue'
-    | 'Purple'
-    | 'Pink'
-    | 'Brown'
-    | 'White'
-    | 'Black'
-    | 'Grey'
-    | 'Aqua'
-    | 'Lime'
-    | 'Magenta'
-    | 'Silver'
-    | 'Cyan'
-    | 'Gold';
+	| 'Red'
+	| 'Orange'
+	| 'Yellow'
+	| 'Green'
+	| 'Blue'
+	| 'Purple'
+	| 'Pink'
+	| 'Brown'
+	| 'White'
+	| 'Black'
+	| 'Grey'
+	| 'Aqua'
+	| 'Lime'
+	| 'Magenta'
+	| 'Silver'
+	| 'Cyan'
+	| 'Gold';
 
 /**
  * Converts a color name to a hex color string, or returns a random color if no color name is provided.
@@ -34,29 +34,29 @@ type ColorName =
  * colorToHex(); // returns a random hex color string
  */
 export function colorToHex(color?: ColorName): HexColorString {
-    if (!color) {
-        return <HexColorString>('#' + Math.floor(Math.random() * 16777215).toString(16));
-    }
-    const colors: Record<ColorName, HexColorString> = {
-        Red: '#FF0000',
-        Orange: '#FFA500',
-        Yellow: '#FFFF00',
-        Green: '#008000',
-        Blue: '#0000FF',
-        Purple: '#800080',
-        Pink: '#FFC0CB',
-        Brown: '#A52A2A',
-        White: '#FFFFFF',
-        Black: '#000000',
-        Grey: '#808080',
-        Aqua: '#00FFFF',
-        Lime: '#00FF00',
-        Magenta: '#FF00FF',
-        Silver: '#C0C0C0',
-        Cyan: '#00FFFF',
-        Gold: '#FFD700'
-    };
-    return colors[color];
+	if (!color) {
+		return <HexColorString>('#' + Math.floor(Math.random() * 16777215).toString(16));
+	}
+	const colors: Record<ColorName, HexColorString> = {
+		Red: '#FF0000',
+		Orange: '#FFA500',
+		Yellow: '#FFFF00',
+		Green: '#008000',
+		Blue: '#0000FF',
+		Purple: '#800080',
+		Pink: '#FFC0CB',
+		Brown: '#A52A2A',
+		White: '#FFFFFF',
+		Black: '#000000',
+		Grey: '#808080',
+		Aqua: '#00FFFF',
+		Lime: '#00FF00',
+		Magenta: '#FF00FF',
+		Silver: '#C0C0C0',
+		Cyan: '#00FFFF',
+		Gold: '#FFD700',
+	};
+	return colors[color];
 }
 
 /**
@@ -67,28 +67,28 @@ export function colorToHex(color?: ColorName): HexColorString {
  * getDominantColor('https://i.imgur.com/0X0X0X0.png'); // returns #02f2f2
  */
 export async function getDominantColor(url: string): Promise<HexColorString> {
-    const image = await loadImage(url);
-    const canvas = createCanvas(image.width, image.height);
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(image, 0, 0);
-    const imageData = ctx.getImageData(0, 0, image.width, image.height);
-    const pixels = imageData.data;
-    const pixelCount = image.width * image.height;
-    const rgb = { r: 0, g: 0, b: 0 };
-    for (let i = 0, offset, r, g, b, brightness; i < pixelCount; i = i + 1) {
-        offset = i * 4;
-        r = pixels[offset + 0];
-        g = pixels[offset + 1];
-        b = pixels[offset + 2];
-        brightness = (r + g + b) / 3;
-        rgb.r += r * brightness;
-        rgb.g += g * brightness;
-        rgb.b += b * brightness;
-    }
-    rgb.r = Math.floor(rgb.r / pixelCount);
-    rgb.g = Math.floor(rgb.g / pixelCount);
-    rgb.b = Math.floor(rgb.b / pixelCount);
-    return rgbToHex(rgb.r, rgb.g, rgb.b);
+	const image = await loadImage(url);
+	const canvas = createCanvas(image.width, image.height);
+	const ctx = canvas.getContext('2d');
+	ctx.drawImage(image, 0, 0);
+	const imageData = ctx.getImageData(0, 0, image.width, image.height);
+	const pixels = imageData.data;
+	const pixelCount = image.width * image.height;
+	const rgb = { r: 0, g: 0, b: 0 };
+	for (let i = 0, offset, r, g, b, brightness; i < pixelCount; i = i + 1) {
+		offset = i * 4;
+		r = pixels[offset + 0];
+		g = pixels[offset + 1];
+		b = pixels[offset + 2];
+		brightness = (r + g + b) / 3;
+		rgb.r += r * brightness;
+		rgb.g += g * brightness;
+		rgb.b += b * brightness;
+	}
+	rgb.r = Math.floor(rgb.r / pixelCount);
+	rgb.g = Math.floor(rgb.g / pixelCount);
+	rgb.b = Math.floor(rgb.b / pixelCount);
+	return rgbToHex(rgb.r, rgb.g, rgb.b);
 }
 
 /**
@@ -99,27 +99,27 @@ export async function getDominantColor(url: string): Promise<HexColorString> {
  * getAverageColor('https://i.imgur.com/0X0X0X0.png'); // returns #02f2f2
  */
 export async function getAverageColor(url: string): Promise<HexColorString> {
-    const image = await loadImage(url);
-    const canvas = createCanvas(image.width, image.height);
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(image, 0, 0);
-    const imageData = ctx.getImageData(0, 0, image.width, image.height);
-    const pixels = imageData.data;
-    const pixelCount = image.width * image.height;
-    const rgb = { r: 0, g: 0, b: 0 };
-    for (let i = 0, offset, r, g, b; i < pixelCount; i = i + 1) {
-        offset = i * 4;
-        r = pixels[offset + 0];
-        g = pixels[offset + 1];
-        b = pixels[offset + 2];
-        rgb.r += r;
-        rgb.g += g;
-        rgb.b += b;
-    }
-    rgb.r = Math.floor(rgb.r / pixelCount);
-    rgb.g = Math.floor(rgb.g / pixelCount);
-    rgb.b = Math.floor(rgb.b / pixelCount);
-    return rgbToHex(rgb.r, rgb.g, rgb.b);
+	const image = await loadImage(url);
+	const canvas = createCanvas(image.width, image.height);
+	const ctx = canvas.getContext('2d');
+	ctx.drawImage(image, 0, 0);
+	const imageData = ctx.getImageData(0, 0, image.width, image.height);
+	const pixels = imageData.data;
+	const pixelCount = image.width * image.height;
+	const rgb = { r: 0, g: 0, b: 0 };
+	for (let i = 0, offset, r, g, b; i < pixelCount; i = i + 1) {
+		offset = i * 4;
+		r = pixels[offset + 0];
+		g = pixels[offset + 1];
+		b = pixels[offset + 2];
+		rgb.r += r;
+		rgb.g += g;
+		rgb.b += b;
+	}
+	rgb.r = Math.floor(rgb.r / pixelCount);
+	rgb.g = Math.floor(rgb.g / pixelCount);
+	rgb.b = Math.floor(rgb.b / pixelCount);
+	return rgbToHex(rgb.r, rgb.g, rgb.b);
 }
 
 /**
@@ -130,11 +130,11 @@ export async function getAverageColor(url: string): Promise<HexColorString> {
  * hexToRGB('#02f2f2'); // returns [2, 242, 242]
  */
 export function hexToRGB(hex: HexColorString): RGBTuple {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
+	const r = parseInt(hex.slice(1, 3), 16);
+	const g = parseInt(hex.slice(3, 5), 16);
+	const b = parseInt(hex.slice(5, 7), 16);
 
-    return [r, g, b];
+	return [r, g, b];
 }
 
 /**
@@ -147,7 +147,7 @@ export function hexToRGB(hex: HexColorString): RGBTuple {
  * rgbToHex(2, 242, 242); // returns #02f2f2
  */
 export function rgbToHex(r: number, g: number, b: number): HexColorString {
-    return <HexColorString>('#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join(''));
+	return <HexColorString>('#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join(''));
 }
 export async function getGuildColor(guild: Guild): Promise<HexColorString>;
 export async function getGuildColor(guild: Guild, rgb: true): Promise<RGBTuple>;
@@ -161,10 +161,13 @@ export async function getGuildColor(guild: Guild, rgb: true): Promise<RGBTuple>;
  * getGuildColor(message.guild); // returns #02f2f2
  * getGuildColor(message.guild, true); // returns [2, 242, 242]
  */
-export async function getGuildColor(guild: Guild, rgb?: boolean): Promise<HexColorString | RGBTuple> {
-    const iconURL = guild.iconURL({ size: 128, extension: 'png' });
-    const hex = iconURL != null ? await getAverageColor(iconURL) : colorToHex('Aqua');
-    return rgb ? hexToRGB(hex) : hex;
+export async function getGuildColor(
+	guild: Guild,
+	rgb?: boolean
+): Promise<HexColorString | RGBTuple> {
+	const iconURL = guild.iconURL({ size: 128, extension: 'png' });
+	const hex = iconURL != null ? await getAverageColor(iconURL) : colorToHex('Aqua');
+	return rgb ? hexToRGB(hex) : hex;
 }
 
 /**
@@ -176,8 +179,11 @@ export async function getGuildColor(guild: Guild, rgb?: boolean): Promise<HexCol
  * getGuildColor(message.guild); // returns #02f2f2
  * getGuildColor(message.guild, true); // returns [2, 242, 242]
  */
-export async function getGuildDominantColor(guild: Guild, rgb?: boolean): Promise<HexColorString | RGBTuple> {
-    const iconURL = guild.iconURL({ size: 2048, extension: 'png' });
-    const hex = iconURL != null ? await getDominantColor(iconURL) : colorToHex('Aqua');
-    return rgb ? hexToRGB(hex) : hex;
+export async function getGuildDominantColor(
+	guild: Guild,
+	rgb?: boolean
+): Promise<HexColorString | RGBTuple> {
+	const iconURL = guild.iconURL({ size: 2048, extension: 'png' });
+	const hex = iconURL != null ? await getDominantColor(iconURL) : colorToHex('Aqua');
+	return rgb ? hexToRGB(hex) : hex;
 }

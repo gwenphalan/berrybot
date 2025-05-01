@@ -4,20 +4,20 @@ import TestSelect from './selectMenus/test-select';
 import TestMultiSelect from './selectMenus/test-multi-select';
 
 export const buttons = {
-    TestButton
+	TestButton,
 };
 
 export const modals = {
-    TestModal
+	TestModal,
 };
 
 export const selectMenus = {
-    TestSelect,
-    TestMultiSelect
+	TestSelect,
+	TestMultiSelect,
 };
 
 export default {
-    ...buttons,
-    ...modals,
-    ...selectMenus
+	...buttons,
+	...modals,
+	...selectMenus,
 };

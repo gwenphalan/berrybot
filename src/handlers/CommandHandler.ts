@@ -5,59 +5,65 @@ import { Files, logger } from '../util';
 import { BaseCommand } from '../interfaces/Command';
 
 export async function loadCommands(client: Client) {
-    const ascii = require('ascii-table');
-    const table = new ascii().setHeading('Commands', 'Status');
+	const ascii = require('ascii-table');
+	const table = new ascii().setHeading('Commands', 'Status');
 
-    await client.commands.clear();
-    await client.subCommands.clear();
+	await client.commands.clear();
+	await client.subCommands.clear();
 
-    const commandsArray: Command[] = [];
-    const subCommandsArray: SubCommand[] = [];
+	const commandsArray: Command[] = [];
+	const subCommandsArray: SubCommand[] = [];
 
-    const files = await Files.load('commands');
+	const files = await Files.load('commands');
 
-    logger.info('Loading commands...');
+	logger.info('Loading commands...');
 
-    files.forEach(f => {
-        try {
-            const command: Command = require(f);
+	files.forEach((f) => {
+		try {
+			const command: Command = require(f);
 
-            if (command.parent !== null && command.parent !== undefined) {
-                subCommandsArray.push(command as SubCommand);
-                client.subCommands.set(`${command.parent}.${command.data.name}`, <SubCommand>command);
-            }
-            else
-            {
-                client.commands.set(command.data.name, command as BaseCommand);
-                commandsArray.push(command);
-            }
-                
-            return table.addRow(command.parent ? `${command.parent}.${command.data.name}` : command.data.name, '🟩');
-        } catch (error) {
-            const commandName = f.split('/')[f.split('/').length - 1].split('.')[0];
-            logger.error(error);
-            return table.addRow(commandName, '🟥');
-        }
-    });
+			if (command.parent !== null && command.parent !== undefined) {
+				subCommandsArray.push(command as SubCommand);
+				client.subCommands.set(
+					`${command.parent}.${command.data.name}`,
+					<SubCommand>command
+				);
+			} else {
+				client.commands.set(command.data.name, command as BaseCommand);
+				commandsArray.push(command);
+			}
 
-    subCommandsArray.forEach(command => {
-        const parentCommand = client.commands.filter(cmd => cmd.data.name === command.parent).first();
+			return table.addRow(
+				command.parent ? `${command.parent}.${command.data.name}` : command.data.name,
+				'🟩'
+			);
+		} catch (error) {
+			const commandName = f.split('/')[f.split('/').length - 1].split('.')[0];
+			logger.error(error);
+			return table.addRow(commandName, '🟥');
+		}
+	});
 
-        if (!parentCommand) return;
+	subCommandsArray.forEach((command) => {
+		const parentCommand = client.commands
+			.filter((cmd) => cmd.data.name === command.parent)
+			.first();
 
-        parentCommand.data.addSubcommand(command.data as SlashCommandSubcommandBuilder);
-    });
+		if (!parentCommand) return;
 
-    const commandData: ApplicationCommandDataResolvable[] = [];
+		parentCommand.data.addSubcommand(command.data as SlashCommandSubcommandBuilder);
+	});
 
-    commandsArray.forEach(cmd => {
-        const data = (cmd.data as any).toJSON();
-        commandData.push(data);
-    });
+	const commandData: ApplicationCommandDataResolvable[] = [];
 
-    client.application?.commands.set(commandData);
+	commandsArray.forEach((cmd) => {
+		const data = (cmd.data as any).toJSON();
+		commandData.push(data);
+	});
 
-    logger.info('\n' + table.toString());
+	client.application?.commands.set(commandData);
 
-    logger.info('Commands Loaded.');
+	logger.info('\n' + table.toString());
+
+	logger.info('Commands Loaded.');
 }

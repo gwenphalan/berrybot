@@ -4,11 +4,11 @@ import { loadCommands } from '../../handlers';
 import { Client } from '../../interfaces';
 import { logger } from '../../util';
 export const event: Event = {
-    name: Events.ClientReady,
-    once: true,
-    execute(c: Client) {
-        logger.info(`Logged in as ${c.user?.tag}!`);
+	name: Events.ClientReady,
+	once: true,
+	execute(c: Client) {
+		logger.info(`Logged in as ${c.user?.tag}!`);
 
-        loadCommands(c);
-    }
+		loadCommands(c);
+	},
 };
