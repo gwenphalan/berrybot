@@ -11,4 +11,3 @@ const command: Command = {
 };
 
 module.exports = command;
-
