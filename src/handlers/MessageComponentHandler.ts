@@ -1,6 +1,6 @@
 import type { Client } from '../interfaces';
 import { BaseMessageComponent } from '../interfaces/MessageComponent';
-import { Files } from '../util';
+import { Files, logger } from '../util';
 
 export const loadComponents = async (client: Client) => {
     const ascii = require('ascii-table');
@@ -10,7 +10,7 @@ export const loadComponents = async (client: Client) => {
 
     const types = ['button', 'selectMenu', 'modal'];
     
-    console.log('Loading message components...');
+    logger.info('Loading message components...');
 
     for (let i = 0; i < types.length; i++) {
         const components = await Files.load(`components/${types[i]}s`);
@@ -26,13 +26,13 @@ export const loadComponents = async (client: Client) => {
 
                 table.addRow(types[i], name, '🟩');
             } catch (error) {
-                console.log(`Error loading component ${componentName}: ${error}`);
+                logger.error(`Error loading component ${componentName}: ${error}`);
                 table.addRow(types[i], componentName, '🟥');
             }
         }
     }
 
-    console.log('\n' + table.toString());
+    logger.info('\n' + table.toString());
 
-    console.log('Message Components Loaded');
+    logger.info('Message Components Loaded');
 };

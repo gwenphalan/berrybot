@@ -1,5 +1,5 @@
 import type { Client } from '../interfaces';
-import { Files } from '../util';
+import { Files, logger } from '../util';
 
 export const loadEvents = async (client: Client) => {
     const ascii = require('ascii-table');
@@ -9,7 +9,7 @@ export const loadEvents = async (client: Client) => {
 
     const files = await Files.load('events');
 
-    console.log('Loading events...');
+    logger.info('Loading events...');
 
     files.forEach((file: string) => {
         try {
@@ -36,13 +36,12 @@ export const loadEvents = async (client: Client) => {
             table.addRow(event.name, '🟩');
         } catch (error) {
             const eventName = file.split('/')[file.split('/').length - 1].split('.')[0];
-            console.log(`${eventName}: ${error}`);
-            console.error(error);
+            logger.error(error);
             table.addRow(eventName, '🟥');
         }
     });
 
-    console.log('\n' + table.toString());
+    logger.info('\n' + table.toString());
 
-    console.log('Events Loaded.');
+    logger.info('Events Loaded.');
 };
