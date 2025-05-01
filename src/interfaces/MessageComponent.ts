@@ -10,6 +10,9 @@ export enum ComponentTypes {
 
 export interface BaseMessageComponent {
     id: string;
+    /**
+     * @deprecated Implied by the component type.
+     */
     type: ComponentTypes;
     multi_select?: boolean;
     permissions?: bigint[];

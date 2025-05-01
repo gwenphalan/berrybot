@@ -15,3 +15,9 @@ export const selectMenus = {
     TestSelect,
     TestMultiSelect
 };
+
+export default {
+    ...buttons,
+    ...modals,
+    ...selectMenus
+};

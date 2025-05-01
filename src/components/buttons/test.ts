@@ -7,13 +7,20 @@ export const MessageComponent: ButtonComponent = {
     permissions: [PermissionFlagsBits.ManageEvents, PermissionFlagsBits.ManageRoles],
     async build(client) {
         const testJSON = {
-            boolean: true,
-            number: 1,
-            string: 'test',
-            array: [1, 2, 3]
+            type:    "modal",
+            id:      "mod_history",
+            userId:  "123456789012345678",
+            page:    2,
+            filters: {
+              sort:     "recent", 
+              category: "moderation",
+              tags:     ["bans", "kicks", "mutes"],
+              priority: "high",
+              resolved: false
+            },
         };
         return new ButtonBuilder()
-            .setCustomId(await client.getCustomID('test-button', testJSON))
+            .setCustomId(await client.getCustomID(this.id, testJSON))
             .setLabel('Test Button')
             .setStyle(ButtonStyle.Primary);
     },
@@ -27,8 +34,9 @@ export const MessageComponent: ButtonComponent = {
             array: number[];
         }
     ) {
+        console.log(data);
         interaction.reply({
-            content: `This is a test button!\n ${data.boolean}\n ${data.number}\n ${data.string}\n ${data.array}`,
+            content: `This is a test button!`,
             ephemeral: true
         });
     }

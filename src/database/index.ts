@@ -12,7 +12,13 @@ db.on('error', err => console.log(err));
 
 db.once('open', () => console.log(`Connected to MongoDB Atlas at ${db.name}`));
 
-export const guildSettings = {
+interface Model {
+    get: (document_id: string) => Promise<any>;
+    update: (document_id: string, data: any) => Promise<any>;
+    model: mongoose.Model<any>;
+}
+
+export const guildSettings: Model = {
     get: async (guildId: string) =>
         (await GuildSettings.findOne({ guild: guildId })) ||
         (await GuildSettings.create({
@@ -27,6 +33,9 @@ export const guildSettings = {
     model: GuildSettings
 };
 
+// Add new models here
+
 export const database = {
     guildSettings
+    // Add new models here
 };

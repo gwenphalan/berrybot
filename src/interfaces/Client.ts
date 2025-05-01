@@ -5,6 +5,8 @@ import { loadComponents, loadEvents } from '../handlers';
 import type { BaseCommand, SubCommand } from './Command';
 import type { Event } from './Event';
 import { BaseMessageComponent, MessageComponent } from './MessageComponent';
+import { logger } from '../util';
+import { compressToUTF16 } from "lz-string";
 
 export class Client extends BaseClient {
     commands = new Collection<string, BaseCommand>();
@@ -29,10 +31,22 @@ export class Client extends BaseClient {
     }
 
     getCustomID(id: string, data: any): string {
-        const value = data ? `${id}[${JSON.stringify(data, null, 0)}]` : id;
+        const dataJson = JSON.stringify(data, null, 0);
+        const compressed = compressToUTF16(dataJson);
+        let value = data ? `${id}[${compressed.length < dataJson.length ? compressed : dataJson}]` : id;
 
-        if (value.length > 100) throw new Error('Custom ID is too long. Cannot be longer than 100 characters.');
+        logger.info(`Data JSON (Length: ${dataJson.length}): ${dataJson}`);
+
+        logger.info(`Data String (Length: ${compressed.length}): ${compressed}`);
+
+        logger.info(`Data Compressed: ${compressed.length < dataJson.length}`);
+        
+
+        if (value.length > 100) {
+            logger.error(`Custom ID is too long. Cannot be longer than 100 characters. Please shorten the data or id you are passing to the component. Data String Length: ${value.length}, ID Length: ${id.length}`);
+            return id;
+        }
 
         return value;
-    }
+    };
 }
