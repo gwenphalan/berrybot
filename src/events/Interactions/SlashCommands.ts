@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction, Events } from 'discord.js';
 import { config } from '../../config';
 import { Client, Event } from '../../interfaces';
-import { logger } from '../../util';
 
 export const event: Event = {
     name: Events.InteractionCreate,
@@ -33,7 +32,7 @@ export const event: Event = {
         try {
             const subCommand = interaction.options.getSubcommand(false);
             if (subCommand) {
-                logger.info(`Subcommand ${subCommand} was used!`);
+                console.log(`Subcommand ${subCommand} was used!`);
                 const subCommandFile = client.subCommands.get(`${interaction.commandName}.${subCommand}`);
                 if (!subCommandFile)
                     return interaction.reply({
@@ -45,7 +44,7 @@ export const event: Event = {
                 command.execute(interaction, client);
             }
         } catch (error) {
-            logger.error(error);
+            console.log(error);
         }
         return;
     }

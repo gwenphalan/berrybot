@@ -2,7 +2,6 @@
 
 import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 import { ModalComponent, ComponentTypes } from '../../interfaces/MessageComponent';
-import { logger } from '../../util';
 
 export const MessageComponent: ModalComponent = {
     id: 'test-modal',
@@ -16,7 +15,8 @@ export const MessageComponent: ModalComponent = {
     },
 
     async execute(interaction, _client, fields) {
-        logger.info(
+        // Log the response to the console in a ascii table.
+        console.log(
             '\n' + new (require('ascii-table'))().setHeading('Field', 'Response').addRow('test-modal-input', fields.get('test-modal-input')?.value).toString()
         );
 
