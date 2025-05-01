@@ -3,7 +3,7 @@ import { ModalComponent, ComponentTypes } from '../../interfaces/MessageComponen
 import { RoleMessage } from '../../messages/role-select';
 import RoleSelect from '../selectMenus/role-select';
 import BackButton from '../buttons/roles-back';
-import { r\oleCategory } from '../../messages/role-category';
+import { RoleCategory } from '../../messages/role-category';
 
 export const MessageComponent: ModalComponent = {
     id: 'category-name',
@@ -51,7 +51,7 @@ export const MessageComponent: ModalComponent = {
             await RoleMessage(client, interaction.guild);
 
             interaction.deferUpdate();
-            return message.edit(await r\oleCategory.build(client, interaction.guild, 'edit', name));
+            return message.edit(await RoleCategory.build(client, interaction.guild, 'edit', name));
         }
 
         if (database.selfRoles.categories.find(c => c.name === name))
