@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, Guild, GuildMember, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, EmbedBuilder, Guild, GuildMember, PermissionFlagsBits, StringSelectMenuBuilder } from 'discord.js';
 import { util } from '../../bot';
 import { SelfRoleCategory } from '../../database/schemas/GuildSettings';
 import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
@@ -18,7 +18,7 @@ export const MessageComponent: SelectMenuComponent = {
 
         const guildRoles = guild.roles.cache.filter(r => !r.managed && r.editable && r.name !== '@everyone');
 
-        const menu = new SelectMenuBuilder().setCustomId(client.getCustomID('role-select', data)).setPlaceholder('Select Roles');
+        const menu = new StringSelectMenuBuilder().setCustomId(client.getCustomID('role-select', data)).setPlaceholder('Select Roles');
 
         if (!guildRoles.size)
             return menu

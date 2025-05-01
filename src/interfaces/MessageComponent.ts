@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import { Client } from './';
 
-type ComponentInteraction = discord.ButtonInteraction | discord.SelectMenuInteraction | discord.ModalSubmitInteraction;
+type ComponentInteraction = discord.ButtonInteraction | discord.StringSelectMenuInteraction | discord.ModalSubmitInteraction;
 export enum ComponentTypes {
     Button = 'BUTTON',
     SelectMenu = 'SELECT_MENU',

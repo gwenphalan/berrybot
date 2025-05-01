@@ -1,4 +1,4 @@
-import { Collection, Client as BaseClient } from 'discord.js';
+import { Collection, Client as BaseClient, GatewayIntentBits, Partials } from 'discord.js';
 import { config } from '../config';
 import { database } from '../database';
 import { loadComponents, loadEvents } from '../handlers';
@@ -12,6 +12,13 @@ export class Client extends BaseClient {
     events = new Collection<string, Event['execute']>();
     messageComponents = new Collection<string, BaseMessageComponent | MessageComponent>();
     database = database;
+
+    constructor(config: { intents: GatewayIntentBits[]; partials: Partials[] }) {
+        super({
+            intents: config.intents,
+            partials: config.partials
+        });
+    }
 
     async init() {
         this.events = new Collection();

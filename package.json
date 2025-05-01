@@ -8,9 +8,9 @@
         "start": "yarn build && node -r dotenv/config build/index.js",
         "dev": "yarn build && node build/bot.js",
         "lint": "eslint ./src/**/*.ts --fix",
-        "clean": "rm -rf build/* && rm -rf tsconfig.tsbuildinfo",
-        "deleteModules": "rm -rf node_modules/*",
-        "deleteLock": "rm yarn.lock",
+        "clean": "if exist build rmdir /s /q build && if exist tsconfig.tsbuildinfo del /f tsconfig.tsbuildinfo",
+        "deleteModules": "if exist node_modules rmdir /s /q node_modules",
+        "deleteLock": "if exist yarn.lock del /f yarn.lock",
         "installModules": "yarn install",
         "reinstall": "yarn cleanCache && yarn deleteModules && yarn deleteLock && yarn installModules",
         "cleanCache": "yarn cache clean"
@@ -36,25 +36,25 @@
     "homepage": "https://github.com/gwenphalan/berrybot#readme",
     "dependencies": {
         "ascii-table": "^0.0.9",
-        "canvas": "^2.10.2",
-        "discord.js": "^14.6.0",
-        "dotenv": "^16.0.3",
-        "glob": "^8.0.3",
-        "mongoose": "^6.7.2"
+        "canvas": "^3.1.0",
+        "discord.js": "^14.19.2",
+        "dotenv": "^16.4.5",
+        "glob": "^11.0.2",
+        "mongoose": "^8.2.0"
     },
     "devDependencies": {
-        "@types/glob": "^8.0.0",
-        "@types/node": "^18.11.5",
-        "@typescript-eslint/eslint-plugin": ">=5.31.0",
-        "@typescript-eslint/parser": ">=5.31.0",
-        "eslint": ">=8.0.0",
-        "eslint-config-prettier": "^8.5.0",
-        "eslint-config-xo": "^0.42.0",
-        "eslint-config-xo-typescript": "^0.53.0",
-        "eslint-plugin-prettier": "^4.2.1",
-        "husky": "^8.0.1",
-        "prettier": "^2.7.1",
-        "typescript": "^4.8.4",
-        "yarn": "^1.22.19"
+        "@types/glob": "^8.1.0",
+        "@types/node": "^22.15.3",
+        "@typescript-eslint/eslint-plugin": "^8.31.1",
+        "@typescript-eslint/parser": "^8.31.1",
+        "eslint": "^9.25.1",
+        "eslint-config-prettier": "^10.1.2",
+        "eslint-config-xo": "^0.47.0",
+        "eslint-config-xo-typescript": "^8.0.0",
+        "eslint-plugin-prettier": "^5.1.3",
+        "husky": "^9.0.11",
+        "prettier": "^3.2.5",
+        "typescript": "^5.3.3",
+        "yarn": "^1.22.22"
     }
 }

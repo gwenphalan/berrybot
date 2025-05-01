@@ -46,6 +46,7 @@ BerryBot is an Open Source discord bot, created to replace the corrupt discord b
     -   Member Welcoming
         -   Send personlized welcome messages to new users.
 
+
 # License
 
 [MIT](https://choosealicense.com/licenses/mit/)

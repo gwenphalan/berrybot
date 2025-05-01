@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Guild, SelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Guild, StringSelectMenuBuilder } from 'discord.js';
 import { util } from '../bot';
 import { MessageBuilder } from '../interfaces';
 import RoleCategory from '../components/selectMenus/role-category';
@@ -10,7 +10,7 @@ export const roleCategorySelect: MessageBuilder = {
     async build(client, guild: Guild, action: 'view' | 'edit') {
         const categories = (await client.database.guildSettings.get(guild.id))?.selfRoles?.categories;
 
-        const components: ActionRowBuilder<ButtonBuilder | SelectMenuBuilder>[] = [];
+        const components: ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[] = [];
 
         if (!categories || categories.length === 0) {
             this.embeds = [
@@ -26,7 +26,7 @@ export const roleCategorySelect: MessageBuilder = {
                 ])
             );
         } else {
-            components.push(new ActionRowBuilder<SelectMenuBuilder>().addComponents(await RoleCategory.build(client, guild, action)));
+            components.push(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(await RoleCategory.build(client, guild, action)));
             components.push(new ActionRowBuilder<ButtonBuilder>().addComponents(await BackButton.build(client)));
         }
 

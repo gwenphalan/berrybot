@@ -9,7 +9,9 @@ export const loadEvents = async (client: Client) => {
 
     const files = await Files.load('events');
 
-    files.forEach(file => {
+    console.log('Loading events...');
+
+    files.forEach((file: string) => {
         try {
             const { event } = require(file);
 
@@ -34,7 +36,8 @@ export const loadEvents = async (client: Client) => {
             table.addRow(event.name, '🟩');
         } catch (error) {
             const eventName = file.split('/')[file.split('/').length - 1].split('.')[0];
-            console.log(`Error loading event ${eventName}: ${error}`);
+            console.log(`${eventName}: ${error}`);
+            console.error(error);
             table.addRow(eventName, '🟥');
         }
     });

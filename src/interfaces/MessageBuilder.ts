@@ -3,6 +3,6 @@ import { Client } from './Client';
 
 export interface MessageBuilder {
     embeds: discord.EmbedBuilder[];
-    components: discord.ActionRowBuilder<discord.ButtonBuilder | discord.SelectMenuBuilder>[];
+    components: discord.ActionRowBuilder<discord.ButtonBuilder | discord.StringSelectMenuBuilder>[];
     build(client: Client, ...args: any): Promise<discord.BaseMessageOptions>;
 }

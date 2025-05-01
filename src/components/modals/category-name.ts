@@ -1,9 +1,9 @@
-import { ActionRowBuilder, ButtonBuilder, ModalBuilder, PermissionFlagsBits, SelectMenuBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ModalBuilder, PermissionFlagsBits, StringSelectMenuBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 import { ModalComponent, ComponentTypes } from '../../interfaces/MessageComponent';
 import { RoleMessage } from '../../messages/role-select';
 import RoleSelect from '../selectMenus/role-select';
 import BackButton from '../buttons/roles-back';
-import { RoleCategory } from '../../messages/role-category';
+import { r\oleCategory } from '../../messages/role-category';
 
 export const MessageComponent: ModalComponent = {
     id: 'category-name',
@@ -51,14 +51,14 @@ export const MessageComponent: ModalComponent = {
             await RoleMessage(client, interaction.guild);
 
             interaction.deferUpdate();
-            return message.edit(await RoleCategory.build(client, interaction.guild, 'edit', name));
+            return message.edit(await r\oleCategory.build(client, interaction.guild, 'edit', name));
         }
 
         if (database.selfRoles.categories.find(c => c.name === name))
             return interaction.reply({ content: 'A category with that name already exists!', ephemeral: true });
 
         const rows = [
-            new ActionRowBuilder<SelectMenuBuilder>().addComponents([await RoleSelect.build(client, interaction.guild, 'create', name)]),
+            new ActionRowBuilder<StringSelectMenuBuilder>().addComponents([await RoleSelect.build(client, interaction.guild, 'create', name)]),
             new ActionRowBuilder<ButtonBuilder>().addComponents([await BackButton.build(client)])
         ];
 

@@ -1,4 +1,4 @@
-import { Guild, PermissionFlagsBits, SelectMenuBuilder } from 'discord.js';
+import { Guild, PermissionFlagsBits, StringSelectMenuBuilder } from 'discord.js';
 import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
 import { RoleCategory } from '../../messages/role-category';
 
@@ -14,7 +14,7 @@ export const MessageComponent: SelectMenuComponent = {
             action: action
         };
 
-        const builder = new SelectMenuBuilder().setCustomId(client.getCustomID('role-category', data)).setPlaceholder('Select Category');
+        const builder = new StringSelectMenuBuilder().setCustomId(client.getCustomID('role-category', data)).setPlaceholder('Select Category');
 
         if (!categories) builder.setDisabled().setPlaceholder('No categories to select');
         else builder.addOptions(categories.map(c => ({ label: c.name, value: c.name, emoji: c.emoji })));

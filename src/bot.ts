@@ -38,4 +38,5 @@ const client = new Client({
     partials: [User, Message, GuildMember, ThreadMember, Reaction]
 });
 
+console.log('Starting bot...');
 client.init().catch(err => console.log(err));
