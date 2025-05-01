@@ -3,6 +3,7 @@
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Discord](https://img.shields.io/discord/1034695813026283580?color=%235865F2&label=Discord&logo=Discord)](https://discord.gg/9kJMfBGFrh)
 ![Version](https://img.shields.io/badge/version-0.0.1-ff69b4)
+[![Github Repo](https://img.shields.io/badge/-Github%20Repo-informational?logo=github&style=flat&logoColor=333333&color=333333&labelColor=999999)](https://github.com/gwenphalan/berrybot)
 
 ---
 
