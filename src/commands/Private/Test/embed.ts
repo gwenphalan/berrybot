@@ -1,11 +1,17 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 import { Command } from '../../../interfaces';
-import { example } from '../../../messages';
 
 const command: Command = {
-    subCommand: 'test.embed',
-    async execute(interaction: ChatInputCommandInteraction, client) {
-        return await interaction.reply(await example.build(client));
+    parent: 'test',
+    data: new SlashCommandSubcommandBuilder()
+        .setName('embed')
+        .setDescription('Test embed'),
+    async execute(interaction: ChatInputCommandInteraction, _client) {
+        const embed = new EmbedBuilder().setTitle('Example').setDescription('This is an example message.')
+        return await interaction.reply({
+            embeds: [embed],
+            ephemeral: true
+        });
     }
 };
 
