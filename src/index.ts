@@ -1,9 +1,5 @@
 import { ShardingManager } from 'discord.js';
 import { config } from './config';
-export * as util from './util';
-export * as handlers from './handlers';
-export * as interfaces from './interfaces';
-export * as messages from './messages';
 
 const manager: ShardingManager = new ShardingManager(__dirname + '/bot.js', {
     token: config.token

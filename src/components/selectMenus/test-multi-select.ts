@@ -1,6 +1,6 @@
 // Test Multi Select Menu
 
-import { SelectMenuBuilder } from 'discord.js';
+import { StringSelectMenuBuilder } from 'discord.js';
 import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
 
 export const MessageComponent: SelectMenuComponent = {
@@ -9,7 +9,7 @@ export const MessageComponent: SelectMenuComponent = {
     multi_select: true,
 
     async build(_client) {
-        return new SelectMenuBuilder()
+        return new StringSelectMenuBuilder()
             .setCustomId('test-select')
             .setPlaceholder('Test Select')
             .setMinValues(1)

@@ -45,10 +45,6 @@ export const event: Event = {
             }
         } catch (error) {
             console.log(error);
-            return interaction.reply({
-                content: 'An error occurred while executing the command, please contact the bot developer: ' + error,
-                ephemeral: true
-            });
         }
         return;
     }

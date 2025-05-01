@@ -1,7 +1,7 @@
 import * as discord from 'discord.js';
 import { Client } from './';
 
-type ComponentInteraction = discord.ButtonInteraction | discord.SelectMenuInteraction | discord.ModalSubmitInteraction;
+type ComponentInteraction = discord.ButtonInteraction | discord.StringSelectMenuInteraction | discord.ModalSubmitInteraction;
 export enum ComponentTypes {
     Button = 'BUTTON',
     SelectMenu = 'SELECT_MENU',
@@ -63,7 +63,7 @@ export interface ModalComponent extends Omit<BaseMessageComponent, 'execute' | '
     id: string;
     type: ComponentTypes.Modal;
     execute(
-        interaction: ComponentInteraction,
+        interaction: discord.ModalSubmitInteraction,
         client: Client,
         response: discord.Collection<string, discord.TextInputComponent>,
         data?: { [key: string]: any },
