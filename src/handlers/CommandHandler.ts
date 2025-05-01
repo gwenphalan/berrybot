@@ -14,6 +14,8 @@ export async function loadCommands(client: Client) {
 
     const files = await Files.load('commands');
 
+    console.log('Loading commands...');
+
     files.forEach(f => {
         try {
             const command: Command = require(f);
@@ -29,7 +31,8 @@ export async function loadCommands(client: Client) {
             return table.addRow(command.data.name, '🟩');
         } catch (error) {
             const commandName = f.split('/')[f.split('/').length - 1].split('.')[0];
-            console.log(`Error loading command ${commandName}: ${error}`);
+            console.log(`Error loading command ${commandName}`);
+            console.error(error);
             return table.addRow(commandName, '🟥');
         }
     });

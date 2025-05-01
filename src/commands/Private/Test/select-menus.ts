@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, SelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, ChatInputCommandInteraction, StringSelectMenuBuilder } from 'discord.js';
 import { selectMenus } from '../../../components';
 import { Command } from '../../../interfaces';
 
@@ -12,7 +12,7 @@ const command: Command = {
 
         const type: 'single' | 'multi' = interaction.options.getString('type', true) as 'single' | 'multi';
 
-        const row = new ActionRowBuilder<SelectMenuBuilder>();
+        const row = new ActionRowBuilder<StringSelectMenuBuilder>();
 
         switch (type) {
             case 'single':

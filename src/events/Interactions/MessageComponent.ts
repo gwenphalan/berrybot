@@ -1,4 +1,4 @@
-import { BaseInteraction, Events, PermissionsBitField, SelectMenuComponent } from 'discord.js';
+import { BaseInteraction, Events, PermissionsBitField, StringSelectMenuInteraction } from 'discord.js';
 import { config } from '../../config';
 import { Client, Event } from '../../interfaces';
 import { ButtonComponent, ModalComponent, MultiSelectMenuComponent, SingleSelectMenuComponent } from '../../interfaces/MessageComponent';
@@ -62,10 +62,10 @@ export const event: Event = {
             button.execute(interaction, client, data.data);
         } else if (interaction.isSelectMenu()) {
             const selectMenu: SingleSelectMenuComponent | MultiSelectMenuComponent = component as SingleSelectMenuComponent | MultiSelectMenuComponent;
-
-            const options = (interaction.component as SelectMenuComponent).options;
-            const selectedOptions = interaction.values;
-            const selectedOption = options.find(option => option.value == selectedOptions[0]);
+            const stringInteraction = interaction as StringSelectMenuInteraction;
+            const options = stringInteraction.component.options;
+            const selectedOptions = stringInteraction.values;
+            const selectedOption = options.find(option => option.value === selectedOptions[0]);
 
             if (selectMenu.multi_select) {
                 selectMenu.execute(

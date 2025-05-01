@@ -18,7 +18,6 @@ export type BaseCommand = {
         | 'addSubcommand'
         | 'addSubcommandGroup'
         | 'addUserOption'
-        | 'addChatInputOption'
     >;
     execute(interaction: ChatInputCommandInteraction, client: Client): void;
 };
