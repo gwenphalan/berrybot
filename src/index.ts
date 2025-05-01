@@ -1,13 +1,13 @@
 import { ShardingManager } from 'discord.js';
 import { config } from './config';
-
+import { logger } from './util';
 const manager: ShardingManager = new ShardingManager(__dirname + '/bot.js', {
     token: config.token
 });
 
 manager.on('shardCreate', shard => {
     shard.on('spawn', () => {
-        console.log(
+        logger.info(
             `${
                 new Date().getMonth() + 1
             }.${new Date().getDate()}.${new Date().getFullYear()} > ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()} > SHARD MANAGER > Shard ${
@@ -21,7 +21,7 @@ manager.on('shardCreate', shard => {
 manager
     .spawn()
     .catch(_e =>
-        console.log(
+        logger.info(
             `${
                 new Date().getMonth() + 1
             }.${new Date().getDate()}.${new Date().getFullYear()} > ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()} > SHARD MANAGER > Shard failed to spawn.`
