@@ -17,29 +17,29 @@ export async function loadCommands(client: Client) {
 
 	try {
 		const files = await load('commands');
-		logger.debug('Files loaded:', files);
+		logger.debug({ files }, 'Files loaded');
 
 		logger.info('Loading commands...');
 
 		files.forEach((f) => {
 			try {
-				logger.debug('Loading command from file:', f);
+				logger.debug({ file: f }, 'Loading command from file');
 				const command: Command = require(f);
-				logger.debug('Loaded command:', command);
+				logger.debug({ command }, 'Loaded command');
 
 				if (!command || !command.data || !command.execute) {
 					throw new Error(`Invalid command file: ${f}`);
 				}
 
 				if (command.parent !== null && command.parent !== undefined) {
-					logger.debug('Adding subcommand:', command.data.name);
+					logger.debug({ name: command.data.name }, 'Adding subcommand');
 					subCommandsArray.push(command as SubCommand);
 					client.subCommands.set(
 						`${command.parent}.${command.data.name}`,
 						<SubCommand>command
 					);
 				} else {
-					logger.debug('Adding main command:', command.data.name);
+					logger.debug({ name: command.data.name }, 'Adding main command');
 					client.commands.set(command.data.name, command as BaseCommand);
 					commandsArray.push(command);
 				}
@@ -49,16 +49,15 @@ export async function loadCommands(client: Client) {
 					'🟩'
 				);
 			} catch (error) {
-				logger.error('Error loading command:', f, error);
+				logger.error({ file: f, error }, 'Error loading command');
 				const commandName = f.split('/')[f.split('/').length - 1].split('.')[0];
-				logger.error(error);
 				table.addRow(commandName, '🟥');
 				throw error;
 			}
 		});
 
-		logger.debug('Commands array:', commandsArray);
-		logger.debug('Subcommands array:', subCommandsArray);
+		logger.debug({ commands: commandsArray }, 'Commands array');
+		logger.debug({ subcommands: subCommandsArray }, 'Subcommands array');
 
 		subCommandsArray.forEach((command) => {
 			const parentCommand = client.commands
@@ -77,14 +76,13 @@ export async function loadCommands(client: Client) {
 			commandData.push(data);
 		});
 
-		logger.debug('Command data to register:', commandData);
+		logger.debug({ commandData }, 'Command data to register');
 		await client.application?.commands.set(commandData);
 
 		logger.info('\n' + table.toString());
 		logger.info('Commands Loaded.');
 	} catch (error) {
-		logger.error('Error in loadCommands:', error);
-		logger.error(error);
+		logger.error({ error }, 'Error in loadCommands');
 		throw error;
 	}
 }

@@ -1,73 +1,83 @@
 {
-    "name": "berrybot",
-    "description": "BerryBot is an Open Source discord bot, created to replace the corrupt discord bots that have monopolized discord.",
-    "version": "0.0.1",
-    "type": "module",
-    "main": "build/index.js",
-    "scripts": {
-        "build": "tsc",
-        "start": "yarn build && node -r dotenv/config build/index.js",
-        "dev": "yarn build && node build/bot.js",
-        "lint": "eslint ./src/**/*.ts --fix",
-        "format": "prettier --write \"src/**/*.{ts,js,json}\"",
-        "format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
-        "lint:fix": "yarn lint && yarn format",
-        "clean": "if exist build rmdir /s /q build && if exist tsconfig.tsbuildinfo del /f tsconfig.tsbuildinfo",
-        "deleteModules": "if exist node_modules rmdir /s /q node_modules",
-        "deleteLock": "if exist yarn.lock del /f yarn.lock",
-        "installModules": "yarn install",
-        "reinstall": "yarn cleanCache && yarn deleteModules && yarn deleteLock && yarn installModules",
-        "cleanCache": "yarn cache clean",
-        "prepare": "husky"
-    },
-    "keywords": [
-        "discord",
-        "typescript"
-    ],
-    "lint-staged": {
-        "src/**/*.{ts,js,json}": [
-            "prettier --write",
-            "eslint --fix"
-        ]
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/gwenphalan/berrybot.git"
-    },
-    "author": "Gwen Phalan",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/gwenphalan/berrybot/issues"
-    },
-    "homepage": "https://github.com/gwenphalan/berrybot#readme",
-    "dependencies": {
-        "@types/lz-string": "^1.5.0",
-        "@types/pako": "^2.0.3",
-        "@types/pino": "^7.0.5",
-        "ascii-table": "^0.0.9",
-        "canvas": "^3.1.0",
-        "chalk": "^5.4.1",
-        "discord.js": "^14.19.2",
-        "dotenv": "^16.4.5",
-        "glob": "^11.0.2",
-        "mongoose": "^8.2.0",
-        "pino": "^9.6.0",
-        "pino-pretty": "^13.0.0",
-        "tslint": "^6.1.3",
-        "winston": "^3.17.0"
-    },
-    "devDependencies": {
-        "@types/glob": "^8.1.0",
-        "@types/node": "^22.15.3",
-        "@eslint/js": "^8.56.0",
-        "typescript-eslint": "^7.0.0",
-        "eslint": "^8.56.0",
-        "eslint-config-prettier": "^10.0.0",
-        "eslint-plugin-prettier": "^5.0.0",
-        "husky": "^9.0.11",
-        "lint-staged": "^15.2.2",
-        "prettier": "^3.5.3",
-        "typescript": "^5.8.3",
-        "yarn": "^1.22.22"
-    }
+	"name": "berrybot",
+	"description": "BerryBot is an Open Source discord bot, created to replace the corrupt discord bots that have monopolized discord.",
+	"version": "0.0.1",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "tsc",
+		"start": "yarn build && node -r dotenv/config dist/index.js",
+		"dev": "yarn build && node dist/bot.js",
+		"lint": "eslint ./src/**/*.ts --fix",
+		"format": "prettier --write \"src/**/*.{ts,js,json}\"",
+		"format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
+		"lint:fix": "yarn lint && yarn format",
+		"prepare": "husky",
+		"clean": "if exist build rmdir /s /q build && if exist tsconfig.tsbuildinfo del /f tsconfig.tsbuildinfo",
+		"deleteModules": "if exist node_modules rmdir /s /q node_modules",
+		"deleteLock": "if exist yarn.lock del /f yarn.lock",
+		"installModules": "yarn install",
+		"reinstall": "yarn cleanCache && yarn deleteModules && yarn deleteLock && yarn installModules",
+		"cleanCache": "yarn cache clean"
+	},
+	"keywords": [
+		"discord",
+		"typescript"
+	],
+	"husky": {
+		"hooks": {
+			"pre-commit": "precise-commits && yarn lint"
+		}
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/gwenphalan/berrybot.git"
+	},
+	"author": "Gwen Phalan",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/gwenphalan/berrybot/issues"
+	},
+	"homepage": "https://github.com/gwenphalan/berrybot#readme",
+	"dependencies": {
+		"@types/lz-string": "^1.5.0",
+		"@types/pako": "^2.0.3",
+		"@types/pino": "^7.0.5",
+		"ascii-table": "^0.0.9",
+		"chalk": "^5.4.1",
+		"discord.js": "^14.19.2",
+		"dotenv": "^16.4.5",
+		"glob": "^11.0.2",
+		"mongoose": "^8.2.0",
+		"pino": "^9.6.0",
+		"pino-pretty": "^13.0.0",
+		"tslint": "^6.1.3",
+		"winston": "^3.17.0"
+	},
+	"devDependencies": {
+		"@eslint/js": "^8.56.0",
+		"@types/chai": "^4.3.11",
+		"@types/glob": "^8.1.0",
+		"@types/node": "^22.15.3",
+		"@types/sinon-chai": "^3.2.9",
+		"@vitest/coverage-v8": "^3.1.2",
+		"canvas": "^3.1.0",
+		"eslint": "^8.56.0",
+		"eslint-config-prettier": "^10.0.0",
+		"eslint-plugin-prettier": "^5.0.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^15.5.1",
+		"prettier": "^3.5.3",
+		"typescript": "^5.8.3",
+		"typescript-eslint": "^7.0.0",
+		"yarn": "^1.22.22"
+	},
+	"lint-staged": {
+		"*.{ts,js}": [
+			"eslint --fix",
+			"prettier --write"
+		],
+		"*.{json,md}": [
+			"prettier --write"
+		]
+	}
 }

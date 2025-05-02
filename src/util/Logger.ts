@@ -26,6 +26,20 @@ const logger = pino({
 			messageFormat: '{msg}',
 			levelFirst: true,
 			destination: 1, // stdout with proper encoding
+			messageKey: 'msg',
+			errorLikeObjectKeys: ['err', 'error'],
+			errorProps: 'message,stack,code,type',
+			crlf: true,
+			singleLine: false,
+			minimumLevel: 'debug',
+		},
+	},
+	formatters: {
+		level: (label) => {
+			return { level: label };
+		},
+		log: (object) => {
+			return object;
 		},
 	},
 });
