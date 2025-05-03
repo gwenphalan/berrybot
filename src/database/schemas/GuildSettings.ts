@@ -8,6 +8,28 @@ import mongoose from 'mongoose';
 export interface GuildSettings extends mongoose.Document {
 	/** The Discord guild (server) ID */
 	guild: string;
+	/** Self-assignable roles configuration */
+	selfRoles: {
+		/** Optional message ID for the self-roles message */
+		message?: string;
+		/** Categories of self-assignable roles */
+		categories: SelfRoleCategory[];
+		/** Optional channel ID where self-roles are managed */
+		channel?: string;
+	};
+}
+
+/**
+ * Interface for a category of self-assignable roles
+ * Represents a group of roles that can be self-assigned by users
+ */
+export interface SelfRoleCategory {
+	/** Display name for the category */
+	name: string;
+	/** Array of role IDs that belong to this category */
+	roles: Role['id'][];
+	/** Optional emoji to display with the category */
+	emoji: string;
 }
 
 /**
@@ -17,6 +39,22 @@ export interface GuildSettings extends mongoose.Document {
 const GuildSettingsSchema = new mongoose.Schema({
 	/** The Discord guild (server) ID */
 	guild: String,
+	/** Self-assignable roles configuration */
+	selfRoles: {
+		/** Categories of self-assignable roles */
+		categories: Array<{
+			/** Display name for the category */
+			name: string;
+			/** Array of role IDs that belong to this category */
+			roles: Array<string>;
+			/** Optional emoji to display with the category */
+			emoji: string;
+		}>,
+		/** Optional message ID for the self-roles message */
+		message: String,
+		/** Optional channel ID where self-roles are managed */
+		channel: String,
+	},
 });
 
 /**
