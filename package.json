@@ -12,9 +12,9 @@
 		"format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
 		"lint:fix": "yarn lint && yarn format",
 		"prepare": "husky",
-		"clean": "if exist build rmdir /s /q build && if exist tsconfig.tsbuildinfo del /f tsconfig.tsbuildinfo",
-		"deleteModules": "if exist node_modules rmdir /s /q node_modules",
-		"deleteLock": "if exist yarn.lock del /f yarn.lock",
+		"clean": "rimraf dist tsconfig.tsbuildinfo",
+		"deleteModules": "rimraf node_modules",
+		"deleteLock": "rimraf yarn.lock",
 		"installModules": "yarn install",
 		"reinstall": "yarn cleanCache && yarn deleteModules && yarn deleteLock && yarn installModules",
 		"cleanCache": "yarn cache clean"
@@ -70,6 +70,7 @@
 		"husky": "^9.1.7",
 		"lint-staged": "^15.5.1",
 		"prettier": "^3.5.3",
+		"rimraf": "^5.0.5",
 		"typescript": "^5.8.3",
 		"typescript-eslint": "^7.0.0",
 		"yarn": "^1.22.22"

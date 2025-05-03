@@ -6,8 +6,6 @@ config/development.ts
 config/production.ts
 docker-compose.yaml
 .env
-.vscode
-docs
 yarn.lock
 log
 

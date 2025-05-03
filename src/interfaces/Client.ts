@@ -7,7 +7,7 @@ import type { Event } from './Event';
 import { BaseMessageComponent, MessageComponent } from './MessageComponent';
 import { logger } from '../util';
 import { compressToUTF16 } from 'lz-string';
-
+import { FlowManager } from '../handlers/FlowManager';
 /**
  * Extended Discord.js Client class that adds custom functionality
  * for command handling, event management, and component interactions
@@ -21,6 +21,8 @@ export class Client extends BaseClient {
 	events = new Collection<string, Event['execute']>();
 	/** Collection of registered message components (buttons, select menus, modals) */
 	messageComponents = new Collection<string, BaseMessageComponent | MessageComponent>();
+	// Flow Handler
+	flowManager = new FlowManager(this);
 	/** Database instance for data persistence */
 	database = database;
 
