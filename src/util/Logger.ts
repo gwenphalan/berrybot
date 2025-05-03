@@ -52,9 +52,11 @@ const logger = pino({
 					destination: 1,
 					messageKey: 'msg',
 					errorLikeObjectKeys: ['err', 'error'],
-					errorProps: 'message,stack,code,type',
+					errorProps: '*', // Include all error properties
 					crlf: true,
 					singleLine: false,
+					hideObject: false,
+					minimumLevel: 'debug',
 				},
 			},
 			// File output for latest.log with pretty printing
@@ -70,9 +72,11 @@ const logger = pino({
 					destination: latestLogPath,
 					messageKey: 'msg',
 					errorLikeObjectKeys: ['err', 'error'],
-					errorProps: 'message,stack,code,type',
+					errorProps: '*', // Include all error properties
 					crlf: true,
 					singleLine: false,
+					hideObject: false,
+					minimumLevel: 'debug',
 				},
 			},
 			// File output for error.log with pretty printing
@@ -88,9 +92,11 @@ const logger = pino({
 					destination: join(logDir, 'error.log'),
 					messageKey: 'msg',
 					errorLikeObjectKeys: ['err', 'error'],
-					errorProps: 'message,stack,code,type',
+					errorProps: '*', // Include all error properties
 					crlf: true,
 					singleLine: false,
+					hideObject: false,
+					minimumLevel: 'error',
 				},
 			},
 		],

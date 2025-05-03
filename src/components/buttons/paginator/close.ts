@@ -2,30 +2,28 @@ import { ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import { ButtonComponent, ComponentTypes } from '../../../interfaces/MessageComponent';
 import { logger } from '../../../util';
 
-export const CloseButton: ButtonComponent = {
-	id: 'button-id',
+export const MessageComponent: ButtonComponent = {
+	id: 'paginator.close',
 	type: ComponentTypes.Button,
 	permissions: [PermissionFlagsBits.ManageRoles],
 
 	async build(client) {
-		logger.debug('Building button-id button component');
+		logger.debug('Building paginator.close button component');
 
 		const button = new ButtonBuilder()
-			.setCustomId(
-				await client.getCustomID(this.id, {
-					// Add button data here
-				})
-			)
-			.setLabel('Button Label')
-			.setStyle(ButtonStyle.Primary);
+			.setCustomId(this.id)
+			.setLabel('Close')
+			.setStyle(ButtonStyle.Danger);
 
-		logger.debug('button-id button built successfully');
+		logger.debug('paginator.close button built successfully');
 		return button;
 	},
 
 	async execute(interaction, _client, data) {
-		logger.debug({ data }, 'button-id button clicked with data');
+		logger.debug({ data }, 'paginator.close button clicked with data');
+		logger.debug({ messageId: interaction.message.id }, 'Deleting paginator message');
+		interaction.message.delete();
 	},
 };
 
-export default CloseButton;
+export default MessageComponent;
