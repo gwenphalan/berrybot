@@ -1,29 +1,79 @@
 import { ShardingManager } from 'discord.js';
 import { config } from './config';
 import { logger } from './util';
+
+// Initialize sharding manager with bot entry point
+logger.info('Initializing sharding manager');
 const manager: ShardingManager = new ShardingManager(__dirname + '/bot.js', {
 	token: config.token,
 });
 
+// Handle shard creation and connection events
 manager.on('shardCreate', (shard) => {
+	logger.info(`Shard ${shard.id} created`);
+
+	// When a shard spawns and connects to Discord
 	shard.on('spawn', () => {
-		logger.info(
-			`${
-				new Date().getMonth() + 1
-			}.${new Date().getDate()}.${new Date().getFullYear()} > ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()} > SHARD MANAGER > Shard ${
-				shard.id
-			} connected to Discord's Gateway.`
+		const timestamp = new Date().toISOString();
+		logger.info({
+			timestamp,
+			shardId: shard.id,
+			event: 'SHARD_MANAGER',
+			message: "Shard connected to Discord's Gateway",
+		});
+
+		// Send shard ID to the bot process for identification
+		shard.send({ type: 'shardId', data: { shardId: shard.id } }).catch((error) => {
+			logger.error(
+				{
+					error,
+					shardId: shard.id,
+				},
+				'Failed to send shard ID to bot process'
+			);
+		});
+	});
+
+	// Handle shard errors
+	shard.on('error', (error) => {
+		logger.error(
+			{
+				error,
+				shardId: shard.id,
+			},
+			'Shard encountered an error'
 		);
-		shard.send({ type: 'shardId', data: { shardId: shard.id } });
+	});
+
+	// Handle shard disconnection
+	shard.on('disconnect', () => {
+		logger.warn(
+			{
+				shardId: shard.id,
+			},
+			'Shard disconnected from Discord'
+		);
+	});
+
+	// Handle shard reconnection
+	shard.on('reconnecting', () => {
+		logger.info(
+			{
+				shardId: shard.id,
+			},
+			'Shard attempting to reconnect'
+		);
 	});
 });
 
-manager
-	.spawn()
-	.catch((_e) =>
-		logger.info(
-			`${
-				new Date().getMonth() + 1
-			}.${new Date().getDate()}.${new Date().getFullYear()} > ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()} > SHARD MANAGER > Shard failed to spawn.`
-		)
+// Spawn shards and handle any spawn failures
+logger.info('Spawning shards');
+manager.spawn().catch((error) => {
+	logger.error(
+		{
+			error,
+		},
+		'Failed to spawn shard'
 	);
+	process.exit(1);
+});

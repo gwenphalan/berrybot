@@ -1,5 +1,4 @@
-// Test Single Select Menu
-
+// Example single-select menu component for testing purposes
 import { StringSelectMenuBuilder } from 'discord.js';
 import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
 
@@ -8,6 +7,7 @@ export const MessageComponent: SelectMenuComponent = {
 	type: ComponentTypes.SelectMenu,
 
 	async build(_client) {
+		// Create a test menu with 3 options, requiring exactly one selection
 		return new StringSelectMenuBuilder()
 			.setCustomId('test-select')
 			.setPlaceholder('Test Select')
@@ -30,7 +30,7 @@ export const MessageComponent: SelectMenuComponent = {
 	},
 
 	execute(interaction, _client, selected) {
-		// Reply to the interaction with the selected option's label
+		// Display the single selected option
 		interaction.reply({ content: `You selected ${selected.label}`, ephemeral: true });
 	},
 };

@@ -1,13 +1,47 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js';
 import { Command } from '../../interfaces';
 
+// Example command demonstrating various command features
 const command: Command = {
+	// Restrict command to guild channels only
+	guildOnly: true,
+	// Optional: Restrict to developer only
+	developer: true,
+	// Command data for Discord slash command registration
 	data: new SlashCommandBuilder()
-		.setName('ping')
-		.setDescription('Replies with Pong!'),
+		.setName('example')
+		.setDescription('An example command demonstrating various features')
+		// Add command options
+		.addStringOption(option =>
+			option
+				.setName('message')
+				.setDescription('The message to echo')
+				.setRequired(true)
+		)
+		.addBooleanOption(option =>
+			option
+				.setName('ephemeral')
+				.setDescription('Whether to show the response only to you')
+				.setRequired(false)
+		)
+		// Set required permissions
+		.setDefaultMemberPermissions(PermissionFlagsBits.SendMessages),
+
+	// Command execution handler
 	async execute(interaction: ChatInputCommandInteraction) {
-		await interaction.reply({
-			content: 'Pong!'
+		// Get command options
+		const message = interaction.options.getString('message');
+		const ephemeral = interaction.options.getBoolean('ephemeral') ?? false;
+
+		// Example of deferred reply for longer operations
+		await interaction.deferReply({ ephemeral });
+
+		// Simulate some work
+		await new Promise(resolve => setTimeout(resolve, 1000));
+
+		// Reply with the provided message
+		await interaction.editReply({
+			content: `You said: ${message}`,
 		});
 	},
 };

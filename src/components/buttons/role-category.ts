@@ -15,7 +15,9 @@ import CategoryName from '../modals/category-name';
 import RoleSelect from '../selectMenus/role-select';
 import ChannelSelect from '../selectMenus/channel-select';
 import BackButton from '../buttons/roles-back';
+import { logger } from '../../util';
 
+// Button component for managing role categories and role assignments
 export const MessageComponent: ButtonComponent = {
 	id: 'role-category',
 	type: ComponentTypes.Button,
@@ -26,6 +28,8 @@ export const MessageComponent: ButtonComponent = {
 		category?: string,
 		guild?: string
 	) {
+		logger.debug({ action, category, guild }, 'Building role category button');
+
 		const data = {
 			action: action,
 			category: category,
@@ -33,6 +37,7 @@ export const MessageComponent: ButtonComponent = {
 
 		const button = new ButtonBuilder().setCustomId(client.getCustomID('role-category', data));
 
+		// Configure button appearance based on action type
 		switch (action) {
 			case 'view':
 				button.setLabel('View').setStyle(ButtonStyle.Secondary).setEmoji('🔍');
@@ -44,27 +49,33 @@ export const MessageComponent: ButtonComponent = {
 				button.setLabel('Create').setStyle(ButtonStyle.Success).setEmoji('➕');
 				break;
 			case 'assign':
+				// Check if category exists and has roles
 				const database = await client.database.guildSettings.get(guild || '');
+				logger.debug({ guild, category }, 'Checking category for assign button');
 
 				if (
 					!database ||
 					!database.selfRoles ||
 					!database.selfRoles.categories?.find((c) => c.name === category)
-				)
+				) {
+					logger.debug({ guild, category }, 'Category not found, disabling button');
 					return button
 						.setDisabled(true)
 						.setLabel('Deleted Category')
 						.setStyle(ButtonStyle.Primary)
 						.setEmoji('❌');
+				}
 
 				const c = database.selfRoles.categories.find((c) => c.name === category);
 
-				if (!c || !c.roles?.length)
+				if (!c || !c.roles?.length) {
+					logger.debug({ guild, category }, 'Category has no roles, disabling button');
 					return button
 						.setDisabled(true)
 						.setLabel('No Roles')
 						.setStyle(ButtonStyle.Primary)
 						.setEmoji('❌');
+				}
 
 				button.setLabel(c.name).setStyle(ButtonStyle.Secondary).setEmoji(c.emoji);
 				break;
@@ -73,6 +84,7 @@ export const MessageComponent: ButtonComponent = {
 				break;
 		}
 
+		logger.debug({ action, category, guild }, 'Role category button built successfully');
 		return button;
 	},
 
@@ -81,45 +93,80 @@ export const MessageComponent: ButtonComponent = {
 		client,
 		data: { action: 'view' | 'edit' | 'create' | 'assign' | 'message'; category?: string }
 	) {
-		if (!interaction.guild || !interaction.guildId || !interaction.member) return;
-		console.log(data);
+		if (!interaction.guild || !interaction.guildId || !interaction.member) {
+			logger.warn('Role category button used outside of guild context');
+			return;
+		}
+
+		logger.debug(
+			{
+				action: data.action,
+				category: data.category,
+				guildId: interaction.guildId,
+				userId: interaction.user.id,
+			},
+			'Role category button clicked'
+		);
 
 		const member = interaction.guild?.members.cache.get(interaction.member.user.id);
 
+		// Check permissions for non-assign actions
 		if (
 			data.action !== 'assign' &&
 			member &&
 			!member.permissions.has(PermissionFlagsBits.ManageRoles)
 		) {
+			logger.warn(
+				{
+					userId: interaction.user.id,
+					guildId: interaction.guildId,
+					action: data.action,
+				},
+				'User attempted role category action without permissions'
+			);
+
 			return interaction.reply({
 				content: 'You do not have permission to do this.',
 				ephemeral: true,
 			});
 		}
 
+		// Handle different button actions
 		switch (data.action) {
 			case 'view':
+				logger.debug('Showing category view');
 				return interaction.update(
 					await roleCategorySelect.build(client, interaction.guild, 'view')
 				);
-				break;
 			case 'edit':
-				if (data.category)
+				// Show category edit view or category selection
+				if (data.category) {
+					logger.debug({ category: data.category }, 'Showing category edit view');
 					return interaction.update(
 						await RoleCategory.build(client, interaction.guild, 'edit', data.category)
 					);
-				else
+				} else {
+					logger.debug('Showing category selection for edit');
 					return interaction.update(
 						await roleCategorySelect.build(client, interaction.guild, 'edit')
 					);
-				break;
+				}
 			case 'create':
+				// Check category limit before creating
 				const guildSettings = await client.database.guildSettings.get(interaction.guildId);
 				if (
 					guildSettings.selfRoles &&
 					guildSettings.selfRoles.categories &&
 					guildSettings.selfRoles.categories.length > 25
 				) {
+					logger.warn(
+						{
+							guildId: interaction.guildId,
+							categoryCount: guildSettings.selfRoles.categories.length,
+						},
+						'Category limit reached'
+					);
+
 					interaction.update({
 						content: null,
 						embeds: [
@@ -135,9 +182,22 @@ export const MessageComponent: ButtonComponent = {
 					return;
 				}
 
+				logger.debug('Showing category name modal');
 				return interaction.showModal(await CategoryName.build(client));
 			case 'assign':
-				if (!data.category || !interaction.member) return;
+				// Show role selection menu for self-assignment
+				if (!data.category || !interaction.member) {
+					logger.warn('Missing category or member for role assignment');
+					return;
+				}
+
+				logger.debug(
+					{
+						category: data.category,
+						userId: interaction.user.id,
+					},
+					'Showing role selection menu'
+				);
 
 				return interaction.reply({
 					ephemeral: true,
@@ -155,6 +215,7 @@ export const MessageComponent: ButtonComponent = {
 				});
 
 			case 'message':
+				logger.debug('Showing channel selection for role message');
 				return interaction.update({
 					content: null,
 					embeds: [],

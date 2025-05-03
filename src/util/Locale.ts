@@ -12,6 +12,7 @@ export function getRegionNameAndEmoji(locale: Locale): {
 	region: string;
 	emoji: string;
 } {
+	// Map Discord locales to their corresponding regions and flag emojis
 	switch (locale) {
 		case Locale.Bulgarian:
 			return { region: 'Bulgaria', emoji: '🇧🇬' };
@@ -74,6 +75,7 @@ export function getRegionNameAndEmoji(locale: Locale): {
 		case Locale.EnglishGB:
 			return { region: 'United Kingdom', emoji: '🇬🇧' };
 		default:
+			// Return unknown for unsupported locales
 			return { region: 'Unknown', emoji: '❔' };
 	}
 }

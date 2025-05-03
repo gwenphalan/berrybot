@@ -15,6 +15,9 @@ export function parseStringPlaceholders(
 	str: string,
 	placeholders: Collection<string, string>
 ): string {
+	// Use regex to find all placeholders in the format {{key}}
+	// Replace each match with its corresponding value from the collection
+	// If no value is found, keep the original placeholder
 	return str.replace(/{{(\w+)}}/g, (match, key) => {
 		return placeholders.get(key) || match;
 	});

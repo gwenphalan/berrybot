@@ -1,5 +1,4 @@
-// Test Single Select Menu
-
+// Channel selection menu for role message placement
 import {
 	ActionRowBuilder,
 	ButtonBuilder,
@@ -20,6 +19,7 @@ export const MessageComponent: SelectMenuComponent = {
 	permissions: [PermissionFlagsBits.ManageRoles],
 
 	async build(_client, guild: Guild) {
+		// Create single-select menu for channel selection
 		const channelSelectMenu = new StringSelectMenuBuilder()
 			.setCustomId(this.id)
 			.setPlaceholder('Select a channel')
@@ -29,13 +29,16 @@ export const MessageComponent: SelectMenuComponent = {
 		const botMember = guild.members.me;
 		if (!botMember) return channelSelectMenu;
 
+		// Filter channels based on bot permissions
 		guild.channels.cache
 			.filter((channel) => {
+				// Only include text channels
 				if (channel.type !== ChannelType.GuildText) return false;
 
 				const permissions = channel.permissionsFor(botMember);
 				if (!permissions) return false;
 
+				// Check if bot has required permissions
 				return (
 					permissions.has(PermissionFlagsBits.SendMessages) &&
 					permissions.has(PermissionFlagsBits.EmbedLinks)
@@ -54,10 +57,12 @@ export const MessageComponent: SelectMenuComponent = {
 	async execute(interaction, client, selected) {
 		if (!interaction.guild) return;
 
+		// Send role message to selected channel
 		await RoleMessage(client, interaction.guild, selected.value).catch((err) =>
 			interaction.reply({ content: err.message, components: [], ephemeral: true })
 		);
 
+		// Update interaction with success message
 		return interaction
 			.update({
 				embeds: [

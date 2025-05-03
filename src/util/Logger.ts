@@ -1,8 +1,9 @@
 import pino from 'pino';
 import { join } from 'path';
 import { execSync } from 'child_process';
+import { existsSync, renameSync, mkdirSync } from 'fs';
 
-// Force UTF-8 encoding for Windows
+// Force UTF-8 encoding for Windows to ensure proper emoji and special character display
 if (process.platform === 'win32') {
 	try {
 		execSync('chcp 65001', { stdio: 'ignore' });
@@ -11,96 +12,99 @@ if (process.platform === 'win32') {
 	}
 }
 
-// Determine if we're in development mode
+// Determine if we're in development mode for appropriate logging levels
 const isDev = process.env.NODE_ENV !== 'production';
+
+// Ensure log directory exists
+const logDir = join(process.cwd(), 'log');
+if (!existsSync(logDir)) {
+	mkdirSync(logDir, { recursive: true });
+}
+
+// Archive existing latest.log if it exists
+const latestLogPath = join(logDir, 'latest.log');
+if (existsSync(latestLogPath)) {
+	const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+	const archivePath = join(logDir, `log-${timestamp}.log`);
+	try {
+		renameSync(latestLogPath, archivePath);
+	} catch (error) {
+		// If rename fails, log to console and continue
+		console.error('Failed to archive previous log file:', error);
+	}
+}
 
 // Create the base logger configuration
 const logger = pino({
 	level: isDev ? 'debug' : 'info',
 	transport: {
-		target: 'pino-pretty',
-		options: {
-			colorize: true,
-			translateTime: 'SYS:yyyy-mm-dd HH:MM:ss',
-			ignore: 'pid,hostname',
-			messageFormat: '{msg}',
-			levelFirst: true,
-			destination: 1, // stdout with proper encoding
-			messageKey: 'msg',
-			errorLikeObjectKeys: ['err', 'error'],
-			errorProps: 'message,stack,code,type',
-			crlf: true,
-			singleLine: false,
-			minimumLevel: 'debug',
-		},
-	},
-	formatters: {
-		level: (label) => {
-			return { level: label };
-		},
-		log: (object) => {
-			return object;
-		},
+		targets: [
+			// Console output with pretty printing
+			{
+				target: 'pino-pretty',
+				level: isDev ? 'debug' : 'info',
+				options: {
+					colorize: true,
+					translateTime: 'SYS:yyyy-mm-dd HH:MM:ss',
+					ignore: 'pid,hostname',
+					messageFormat: '{msg}',
+					levelFirst: true,
+					destination: 1,
+					messageKey: 'msg',
+					errorLikeObjectKeys: ['err', 'error'],
+					errorProps: 'message,stack,code,type',
+					crlf: true,
+					singleLine: false,
+				},
+			},
+			// File output for latest.log with pretty printing
+			{
+				target: 'pino-pretty',
+				level: isDev ? 'debug' : 'info',
+				options: {
+					colorize: false,
+					translateTime: 'SYS:yyyy-mm-dd HH:MM:ss',
+					ignore: 'pid,hostname',
+					messageFormat: '{msg}',
+					levelFirst: true,
+					destination: latestLogPath,
+					messageKey: 'msg',
+					errorLikeObjectKeys: ['err', 'error'],
+					errorProps: 'message,stack,code,type',
+					crlf: true,
+					singleLine: false,
+				},
+			},
+			// File output for error.log with pretty printing
+			{
+				target: 'pino-pretty',
+				level: 'error',
+				options: {
+					colorize: false,
+					translateTime: 'SYS:yyyy-mm-dd HH:MM:ss',
+					ignore: 'pid,hostname',
+					messageFormat: '{msg}',
+					levelFirst: true,
+					destination: join(logDir, 'error.log'),
+					messageKey: 'msg',
+					errorLikeObjectKeys: ['err', 'error'],
+					errorProps: 'message,stack,code,type',
+					crlf: true,
+					singleLine: false,
+				},
+			},
+		],
 	},
 });
 
-// Create file streams for production
-if (!isDev) {
-	// Create child loggers with their respective streams
-	const errorLogger = pino(
-		{
-			level: 'error',
-		},
-		pino.destination({
-			dest: join(process.cwd(), 'logs', 'error.log'),
-			sync: false,
-			mkdir: true,
-		})
-	);
-
-	const combinedLogger = pino(
-		{
-			level: 'info',
-		},
-		pino.destination({
-			dest: join(process.cwd(), 'logs', 'combined.log'),
-			sync: false,
-			mkdir: true,
-		})
-	);
-
-	// Override the error method to write to both streams
-	logger.error = function (obj: any, msg?: string, ...args: any[]) {
-		errorLogger.error(obj, msg, ...args);
-		combinedLogger.error(obj, msg, ...args);
-		return this;
-	};
-
-	// Override other methods to write to combined stream
-	logger.warn = function (obj: any, msg?: string, ...args: any[]) {
-		combinedLogger.warn(obj, msg, ...args);
-		return this;
-	};
-
-	logger.info = function (obj: any, msg?: string, ...args: any[]) {
-		combinedLogger.info(obj, msg, ...args);
-		return this;
-	};
-
-	logger.debug = function (obj: any, msg?: string, ...args: any[]) {
-		combinedLogger.debug(obj, msg, ...args);
-		return this;
-	};
-}
-
-// Create a stream object for Morgan integration
+// Create a stream object for Morgan HTTP request logging integration
 const stream = {
 	write: (message: string) => {
 		logger.info(message.trim());
 	},
 };
 
-// Export color codes for use in other files
+// Export color codes for consistent console output formatting
 export const color = {
 	// Muted/Dark Colors
 	charcoal: '#k',
@@ -120,7 +124,7 @@ export const color = {
 	honey: '#h',
 	whiteSmoke: '#w',
 
-	// Formatting
+	// Text Formatting
 	reset: '#0',
 	bold: '#B',
 	underline: '#U',

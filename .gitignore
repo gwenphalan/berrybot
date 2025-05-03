@@ -9,6 +9,7 @@ docker-compose.yaml
 .vscode
 docs
 yarn.lock
+log
 
 # Logs
 logs

@@ -13,6 +13,7 @@ import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageCom
 import { RoleMessage } from '../../messages/role-select';
 import { RoleCategory } from '../../messages/role-category';
 
+// Multi-select menu for managing role assignments and category configuration
 export const MessageComponent: SelectMenuComponent = {
 	id: 'role-select',
 	type: ComponentTypes.SelectMenu,
@@ -30,6 +31,7 @@ export const MessageComponent: SelectMenuComponent = {
 			category: category,
 		};
 
+		// Filter available roles (non-managed, editable, not @everyone)
 		const guildRoles = guild.roles.cache.filter(
 			(r) => !r.managed && r.editable && r.name !== '@everyone'
 		);
@@ -38,6 +40,7 @@ export const MessageComponent: SelectMenuComponent = {
 			.setCustomId(client.getCustomID('role-select', data))
 			.setPlaceholder('Select Roles');
 
+		// Handle case when no roles are available
 		if (!guildRoles.size)
 			return menu
 				.setOptions([{ label: 'No roles to select', value: 'none' }])
@@ -46,11 +49,13 @@ export const MessageComponent: SelectMenuComponent = {
 
 		switch (action) {
 			case 'create':
+				// Allow selecting any number of roles for new category
 				menu.setOptions(guildRoles.map((r) => ({ label: r.name, value: r.id })))
 					.setMinValues(1)
 					.setMaxValues(guildRoles.size);
 				break;
 			case 'edit':
+				// Load existing category roles and mark them as selected
 				const c = (
 					await client.database.guildSettings.get(guild.id)
 				).selfRoles.categories.find((c) => c.name === category);
@@ -69,6 +74,7 @@ export const MessageComponent: SelectMenuComponent = {
 					.setMaxValues(guildRoles.size);
 				break;
 			case 'assign':
+				// Load category roles and mark member's current roles as selected
 				const database = await client.database.guildSettings.get(guild.id);
 				const _category = database.selfRoles?.categories?.find((c) => c.name === category);
 
@@ -100,6 +106,7 @@ export const MessageComponent: SelectMenuComponent = {
 		selected,
 		data: { action: 'edit' | 'create' | 'assign'; category: string }
 	) {
+		// Validate selection for non-assign actions
 		if (selected.length === 0 && data.action !== 'assign')
 			return interaction.reply({
 				content: 'You must select at least one role.',
@@ -110,6 +117,7 @@ export const MessageComponent: SelectMenuComponent = {
 
 		const member = interaction.guild?.members.cache.get(interaction.member.user.id);
 
+		// Check permissions for non-assign actions
 		if (
 			data.action !== 'assign' &&
 			member &&
@@ -123,6 +131,7 @@ export const MessageComponent: SelectMenuComponent = {
 
 		const database = await client.database.guildSettings.get(interaction.guild.id);
 
+		// Filter selected roles
 		const guildRoles = interaction.guild.roles.cache.filter(
 			(r) => !r.managed && r.editable && r.name !== '@everyone'
 		);
@@ -130,6 +139,7 @@ export const MessageComponent: SelectMenuComponent = {
 
 		switch (data.action) {
 			case 'create':
+				// Create new category with selected roles
 				const create_category: SelfRoleCategory = {
 					name: data.category,
 					roles: roles.map((role) => role.id),
@@ -153,6 +163,7 @@ export const MessageComponent: SelectMenuComponent = {
 					)
 				);
 			case 'edit':
+				// Update existing category with new role selection
 				const edit_category = database.selfRoles?.categories?.find(
 					(c) => c.name === data.category
 				);
@@ -175,6 +186,7 @@ export const MessageComponent: SelectMenuComponent = {
 					await RoleCategory.build(client, interaction.guild, 'edit', edit_category.name)
 				);
 			case 'assign':
+				// Handle role assignment for members
 				const embed = new EmbedBuilder()
 					.setTitle('Self Roles')
 					.setColor(await util.Color.getGuildColor(interaction.guild));
@@ -192,6 +204,7 @@ export const MessageComponent: SelectMenuComponent = {
 
 				const member = await interaction.guild.members.fetch(interaction.user.id);
 
+				// Process role changes
 				assign_category.roles.forEach(async (role) => {
 					const r = guildRoles.find((r) => r.id === role);
 
@@ -206,6 +219,7 @@ export const MessageComponent: SelectMenuComponent = {
 					}
 				});
 
+				// Build response embed
 				embed.setTitle(`Self Roles - ${assign_category.name}`);
 				if (roles.size)
 					embed.setDescription(`${roles.map((r) => r.toString()).join(', ')}`);

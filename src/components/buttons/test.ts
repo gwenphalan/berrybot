@@ -1,11 +1,17 @@
 import { ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
 import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageComponent';
+import { logger } from '../../util';
 
+// Example button component for testing custom ID data handling
 export const MessageComponent: ButtonComponent = {
 	id: 'test-button',
 	type: ComponentTypes.Button,
 	permissions: [PermissionFlagsBits.ManageEvents, PermissionFlagsBits.ManageRoles],
+
 	async build(client) {
+		logger.debug('Building test button component');
+
+		// Example JSON data to demonstrate custom ID serialization
 		const testJSON = {
 			type: 'modal',
 			id: 'mod_history',
@@ -19,11 +25,17 @@ export const MessageComponent: ButtonComponent = {
 				resolved: false,
 			},
 		};
-		return new ButtonBuilder()
+
+		// Create a primary button with serialized data in custom ID
+		const button = new ButtonBuilder()
 			.setCustomId(await client.getCustomID(this.id, testJSON))
 			.setLabel('Test Button')
 			.setStyle(ButtonStyle.Primary);
+
+		logger.debug('Test button built successfully');
+		return button;
 	},
+
 	execute(
 		interaction,
 		_client,
@@ -34,7 +46,9 @@ export const MessageComponent: ButtonComponent = {
 			array: number[];
 		}
 	) {
-		console.log(data);
+		// Log received data and respond to interaction
+		logger.debug({ data }, 'Test button clicked with data');
+
 		interaction.reply({
 			content: `This is a test button!`,
 			ephemeral: true,

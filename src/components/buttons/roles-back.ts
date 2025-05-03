@@ -3,6 +3,7 @@ import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageCompone
 import { selfRoleSettings } from '../../messages';
 import { RoleCategory } from '../../messages/role-category';
 
+// Navigation button for returning to previous role management views
 export const MessageComponent: ButtonComponent = {
 	id: 'roles-back',
 	type: ComponentTypes.Button,
@@ -25,6 +26,7 @@ export const MessageComponent: ButtonComponent = {
 		const guild = interaction.guild;
 		if (!guild) return;
 
+		// Navigate to category view or main settings based on context
 		if (data)
 			return interaction.update(
 				await RoleCategory.build(client, guild, data.page, data.category)

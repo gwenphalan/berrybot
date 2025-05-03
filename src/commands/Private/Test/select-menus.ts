@@ -7,6 +7,7 @@ import {
 import { selectMenus } from '../../../components';
 import { Command } from '../../../interfaces';
 
+// Test command for demonstrating select menu component functionality
 const command: Command = {
 	parent: 'test',
 	data: new SlashCommandSubcommandBuilder()
@@ -20,7 +21,7 @@ const command: Command = {
 				.addChoices({ name: 'Single', value: 'single' }, { name: 'Multi', value: 'multi' })
 		),
 	async execute(interaction: ChatInputCommandInteraction, _client) {
-		// Return if the interaction wasn't used in a guild.
+		// Validate guild context
 		if (!interaction.guild) {
 			return interaction.reply({
 				content: 'This command can only be used in a server.',
@@ -28,12 +29,15 @@ const command: Command = {
 			});
 		}
 
+		// Get selected menu type from options
 		const type: 'single' | 'multi' = interaction.options.getString('type', true) as
 			| 'single'
 			| 'multi';
 
+		// Create action row for select menu
 		const row = new ActionRowBuilder<StringSelectMenuBuilder>();
 
+		// Add appropriate select menu based on type
 		switch (type) {
 			case 'single':
 				row.addComponents(await selectMenus.TestSelect.build(_client));
@@ -43,6 +47,7 @@ const command: Command = {
 				break;
 		}
 
+		// Send message with select menu
 		return await interaction.reply({ content: 'Test Select Menu', components: [row] });
 	},
 };

@@ -18,6 +18,7 @@ import BackButton from './roles-back';
 import { RoleCategory } from '../../messages/role-category';
 import { selfRoleSettings } from '../../messages';
 
+// Button component for editing role category properties
 export const MessageComponent: ButtonComponent = {
 	id: 'category-edit',
 	type: ComponentTypes.Button,
@@ -31,6 +32,7 @@ export const MessageComponent: ButtonComponent = {
 
 		const button = new ButtonBuilder().setCustomId(client.getCustomID(this.id, data));
 
+		// Configure button appearance based on action type
 		switch (action) {
 			case 'name':
 				button.setLabel('Name').setStyle(ButtonStyle.Secondary).setEmoji('✏️');
@@ -70,10 +72,13 @@ export const MessageComponent: ButtonComponent = {
 				embeds: [embed.setDescription('This category no longer exists.')],
 			});
 
+		// Handle different edit actions
 		switch (data.action) {
 			case 'name':
+				// Show modal for editing category name
 				return interaction.showModal(await CategoryName.build(client, category.name));
 			case 'roles':
+				// Show role selection menu for editing category roles
 				return interaction.update({
 					embeds: [],
 					components: [
@@ -89,6 +94,7 @@ export const MessageComponent: ButtonComponent = {
 					],
 				});
 			case 'emoji':
+				// Handle emoji selection through reactions
 				await interaction.update({
 					embeds: [
 						embed.setDescription(
@@ -108,6 +114,7 @@ export const MessageComponent: ButtonComponent = {
 
 				await message.reactions.removeAll();
 
+				// Filter for valid emoji reactions from the command user
 				const filter = (reaction: MessageReaction, user: User) => {
 					return (
 						user.id === interaction.user.id &&
@@ -132,6 +139,7 @@ export const MessageComponent: ButtonComponent = {
 				});
 
 				return collector.on('collect', async (reaction) => {
+					// Update category emoji and save changes
 					category.emoji = reaction.emoji.toString();
 
 					database.selfRoles.categories.map((c) => {
@@ -150,6 +158,7 @@ export const MessageComponent: ButtonComponent = {
 					);
 				});
 			case 'delete':
+				// Remove category and update settings
 				database.selfRoles.categories = database.selfRoles.categories.filter(
 					(c) => c !== category
 				);
