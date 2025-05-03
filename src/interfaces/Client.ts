@@ -1,6 +1,5 @@
 import { Collection, Client as BaseClient, GatewayIntentBits, Partials } from 'discord.js';
 import { config } from '../config';
-import { database } from '../database';
 import { loadComponents, loadEvents } from '../handlers';
 import type { BaseCommand, SubCommand } from './Command';
 import type { Event } from './Event';
@@ -21,8 +20,6 @@ export class Client extends BaseClient {
 	events = new Collection<string, Event['execute']>();
 	/** Collection of registered message components (buttons, select menus, modals) */
 	messageComponents = new Collection<string, BaseMessageComponent | MessageComponent>();
-	/** Database instance for data persistence */
-	database = database;
 
 	/**
 	 * Creates a new Client instance with specified intents and partials
