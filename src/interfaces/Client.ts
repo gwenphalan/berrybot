@@ -66,11 +66,14 @@ export class Client extends BaseClient {
 	getCustomID(id: string, data?: any): string {
 		logger.debug(`Generating custom ID for component: ${id}`);
 
+		if (!data) {
+			logger.debug(`No data provided, returning base ID: ${id}`);
+			return id;
+		}
+
 		const dataJson = JSON.stringify(data, null, 0);
 		const compressed = compressToUTF16(dataJson);
-		const value = data
-			? `${id}[${compressed.length < dataJson.length ? compressed : dataJson}]`
-			: id;
+		const value = `${id}[${compressed.length < dataJson.length ? compressed : dataJson}]`;
 
 		logger.debug(
 			{
