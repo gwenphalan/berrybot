@@ -66,7 +66,7 @@ export class Client extends BaseClient {
 	 * @param data - Optional data to be compressed and included in the custom ID
 	 * @returns Formatted custom ID string
 	 */
-	getCustomID(id: string, data: any): string {
+	getCustomID(id: string, data?: any): string {
 		logger.debug(`Generating custom ID for component: ${id}`);
 
 		const dataJson = JSON.stringify(data, null, 0);
