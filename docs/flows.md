@@ -14,24 +14,20 @@
         - [3. Message Building](#3-message-building)
         - [4. Interaction Handling](#4-interaction-handling)
         - [5. Sub-flow Integration](#5-sub-flow-integration)
+    - [Persistent Flows](#persistent-flows)
+        - [Overview](#persistent-flows-overview)
+        - [How to Create a Persistent Flow](#how-to-create-a-persistent-flow)
+        - [Database Schema](#database-schema)
+        - [Registration Process](#registration-process)
+        - [Flow Restoration](#flow-restoration)
     - [Best Practices](#best-practices)
     - [Example Implementation](#example-implementation)
         - [1. Simple Counter Flow](#1-simple-counter-flow)
-        - [2. Settings Flow with Sub-flows](#2-settings-flow-with-sub-flows)
+        - [2. Role Configuration Flow](#2-role-configuration-flow)
+        - [3. Persistent Role Configuration Flow](#3-persistent-role-configuration-flow)
     - [Troubleshooting](#troubleshooting)
         - [Common Issues](#common-issues)
     - [Additional Resources](#additional-resources)
-    - [Advanced Features](#advanced-features)
-        - [1. Retry Mechanism](#1-retry-mechanism)
-        - [2. Error Handling Patterns](#2-error-handling-patterns)
-        - [3. History Tracking](#3-history-tracking)
-        - [4. Sub-flow Usage](#4-sub-flow-usage)
-        - [5. Logging System](#5-logging-system)
-    - [Flow Usage Examples](#flow-usage-examples)
-        - [1. Command Implementation](#1-command-implementation)
-        - [2. Message Builder (Template)](#2-message-builder-template)
-        - [3. Message Component (Button)](#3-message-component-button)
-        - [4. Integration Flow](#4-integration-flow)
 
 ## Overview
 
@@ -54,6 +50,7 @@ Flows in BerryBot are a powerful way to create interactive, stateful conversatio
 - **Timeout Handling**: Automatic cleanup of inactive flows
 - **Error Handling**: Robust error management and recovery
 - **Message Updates**: Automatic message updates when state changes
+- **Persistence**: Support for flows that persist across bot restarts
 
 ## Creating a New Flow
 
@@ -68,6 +65,7 @@ import {
 	Message,
 	ModalSubmitInteraction,
 	StringSelectMenuInteraction,
+	PermissionsBitField,
 } from 'discord.js';
 import { BaseFlowHandler, FlowState, FlowTransition } from '../interfaces/Flow';
 import { Client } from '../interfaces/Client';
@@ -99,7 +97,13 @@ export class MyNewFlow extends BaseFlowHandler {
 	security = {
 		checkPermissions: async (interaction) => {
 			// Check user permissions
-			return true;
+			if (interaction.guild) {
+				const permissions = interaction.member?.permissions;
+				return permissions instanceof PermissionsBitField
+					? permissions.has(PermissionsBitField.Flags.ManageRoles)
+					: false;
+			}
+			return false;
 		},
 		checkState: async (state) => {
 			// Validate state
@@ -109,15 +113,22 @@ export class MyNewFlow extends BaseFlowHandler {
 
 	// Required: Build the message for this flow
 	async build(client: Client, state: FlowState): Promise<Message | void> {
+		logger.debug({ flowId: this.id, state }, 'Building MyNewFlow');
+		const { interaction } = state || {};
+
 		// Build your message here
-		return {
-			embeds: [
-				/* your embeds */
-			],
-			components: [
-				/* your components */
-			],
-		};
+		const message = await MyMessageBuilder.build(client, state);
+
+		// Handle updating an existing message
+		if (this.messageId && interaction?.channelId) {
+			return this.updateMessage(client, message);
+		}
+		// Handle creating a new message via interaction
+		else if (interaction) {
+			return this.createMessage(interaction, message);
+		}
+
+		logger.error({ flowId: this.id }, 'No valid message target found for build');
 	}
 
 	// Required: Handle interactions
@@ -128,9 +139,34 @@ export class MyNewFlow extends BaseFlowHandler {
 			| ModalSubmitInteraction
 			| ChatInputCommandInteraction,
 		client: Client,
-		state: FlowState
+		state: FlowState,
+		componentData?: {
+			id: string;
+			parent?: string;
+			group?: string;
+			data?: any;
+		}
 	): Promise<FlowTransition | void> {
 		// Handle the interaction
+		if (!('customId' in interaction)) return;
+
+		const { id, parent, group, data } = componentData || { id: '' };
+
+		// Handle different interaction types
+		if (interaction instanceof ButtonInteraction) {
+			switch (group) {
+				case 'my-group':
+					switch (id) {
+						case 'action1':
+							return {
+								to: 'next-state',
+								data: {
+									// Updated data
+								},
+							};
+					}
+			}
+		}
 	}
 }
 ```
@@ -164,53 +200,28 @@ state: FlowState = {
 
 ### 3. Message Building
 
-The `build` method should create the message that users will see. The `BaseFlowHandler` class provides two helper methods that handle message creation and updates:
-
-- `updateExistingMessage(client: Client, message: any)`: Updates an existing message
-- `createNewMessage(interaction: Interaction, message: any)`: Creates a new message via interaction
-
-Here's how to use these inherited methods:
+The `build` method should create the message that users will see. Use message builders to separate UI logic from flow logic:
 
 ```typescript
 async build(client: Client, state: FlowState): Promise<Message | void> {
-    const message = {
-        embeds: [
-            {
-                title: 'My Flow',
-                description: 'Current state: ' + state.data.field1,
-                fields: [
-                    {
-                        name: 'Field 2',
-                        value: state.data.field2
-                    }
-                ]
-            }
-        ],
-        components: [
-            // Add your buttons, select menus, etc.
-        ]
-    };
+	logger.debug({ flowId: this.id, state }, 'Building MyNewFlow');
+	const { interaction } = state || {};
 
-    // The BaseFlowHandler provides these helper methods:
-    if (this.messageId && state.interaction?.channelId) {
-        // Updates an existing message if we have a messageId
-        return this.updateExistingMessage(client, message);
-    } else if (state.interaction) {
-        // Creates a new message via the interaction
-        return this.createNewMessage(state.interaction, message);
-    }
+	// Build your message here
+	const message = await MyMessageBuilder.build(client, state);
+
+	// Handle updating an existing message
+	if (this.messageId && interaction?.channelId) {
+		return this.updateMessage(client, message);
+	}
+	// Handle creating a new message via interaction
+	else if (interaction) {
+		return this.createMessage(interaction, message);
+	}
+
+	logger.error({ flowId: this.id }, 'No valid message target found for build');
 }
 ```
-
-These helper methods handle:
-
-- Message creation and updates
-- Setting the messageId
-- Error handling for message operations
-- Channel permission checks
-- Message fetching and editing
-
-You don't need to implement these methods yourself - they're inherited from `BaseFlowHandler`. Just focus on building your message content and using these helper methods to handle the Discord.js message operations.
 
 ### 4. Interaction Handling
 
@@ -218,37 +229,35 @@ Handle user interactions in the `handleInteraction` method:
 
 ```typescript
 protected async handleInteraction(
-    interaction: ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction | ChatInputCommandInteraction,
-    client: Client,
-    state: FlowState
+	interaction: ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction | ChatInputCommandInteraction,
+	client: Client,
+	state: FlowState,
+	componentData?: {
+		id: string;
+		parent?: string;
+		group?: string;
+		data?: any;
+	}
 ): Promise<FlowTransition | void> {
-    if (!('customId' in interaction)) return;
+	if (!('customId' in interaction)) return;
 
-    switch (interaction.customId) {
-        case 'button-1':
-            // Update state
-            this.setState({
-                ...state,
-                data: {
-                    ...state.data,
-                    field1: 'new value'
-                }
-            });
-            break;
+	const { id, parent, group, data } = componentData || { id: '' };
 
-        case 'button-2':
-            // Start sub-flow
-            return {
-                to: 'sub-flow',
-                subFlow: {
-                    id: 'sub-flow',
-                    initialState: {
-                        id: 'sub-flow',
-                        data: { /* initial sub-flow data */ }
-                    }
-                }
-            };
-    }
+	// Handle different interaction types
+	if (interaction instanceof ButtonInteraction) {
+		switch (group) {
+			case 'my-group':
+				switch (id) {
+					case 'action1':
+						return {
+							to: 'next-state',
+							data: {
+								// Updated data
+							}
+						};
+				}
+		}
+	}
 }
 ```
 
@@ -259,37 +268,215 @@ To handle sub-flows:
 ```typescript
 // Start a sub-flow
 protected async startSubFlow(
-    client: Client,
-    subFlowId: string,
-    initialState: FlowState
+	client: Client,
+	subFlowId: string,
+	initialState: FlowState
 ): Promise<void> {
-    const currentState = this.getState();
-    this.setState({
-        ...currentState,
-        data: {
-            ...currentState.data,
-            subFlow: {
-                id: subFlowId,
-                state: initialState,
-                parent: currentState.id
-            }
-        }
-    });
+	const currentState = this.getState();
+	this.setState({
+		...currentState,
+		data: {
+			...currentState.data,
+			subFlow: {
+				id: subFlowId,
+				state: initialState,
+				parent: currentState.id
+			}
+		}
+	});
 }
 
 // Handle sub-flow completion
 async onSubFlowEnd(subFlowId: string, result: any): Promise<void> {
-    if (subFlowId === 'sub-flow') {
-        this.setState({
-            ...this.getState(),
-            data: {
-                ...this.getState().data,
-                // Update with sub-flow result
-            }
-        });
-    }
+	if (subFlowId === 'sub-flow') {
+		this.setState({
+			...this.getState(),
+			data: {
+				...this.getState().data,
+				// Update with sub-flow result
+			}
+		});
+	}
 }
 ```
+
+## Persistent Flows
+
+### Persistent Flows Overview
+
+Persistent flows are flows that maintain their state even after the bot restarts. This is useful for long-running flows that need to survive application restarts, such as role management interfaces, configuration panels, or any interaction that should remain available for extended periods.
+
+Key features of persistent flows:
+
+- State is saved to a MongoDB database
+- Automatically restored when the bot starts
+- Handles flow expiration
+- Supports guild-wide and user-specific flows
+- Requires minimal configuration to implement
+
+### How to Create a Persistent Flow
+
+To create a persistent flow, follow these steps:
+
+1. Extend the `BaseFlowHandler` as you would for a regular flow
+2. Set the `persistent` property to `true` in your flow class
+3. Make sure your flow's `id` matches one of the flow types in the `Flows` schema
+4. The rest is handled automatically by the BaseFlowHandler
+
+Example:
+
+```typescript
+export class PersistentRoleConfigFlow extends BaseFlowHandler {
+	id = 'ROLE_CONFIG'; // Must match a flow type in the schema
+	persistent = true; // Enable persistence
+
+	// Regular flow implementation
+	state: FlowState = {
+		id: 'main-menu',
+		data: {},
+	};
+
+	// ... rest of your flow implementation
+}
+```
+
+The `BaseFlowHandler` will automatically:
+
+- Save the flow state to the database when it changes (`persistFlow`)
+- Remove the flow from the database when it ends (`unpersistFlow`)
+- Handle all database operations in the background
+
+### Database Schema
+
+Persistent flows are stored in the MongoDB database using the `Flows` schema, which is defined in `src/database/schemas/Flows.ts`:
+
+```typescript
+const FlowsSchema = new mongoose.Schema({
+	guildId: {
+		type: String,
+		required: true,
+		index: true,
+	},
+	messageId: {
+		type: String,
+		required: true,
+		index: true,
+	},
+	userId: {
+		type: String,
+		required: false,
+		index: true,
+	},
+	flowType: {
+		type: String,
+		required: true,
+		enum: ['ROLE_SELECT', 'ROLE_CONFIG'], // Add other flow types here
+		index: true,
+	},
+	currentState: {
+		id: {
+			type: String,
+			required: true,
+		},
+		data: {
+			type: Map,
+			of: mongoose.Schema.Types.Mixed,
+			default: new Map(),
+		},
+		previous: {
+			type: String,
+			required: false,
+		},
+	},
+	data: {
+		type: Map,
+		of: mongoose.Schema.Types.Mixed,
+		default: new Map(),
+	},
+	createdAt: {
+		type: Date,
+		default: Date.now,
+	},
+	updatedAt: {
+		type: Date,
+		default: Date.now,
+	},
+	expiresAt: {
+		type: Date,
+		required: false,
+	},
+});
+
+// Indexes for efficient querying
+FlowsSchema.index({ messageId: 1 }, { unique: true });
+FlowsSchema.index({ guildId: 1, flowType: 1 });
+FlowsSchema.index({ guildId: 1, userId: 1, flowType: 1 }, { sparse: true });
+```
+
+To add a new flow type to the schema, update the `enum` array in the `flowType` field with your new uppercase flow type.
+
+### Registration Process
+
+When the bot starts, it automatically registers all active persistent flows from the database. This is handled in `src/events/Client/ready.ts`:
+
+```typescript
+async function registerFlows(client: Client) {
+	try {
+		logger.info('Registering active flows...');
+		const flows = await database.flows.model.find({
+			expiresAt: { $gt: new Date() },
+		});
+
+		for (const flow of flows) {
+			try {
+				// Create a new handler instance based on flow type
+				let handler;
+				switch (flow.flowType) {
+					case 'ROLE_CONFIG':
+						handler = new RoleConfigFlow(client);
+						break;
+					// Add cases for other flow types here
+					default:
+						logger.warn(`Unknown flow type: ${flow.flowType}`);
+						continue;
+				}
+
+				// Set the state from the database
+				handler.setState(flow.currentState);
+
+				// Register the handler with the message ID
+				client.flowManager.registerHandler(flow.messageId, handler);
+				logger.info(`Registered flow: ${flow.flowType} (${flow.messageId})`);
+			} catch (error) {
+				logger.error(
+					{ error },
+					`Failed to register flow: ${flow.flowType} (${flow.messageId})`
+				);
+			}
+		}
+
+		logger.info(`Registered ${flows.length} active flows`);
+	} catch (error) {
+		logger.error({ error }, 'Failed to register flows');
+	}
+}
+```
+
+When adding a new persistent flow type, you need to:
+
+1. Add the flow type to the `flowType` enum in the `Flows` schema
+2. Add a case for your flow type in the `switch` statement in `registerFlows`
+
+### Flow Restoration
+
+When a persistent flow is registered at startup:
+
+1. The appropriate flow handler is instantiated
+2. Its state is restored from the database
+3. The handler is registered with the FlowManager
+4. The flow can immediately handle interactions without rebuilding the message
+
+The flow's state, including all data and the current position in the flow, is preserved exactly as it was before the bot restart.
 
 ## Best Practices
 
@@ -298,29 +485,34 @@ async onSubFlowEnd(subFlowId: string, result: any): Promise<void> {
     - Keep state data minimal and focused
     - Use TypeScript interfaces to define state structure
     - Validate state changes before applying them
+    - Use the `stateSchema` to enforce data requirements
 
 2. **Error Handling**
 
     - Implement proper error handling in all async operations
     - Use the built-in retry mechanism for transient failures
     - Log errors with appropriate context
+    - Return error embeds instead of throwing errors
 
 3. **Security**
 
     - Always implement permission checks
     - Validate user input
     - Sanitize data before storing in state
+    - Use the `security` object to define checks
 
 4. **Performance**
 
     - Minimize state updates
     - Use efficient message updates
     - Clean up resources when flow ends
+    - Avoid unnecessary message rebuilds
 
 5. **User Experience**
     - Provide clear feedback for user actions
     - Handle edge cases gracefully
     - Implement proper timeout handling
+    - Use appropriate message components
 
 ## Example Implementation
 
@@ -329,18 +521,6 @@ async onSubFlowEnd(subFlowId: string, result: any): Promise<void> {
 Here's a complete example of a simple counter flow:
 
 ```typescript
-import {
-	ButtonInteraction,
-	ChatInputCommandInteraction,
-	Message,
-	ModalSubmitInteraction,
-	StringSelectMenuInteraction,
-} from 'discord.js';
-import { BaseFlowHandler, FlowState, FlowTransition } from '../interfaces/Flow';
-import { Client } from '../interfaces/Client';
-import { logger } from '../util';
-import { CounterMessage } from '../messages/counter';
-
 export class CounterFlow extends BaseFlowHandler {
 	id = 'counter-flow';
 
@@ -367,9 +547,9 @@ export class CounterFlow extends BaseFlowHandler {
 		const message = await CounterMessage.build(client, state);
 
 		if (this.messageId && state.interaction?.channelId) {
-			return this.updateExistingMessage(client, message);
+			return this.updateMessage(client, message);
 		} else if (state.interaction) {
-			return this.createNewMessage(state.interaction, message);
+			return this.createMessage(state.interaction, message);
 		}
 	}
 
@@ -380,11 +560,19 @@ export class CounterFlow extends BaseFlowHandler {
 			| ModalSubmitInteraction
 			| ChatInputCommandInteraction,
 		client: Client,
-		state: FlowState
+		state: FlowState,
+		componentData?: {
+			id: string;
+			parent?: string;
+			group?: string;
+			data?: any;
+		}
 	): Promise<FlowTransition | void> {
 		if (!('customId' in interaction)) return;
 
-		if (interaction.customId === 'increment') {
+		const { id, data } = componentData || { id: '' };
+
+		if (id === 'increment') {
 			this.setState({
 				...state,
 				data: {
@@ -397,81 +585,62 @@ export class CounterFlow extends BaseFlowHandler {
 }
 ```
 
-### 2. Settings Flow with Sub-flows
+### 2. Role Configuration Flow
 
-Here's a more complex example of a settings flow that uses sub-flows and view-based message building:
+Here's an example of a more complex flow for managing role configurations:
 
 ```typescript
-import {
-	ButtonInteraction,
-	ChatInputCommandInteraction,
-	Message,
-	ModalSubmitInteraction,
-	StringSelectMenuInteraction,
-} from 'discord.js';
-import { BaseFlowHandler, FlowState, FlowTransition } from '../interfaces/Flow';
-import { Client } from '../interfaces/Client';
-import { logger } from '../util';
-import { SettingsHomeMessage } from '../messages/settings/home';
-import { SettingsCategoryMessage } from '../messages/settings/category';
-import { SettingsEditMessage } from '../messages/settings/edit';
-
-export class SettingsFlow extends BaseFlowHandler {
-	id = 'settings-flow';
+export class RoleConfigFlow extends BaseFlowHandler {
+	id = 'role-config';
 
 	state: FlowState = {
-		id: 'settings-flow',
-		data: {
-			view: 'home', // Current view: 'home', 'category', or 'setting'
-			category: null, // Selected category
-			setting: null, // Selected setting
-			settings: {
-				// Settings data
-				notifications: {
-					enabled: true,
-					channels: ['general'],
-				},
-				moderation: {
-					autoDelete: false,
-					threshold: 3,
-				},
-			},
-		},
+		id: 'main-menu',
+		data: {},
 	};
 
 	stateSchema = {
-		required: ['view', 'settings'],
-		optional: ['category', 'setting'],
+		required: [],
+		optional: ['action', 'category', 'roles', 'name', 'emoji'],
 		validate: (state: FlowState) => {
-			if (!['home', 'category', 'setting'].includes(state.data?.view)) {
-				return 'Invalid view';
+			return true;
+		},
+	};
+
+	security = {
+		checkPermissions: async (interaction) => {
+			if (interaction.guild) {
+				const permissions = interaction.member?.permissions;
+				return permissions instanceof PermissionsBitField
+					? permissions.has(PermissionsBitField.Flags.ManageRoles)
+					: false;
 			}
+			return false;
+		},
+		checkState: async (state) => {
 			return true;
 		},
 	};
 
 	async build(client: Client, state: FlowState): Promise<Message | void> {
-		logger.debug({ state }, 'Building settings message');
+		logger.debug({ flowId: this.id, state }, 'Building RoleConfigFlow');
+		const { interaction } = state || {};
 
-		let message;
-		switch (state.data?.view) {
-			case 'home':
-				message = await SettingsHomeMessage.build(client, state);
+		let messageOpts: BaseMessageOptions = {
+			embeds: [],
+			components: [],
+		};
+
+		switch (state.id) {
+			case 'main-menu':
+				messageOpts = await MainMenu.build(client, state);
 				break;
-			case 'category':
-				message = await SettingsCategoryMessage.build(client, state);
-				break;
-			case 'setting':
-				message = await SettingsEditMessage.build(client, state);
-				break;
-			default:
-				throw this.createError('INVALID_VIEW', 'Invalid view specified');
+			// Handle other states...
 		}
 
-		if (this.messageId && state.interaction?.channelId) {
-			return this.updateExistingMessage(client, message);
-		} else if (state.interaction) {
-			return this.createNewMessage(state.interaction, message);
+		if (this.messageId && interaction?.channelId) {
+			return this.updateMessage(client, messageOpts);
+		} else if (interaction) {
+			return this.createMessage(interaction, messageOpts);
 		}
 	}
 
@@ -482,158 +651,106 @@ export class SettingsFlow extends BaseFlowHandler {
 			| ModalSubmitInteraction
 			| ChatInputCommandInteraction,
 		client: Client,
-		state: FlowState
+		state: FlowState,
+		componentData?: {
+			id: string;
+			parent?: string;
+			group?: string;
+			data?: any;
+		}
 	): Promise<FlowTransition | void> {
 		if (!('customId' in interaction)) return;
 
-		switch (interaction.customId) {
-			case 'back':
-				// Handle navigation back
-				if (state.data?.view === 'setting') {
-					this.setState({
-						...state,
-						data: {
-							...state.data,
-							view: 'category',
-							setting: null,
-						},
-					});
-				} else if (state.data?.view === 'category') {
-					this.setState({
-						...state,
-						data: {
-							...state.data,
-							view: 'home',
-							category: null,
-						},
-					});
-				}
-				break;
+		const { id, parent, group, data } = componentData || { id: '' };
 
-			case 'category-select':
-				// Handle category selection
-				if ('values' in interaction) {
-					const category = interaction.values[0];
-					this.setState({
-						...state,
-						data: {
-							...state.data,
-							view: 'category',
-							category,
-						},
-					});
-				}
-				break;
-
-			case 'setting-edit':
-				// Start sub-flow for editing a setting
-				return {
-					to: 'settings-flow',
-					subFlow: {
-						id: 'setting-edit-flow',
-						initialState: {
-							id: 'setting-edit-flow',
-							data: {
-								category: state.data?.category,
-								setting: state.data?.setting,
-								currentValue:
-									state.data?.settings[state.data?.category][state.data?.setting],
-							},
-						},
-					},
-				};
-		}
-	}
-
-	// Handle sub-flow completion
-	public async onSubFlowEnd(subFlowId: string, result: any): Promise<void> {
-		if (subFlowId === 'setting-edit-flow') {
-			const { category, setting, value } = result;
-			this.setState({
-				...this.getState(),
-				data: {
-					...this.getState().data,
-					settings: {
-						...this.getState().data.settings,
-						[category]: {
-							...this.getState().data.settings[category],
-							[setting]: value,
-						},
-					},
-				},
-			});
-		}
-	}
-}
-
-// Sub-flow for editing a setting
-export class SettingEditFlow extends BaseFlowHandler {
-	id = 'setting-edit-flow';
-
-	state: FlowState = {
-		id: 'setting-edit-flow',
-		data: {
-			category: null,
-			setting: null,
-			currentValue: null,
-			newValue: null,
-		},
-	};
-
-	async build(client: Client, state: FlowState): Promise<Message | void> {
-		logger.debug({ state }, 'Building setting edit message');
-		const message = await SettingsEditMessage.build(client, state);
-
-		if (this.messageId && state.interaction?.channelId) {
-			return this.updateExistingMessage(client, message);
-		} else if (state.interaction) {
-			return this.createNewMessage(state.interaction, message);
-		}
-	}
-
-	protected async handleInteraction(
-		interaction:
-			| ButtonInteraction
-			| StringSelectMenuInteraction
-			| ModalSubmitInteraction
-			| ChatInputCommandInteraction,
-		client: Client,
-		state: FlowState
-	): Promise<FlowTransition | void> {
-		if (!('customId' in interaction)) return;
-
-		switch (interaction.customId) {
-			case 'save':
-				// Return to parent flow with updated value
-				return {
-					returnToParent: true,
-					data: {
-						category: state.data?.category,
-						setting: state.data?.setting,
-						value: state.data?.newValue,
-					},
-				};
-
-			case 'cancel':
-				// Return to parent flow without changes
-				return {
-					returnToParent: true,
-				};
+		if (interaction instanceof ButtonInteraction) {
+			switch (group) {
+				case 'config-main-menu':
+					switch (id) {
+						case 'edit':
+							return {
+								to: 'category-select',
+							};
+						case 'create':
+							return {
+								to: 'category-name-input',
+								data: {
+									action: 'create',
+								},
+							};
+					}
+			}
 		}
 	}
 }
 ```
 
-This settings flow example demonstrates:
+### 3. Persistent Role Configuration Flow
 
-1. View-based message building using separate message templates
-2. Sub-flow integration for editing settings
-3. State management with nested data
-4. Navigation between different views
-5. Proper error handling and validation
-6. Clean separation of concerns between parent and child flows
+Here's an example of a persistent role configuration flow:
 
-The message templates (`SettingsHomeMessage`, `SettingsCategoryMessage`, and `SettingsEditMessage`) would be defined in separate files under the `messages/settings/` directory, following the same pattern as the `CounterMessage` template.
+```typescript
+export class PersistentRoleConfigFlow extends BaseFlowHandler {
+	id = 'ROLE_CONFIG';
+	persistent = true; // Enable persistence
+
+	state: FlowState = {
+		id: 'main-menu',
+		data: {},
+	};
+
+	stateSchema = {
+		required: [],
+		optional: ['action', 'category', 'roles', 'name', 'emoji'],
+		validate: (state: FlowState) => {
+			return true;
+		},
+	};
+
+	security = {
+		checkPermissions: async (interaction) => {
+			if (interaction.guild) {
+				const permissions = interaction.member?.permissions;
+				return permissions instanceof PermissionsBitField
+					? permissions.has(PermissionsBitField.Flags.ManageRoles)
+					: false;
+			}
+			return false;
+		},
+	};
+
+	async build(client: Client, state: FlowState): Promise<Message | void> {
+		// Implementation as in regular flow
+	}
+
+	protected async handleInteraction(
+		interaction:
+			| ButtonInteraction
+			| StringSelectMenuInteraction
+			| ModalSubmitInteraction
+			| ChatInputCommandInteraction,
+		client: Client,
+		state: FlowState,
+		componentData?: {
+			id: string;
+			parent?: string;
+			group?: string;
+			data?: any;
+		}
+	): Promise<FlowTransition | void> {
+		// Implementation as in regular flow
+	}
+
+	// Optional: Override persistFlow for custom persistence logic
+	async persistFlow(client: Client): Promise<void> {
+		// Custom persistence logic if needed
+		// If not overridden, BaseFlowHandler.persistFlow will be used
+		await super.persistFlow(client);
+
+		// Additional persistence operations...
+	}
+}
+```
 
 ## Troubleshooting
 
@@ -644,469 +761,37 @@ The message templates (`SettingsHomeMessage`, `SettingsCategoryMessage`, and `Se
     - Check if messageId is properly set
     - Verify channel permissions
     - Ensure state updates trigger message rebuilds
+    - Check for recursive update loops
 
 2. **State Management Problems**
 
     - Validate state schema
     - Check for undefined values
     - Use proper TypeScript types
+    - Avoid unnecessary state updates
 
 3. **Interaction Handling Issues**
 
     - Verify custom IDs match
     - Check interaction types
     - Implement proper error handling
+    - Use parseData for custom IDs
 
 4. **Sub-flow Problems**
+
     - Verify parent-child relationships
     - Check state transitions
     - Handle sub-flow results properly
+    - Clean up sub-flow state
+
+5. **Persistence Issues**
+    - Check flow type matches the enum in Flows schema
+    - Verify the `persistent` flag is set to true
+    - Check database connectivity
+    - Look for expiration issues (flows may have expired)
+    - Ensure `messageId` is set correctly
 
 ## Additional Resources
 
 - Check the `ExampleFlow.ts` for a complete implementation
-- Review the `FlowManager.ts` for flow lifecycle management
-- See `counter.ts` for a simple flow example
-- Consult the Discord.js documentation for message components
-
-## Advanced Features
-
-### 1. Retry Mechanism
-
-The Flow system includes a built-in retry mechanism for handling transient failures. This is particularly useful for Discord API operations that might fail temporarily.
-
-```typescript
-// The retry mechanism is configured with these properties in BaseFlowHandler:
-protected readonly maxRetries = 3;        // Maximum number of retry attempts
-protected retryCount = 0;                 // Current retry count
-protected readonly retryDelay = 1000;     // Base delay in milliseconds
-
-// Example of using the retry mechanism in your flow:
-protected async handleInteraction(
-    interaction: ButtonInteraction,
-    client: Client,
-    state: FlowState
-): Promise<FlowTransition | void> {
-    // The retry mechanism is automatically used for interaction handling
-    // It will retry failed operations with exponential backoff
-    return await this.retry(
-        () => this.performOperation(),
-        { interactionId: interaction.id }
-    );
-}
-```
-
-The retry mechanism uses exponential backoff, meaning each retry attempt will wait longer than the previous one. The delay is calculated as: `2^retryCount * retryDelay`.
-
-### 2. Error Handling Patterns
-
-The Flow system provides comprehensive error handling through multiple layers:
-
-1. **Flow-Level Error Handling**
-
-```typescript
-// Define custom error handling in your flow
-public async onError(client: Client, state: FlowState, error: Error): Promise<void> {
-    logger.error({
-        flowId: this.id,
-        state,
-        error: error.message,
-        stack: error.stack
-    }, 'Flow error occurred');
-
-    // Handle the error appropriately
-    await this.end(client, 'error');
-}
-```
-
-2. **Custom Error Creation**
-
-```typescript
-// Create structured errors with codes and details
-protected createError(code: string, message: string, details?: Record<string, any>): FlowError {
-    const error = new Error(message) as FlowError;
-    error.code = code;
-    error.details = details;
-    return error;
-}
-
-// Usage example
-if (invalidCondition) {
-    throw this.createError(
-        'INVALID_STATE',
-        'Flow state is invalid',
-        { currentState: this.state }
-    );
-}
-```
-
-3. **Error Recovery**
-
-```typescript
-// Implement recovery logic in your flow
-protected async handleError(client: Client, error: Error): Promise<void> {
-    if (error.code === 'RATE_LIMIT') {
-        // Handle rate limiting
-        await this.retry(() => this.performOperation(), {});
-    } else if (error.code === 'INVALID_STATE') {
-        // Reset to a known good state
-        this.setState(this.getInitialState());
-    }
-}
-```
-
-### 3. History Tracking
-
-The Flow system maintains a history of state changes, which is useful for debugging and implementing undo functionality:
-
-```typescript
-// The history is automatically maintained in BaseFlowHandler
-protected history: FlowState[] = [];
-
-// Access the history in your flow
-public getHistory(): FlowState[] {
-    return this.history;
-}
-
-// Example of using history for undo functionality
-public async undo(client: Client): Promise<void> {
-    if (this.history.length > 1) {
-        // Remove current state
-        this.history.pop();
-        // Restore previous state
-        const previousState = this.history[this.history.length - 1];
-        this.setState(previousState);
-        await this.build(client, previousState);
-    }
-}
-```
-
-### 4. Sub-flow Usage
-
-Sub-flows allow you to create nested, modular flows. Here's a comprehensive example:
-
-```typescript
-// Parent Flow
-export class ParentFlow extends BaseFlowHandler {
-	id = 'parent-flow';
-
-	protected async handleInteraction(
-		interaction: ButtonInteraction,
-		client: Client,
-		state: FlowState
-	): Promise<FlowTransition | void> {
-		if (interaction.customId === 'start-sub-flow') {
-			return {
-				to: 'parent-flow',
-				subFlow: {
-					id: 'child-flow',
-					initialState: {
-						id: 'child-flow',
-						data: {
-							parentContext: state.data,
-						},
-					},
-				},
-			};
-		}
-	}
-
-	// Handle sub-flow completion
-	public async onSubFlowEnd(subFlowId: string, result: any): Promise<void> {
-		if (subFlowId === 'child-flow') {
-			this.setState({
-				...this.getState(),
-				data: {
-					...this.getState().data,
-					subFlowResult: result,
-				},
-			});
-		}
-	}
-}
-
-// Child Flow
-export class ChildFlow extends BaseFlowHandler {
-	id = 'child-flow';
-
-	protected async handleInteraction(
-		interaction: ButtonInteraction,
-		client: Client,
-		state: FlowState
-	): Promise<FlowTransition | void> {
-		if (interaction.customId === 'complete') {
-			return {
-				returnToParent: true,
-				data: {
-					result: 'sub-flow completed',
-				},
-			};
-		}
-	}
-}
-```
-
-### 5. Logging System
-
-The Flow system uses a structured logging system for comprehensive debugging and monitoring:
-
-```typescript
-// Logging levels and their usage
-logger.debug({ flowId: this.id, state }, 'Flow state updated');
-logger.info({ flowId: this.id }, 'Flow started successfully');
-logger.warn({ flowId: this.id, state }, 'Flow approaching timeout');
-logger.error({
-    flowId: this.id,
-    error: error.message,
-    stack: error.stack
-}, 'Flow error occurred');
-
-// Common logging patterns in flows
-public async onStart(client: Client, state: FlowState): Promise<void> {
-    logger.debug({ flowId: this.id, state }, 'Flow started');
-}
-
-public async onEnd(client: Client, state: FlowState, reason: string): Promise<void> {
-    logger.debug({ flowId: this.id, state, reason }, 'Flow ended');
-}
-
-public async onError(client: Client, state: FlowState, error: Error): Promise<void> {
-    logger.error({
-        flowId: this.id,
-        state,
-        error: error.message,
-        stack: error.stack
-    }, 'Flow error occurred');
-}
-
-public async onTimeout(client: Client, state: FlowState): Promise<void> {
-    logger.warn({ flowId: this.id, state }, 'Flow timed out');
-}
-```
-
-The logging system includes:
-
-- Structured logging with context objects
-- Different log levels (debug, info, warn, error)
-- Automatic inclusion of flow ID and state
-- Stack traces for errors
-- Performance metrics and timing information
-
-Best practices for logging:
-
-1. Always include the flow ID in log messages
-2. Use appropriate log levels
-3. Include relevant context in structured format
-4. Log state changes and important events
-5. Include error details when logging errors
-6. Use debug level for detailed flow information
-7. Use warn level for potential issues
-8. Use error level for actual errors
-
-## Flow Usage Examples
-
-### 1. Command Implementation
-
-Here's how to implement a command that starts a flow:
-
-```typescript
-import { SlashCommandSubcommandBuilder } from 'discord.js';
-import { Command } from '../interfaces';
-import { CounterFlow } from '../flows/CounterFlow';
-import { logger } from '../util/Logger';
-
-const command: Command = {
-	parent: 'test',
-	data: new SlashCommandSubcommandBuilder()
-		.setName('counter')
-		.setDescription('Start a counter flow'),
-
-	async execute(interaction, client) {
-		logger.debug('Initializing counter flow command');
-
-		// Validate guild context
-		if (!interaction.guild) {
-			logger.debug('Command used outside of guild context');
-			return interaction.reply({
-				content: 'This command can only be used in a server.',
-				ephemeral: true,
-			});
-		}
-
-		try {
-			// Start the flow with initial state
-			await client.flowManager.startFlow(interaction, new CounterFlow(client), {
-				id: 'counter-flow',
-				data: {
-					count: 0,
-					lastUpdated: new Date().toISOString(),
-				},
-			});
-
-			logger.debug(
-				{
-					flowId: 'counter-flow',
-				},
-				'Flow initialized successfully'
-			);
-		} catch (error) {
-			logger.error(
-				{
-					error: error instanceof Error ? error.message : 'Unknown error',
-					stack: error instanceof Error ? error.stack : undefined,
-				},
-				'Error initializing flow'
-			);
-
-			return interaction.reply({
-				content: 'An error occurred while initializing the flow.',
-				ephemeral: true,
-			});
-		}
-	},
-};
-```
-
-### 2. Message Builder (Template)
-
-Here's how to create a message builder for the counter flow:
-
-```typescript
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder } from 'discord.js';
-import { MessageBuilder } from '../interfaces/MessageBuilder';
-import { Client } from '../interfaces/Client';
-import { FlowState } from '../interfaces/Flow';
-import { logger } from '../util/Logger';
-import { MessageComponent as CounterButton } from '../components/buttons/counter';
-
-export const CounterMessage: MessageBuilder = {
-	embeds: [
-		new EmbedBuilder()
-			.setTitle('Simple Counter')
-			.setDescription('Click the button below to increment the counter!')
-			.addFields([
-				{
-					name: 'Count',
-					value: '0',
-					inline: true,
-				},
-			]),
-	],
-
-	components: [],
-
-	async build(client: Client, state: FlowState) {
-		logger.debug({ state }, 'Building counter message');
-
-		// Get current count from state
-		const count = state.data?.count || 0;
-		logger.debug({ count }, 'Current count');
-
-		// Update embed with current count
-		const embed = new EmbedBuilder()
-			.setTitle('Simple Counter')
-			.setDescription('Click the button below to increment the counter!')
-			.addFields([
-				{
-					name: 'Count',
-					value: count.toString(),
-					inline: true,
-				},
-			]);
-
-		// Create button
-		const button = await CounterButton.build(client, { count });
-		logger.debug({ button }, 'Built counter button');
-
-		// Create action row with button
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
-		logger.debug({ row }, 'Created action row');
-
-		// Return updated message
-		const message = {
-			embeds: [embed],
-			components: [row],
-		};
-		logger.debug({ message }, 'Built counter message');
-		return message;
-	},
-};
-```
-
-### 3. Message Component (Button)
-
-Here's how to create a button component for the counter flow:
-
-```typescript
-import { ButtonBuilder, ButtonStyle, ButtonInteraction } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '../interfaces/MessageComponent';
-import { Client } from '../interfaces/Client';
-import { logger } from '../util/Logger';
-
-export const MessageComponent: ButtonComponent = {
-	// Unique ID for this button component
-	id: 'counter',
-	type: ComponentTypes.Button,
-
-	// Builds the button to be shown in the message
-	async build(client: Client, data: { count: number }) {
-		logger.debug({ count: data.count }, 'Building counter button');
-		return new ButtonBuilder()
-			.setCustomId(client.getCustomID('counter', data))
-			.setLabel('Click Me!')
-			.setStyle(ButtonStyle.Primary);
-	},
-
-	// Handles button click interactions
-	async execute(interaction: ButtonInteraction, client: Client, data: { count: number }) {
-		logger.debug(
-			{
-				messageId: interaction.message.id,
-				currentCount: data.count,
-			},
-			'Counter button clicked'
-		);
-
-		// Let the flow system handle the interaction
-		await client.flowManager.handleInteraction(interaction);
-	},
-};
-```
-
-### 4. Integration Flow
-
-Here's how these components work together:
-
-1. **Command Initialization**
-
-    - User runs the `/test counter` command
-    - Command creates a new `CounterFlow` instance
-    - Flow is started with initial state via `flowManager.startFlow()`
-
-2. **Message Building**
-
-    - Flow's `build` method calls `CounterMessage.build()`
-    - Message builder creates embed and gets button from component
-    - Message is sent to Discord
-
-3. **Interaction Handling**
-
-    - User clicks the counter button
-    - Button component's `execute` method is called
-    - Component delegates to `flowManager.handleInteraction()`
-    - Flow's `handleInteraction` method updates state
-    - Message is rebuilt with new count
-
-4. **State Management**
-    - State is maintained in the flow
-    - Message builder reads state to display current count
-    - Button component passes current count to flow
-    - Flow updates state and triggers message rebuild
-
-This modular approach provides several benefits:
-
-- Separation of concerns between flow logic and UI
-- Reusable message components
-- Clean state management
-- Consistent interaction handling
-- Easy to extend and modify
+- Review the `FlowManager.ts`

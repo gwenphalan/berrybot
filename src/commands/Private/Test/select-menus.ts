@@ -4,7 +4,7 @@ import {
 	SlashCommandSubcommandBuilder,
 	StringSelectMenuBuilder,
 } from 'discord.js';
-import { selectMenus } from '../../../components';
+import { Test_Select, Test_MultiSelect } from '../../../components';
 import { Command } from '../../../interfaces';
 
 // Test command for demonstrating select menu component functionality
@@ -40,10 +40,10 @@ const command: Command = {
 		// Add appropriate select menu based on type
 		switch (type) {
 			case 'single':
-				row.addComponents(await selectMenus.TestSelect.build(_client));
+				row.addComponents(await Test_Select.build(_client));
 				break;
 			case 'multi':
-				row.addComponents(await selectMenus.TestMultiSelect.build(_client));
+				row.addComponents(await Test_MultiSelect.build(_client));
 				break;
 		}
 

@@ -1,6 +1,6 @@
 import * as discord from 'discord.js';
 import { MessageBuilder } from '../interfaces';
-import { buttons } from '../components';
+import { Paginator_BackButton, Paginator_NextButton, Paginator_CloseButton } from '../components';
 import { Collection } from 'discord.js';
 import { logger } from '../util';
 
@@ -46,9 +46,9 @@ export const paginator: MessageBuilder = {
 		logger.debug({ backButtonData, nextButtonData }, 'Prepared button data');
 
 		// Build components
-		const backButton = await buttons.Paginator.BackButton.build(client, backButtonData);
-		const nextButton = await buttons.Paginator.NextButton.build(client, nextButtonData);
-		const closeButton = await buttons.Paginator.CloseButton.build(client);
+		const backButton = await Paginator_BackButton.build(client, backButtonData);
+		const nextButton = await Paginator_NextButton.build(client, nextButtonData);
+		const closeButton = await Paginator_CloseButton.build(client);
 
 		logger.debug('Built all paginator buttons');
 

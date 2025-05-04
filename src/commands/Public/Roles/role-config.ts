@@ -1,19 +1,21 @@
 import * as discord from 'discord.js';
-import { Command } from '../../interfaces';
-import { selfRoleSettings } from '../../messages';
+import { Command } from '@/interfaces';
+import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
 
 // Self-roles management command for server administrators
 const command: Command = {
 	guildOnly: true,
 	data: new discord.SlashCommandBuilder()
-		.setName('self-roles')
+		.setName('role-config')
 		.setDescription('View or manage self-assignable roles.')
 		.setDefaultMemberPermissions(discord.PermissionFlagsBits.ManageRoles),
-	async execute(interaction: discord.ChatInputCommandInteraction, _client) {
+	async execute(interaction: discord.ChatInputCommandInteraction, client) {
 		// Ensure command is used in a guild
 		if (!interaction.guild) return;
 		// Build and send the self-role settings message
-		interaction.reply(await selfRoleSettings.build(_client, interaction.guild));
+		client.flowManager.startFlow(interaction, new RoleConfigFlow(client), {
+			id: 'main-menu',
+		});
 	},
 };
 

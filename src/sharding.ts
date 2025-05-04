@@ -1,6 +1,3 @@
-// Import the register-aliases.ts file first
-import './register-aliases';
-
 import { ShardingManager } from 'discord.js';
 import { config } from './config';
 import { logger } from './util';

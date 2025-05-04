@@ -19,23 +19,55 @@ import { decompressFromUTF16 } from 'lz-string';
 import { logger } from '../../util';
 
 /**
- * Parses component customId to extract component ID and any compressed data
- * Format: componentId[compressedData]
+ * Parses component customId to extract component ID, parent, group, and any compressed data
+ * customID Format: "parent:componentId[compressedData]"
+ * customID Format: "componentId[compressedData]"
+ * customID Format: "parent:componentId"
+ * customID Format: "parent:group:componentId[compressedData]"
+ * customID Format: "parent:group:componentId"
+ *
+ * returns: {
+ *  id: string;
+ *  parent?: string;
+ *  group?: string;
+ *  data?: Record<string, any> | undefined;
+ * }
  */
 export function parseData(customId: string): {
 	id: string;
-	data: ((this: any, key: string, value: any) => any) | undefined;
+	parent?: string;
+	group?: string;
+	data: Record<string, any> | undefined;
 } {
-	const regex = /\[(.*)\]/;
+	// Match format: (parent:)?(group:)?id[compressedData]
+	const regex = /^(?:([^:]+):)?(?:([^:]+):)?([^[]+)(?:\[(.*)\])?$/;
 	const match = regex.exec(customId);
-	if (match) {
-		const data = JSON.parse(decompressFromUTF16(match[1]));
-		const id = customId.replace(regex, '');
-		logger.debug(`Parsed component data - ID: ${id}, Has data: ${!!data}`);
-		return { id, data };
+
+	if (!match) {
+		logger.debug(`Parsed component data - ID: ${customId}, No data`);
+		return { id: customId, data: undefined };
 	}
-	logger.debug(`Parsed component data - ID: ${customId}, No data`);
-	return { id: customId, data: undefined };
+
+	const [, parent, group, id, compressedData] = match;
+
+	let data;
+	try {
+		// Handle empty objects or invalid JSON
+		if (!compressedData || compressedData === '{}') {
+			data = {};
+		} else {
+			data = JSON.parse(decompressFromUTF16(compressedData));
+		}
+	} catch (error: any) {
+		logger.warn(`Failed to parse data from customId: ${customId}. Error: ${error.message}`);
+		data = {};
+	}
+
+	logger.debug(
+		`Parsed component data - ID: ${id}, Parent: ${parent || 'none'}, Group: ${group || 'none'}, Has data: ${!!data}`
+	);
+
+	return { id, parent, group, data };
 }
 
 // Event handler for message component interactions (buttons, select menus, modals)
@@ -46,30 +78,52 @@ export const event: Event = {
 	 * @param {MessageComponentInteraction} interaction - The interaction object from Discord
 	 */
 	execute(interaction: BaseInteraction, client: Client) {
-		// Only handle message component interactions
-		if (interaction.type !== InteractionType.MessageComponent) return;
-		const messageComponentInteraction = interaction as MessageComponentInteraction;
+		logger.debug({ interaction }, 'Received interaction');
+
+		// Only handle message component and modal submit interactions
+		if (
+			interaction.type !== InteractionType.MessageComponent &&
+			interaction.type !== InteractionType.ModalSubmit
+		)
+			return;
+		const messageComponentInteraction = interaction as
+			| MessageComponentInteraction
+			| ModalSubmitInteraction;
 
 		logger.debug(
-			`Received message component interaction: ${messageComponentInteraction.customId}`
+			`Received message component interaction: ${'customId' in messageComponentInteraction ? messageComponentInteraction.customId : 'N/A'}`
 		);
 
 		// Parse the component's customId to get its ID and any stored data
-		const data = parseData(messageComponentInteraction.customId);
+		const data =
+			'customId' in messageComponentInteraction
+				? parseData(messageComponentInteraction.customId)
+				: { id: '', data: undefined };
 
 		// Determine the type of component being interacted with
 		let type: 'button' | 'selectMenu' | 'modal';
-		if (messageComponentInteraction.isButton()) {
+		if ('isButton' in messageComponentInteraction && messageComponentInteraction.isButton()) {
 			type = 'button';
-		} else if (messageComponentInteraction.isStringSelectMenu()) {
+		} else if (
+			'isStringSelectMenu' in messageComponentInteraction &&
+			messageComponentInteraction.isStringSelectMenu()
+		) {
 			type = 'selectMenu';
-		} else {
+		} else if (
+			'isModalSubmit' in messageComponentInteraction &&
+			messageComponentInteraction.isModalSubmit()
+		) {
 			type = 'modal';
+		} else {
+			logger.warn('Unknown component interaction type');
+			return;
 		}
 		logger.debug(`Component type: ${type}`);
+		const regex = /\[(.*)\]/;
+		const id = messageComponentInteraction.customId.replace(regex, '');
 
 		// Get the component handler from our collection
-		const componentName = `${data.id}:${type}`;
+		const componentName = `${id}:${type}`;
 		const component = client.messageComponents.get(componentName);
 		if (!component) {
 			logger.warn(`Component handler not found: ${componentName}`);
@@ -115,12 +169,18 @@ export const event: Event = {
 
 		try {
 			// Handle different types of components
-			if (messageComponentInteraction.isButton()) {
+			if (
+				'isButton' in messageComponentInteraction &&
+				messageComponentInteraction.isButton()
+			) {
 				// Handle button interactions
 				logger.debug(`Executing button component: ${componentName}`);
 				const button: ButtonComponent = component as ButtonComponent;
 				button.execute(messageComponentInteraction, client, data.data);
-			} else if (messageComponentInteraction.isStringSelectMenu()) {
+			} else if (
+				'isStringSelectMenu' in messageComponentInteraction &&
+				messageComponentInteraction.isStringSelectMenu()
+			) {
 				// Handle select menu interactions
 				logger.debug(`Executing select menu component: ${componentName}`);
 				const selectMenu: SingleSelectMenuComponent | MultiSelectMenuComponent =
@@ -165,7 +225,10 @@ export const event: Event = {
 						data.data
 					);
 				}
-			} else if (messageComponentInteraction.isModalSubmit()) {
+			} else if (
+				'isModalSubmit' in messageComponentInteraction &&
+				messageComponentInteraction.isModalSubmit()
+			) {
 				// Handle modal submissions
 				logger.debug(`Executing modal component: ${componentName}`);
 				const modal: ModalComponent = component as ModalComponent;

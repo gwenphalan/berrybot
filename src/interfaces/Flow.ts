@@ -4,9 +4,11 @@ import {
 	Message,
 	ModalSubmitInteraction,
 	SelectMenuInteraction,
+	StringSelectMenuInteraction,
 } from 'discord.js';
 import { Client } from './Client';
 import { logger } from '../util';
+import { parseData } from '../events/Interactions/MessageComponent';
 
 export interface FlowState {
 	/** Unique identifier for this state (e.g., 'main-menu', 'settings') */
@@ -62,6 +64,12 @@ export interface FlowTransition {
 		id: string; // ID of the sub-flow to start
 		initialState: FlowState; // Initial state for the sub-flow
 	};
+	/** The interaction that triggered the transition */
+	interaction?:
+		| ButtonInteraction
+		| StringSelectMenuInteraction
+		| ModalSubmitInteraction
+		| ChatInputCommandInteraction;
 	/** Flag to indicate returning to parent flow */
 	returnToParent?: boolean;
 }
@@ -95,6 +103,11 @@ export interface FlowSecurityCheck {
 export interface FlowHandler {
 	/** Unique identifier for this handler (e.g., 'settings-flow') */
 	id: string;
+
+	/**
+	 * Whether this flow should be persisted to the database
+	 */
+	persistent?: boolean;
 
 	/**
 	 * Schema defining the required state structure
@@ -148,12 +161,13 @@ export interface FlowHandler {
 			| ModalSubmitInteraction
 			| ChatInputCommandInteraction,
 		client: Client,
-		state: FlowState,
 		data?: { [key: string]: any }
 	): Promise<FlowTransition | void>;
 	getState(): FlowState;
 	setState(state: FlowState): void;
 	setMessageId(messageId: string): string | null;
+	persistFlow?(client: Client): Promise<void>;
+	unpersistFlow?(client: Client): Promise<void>;
 }
 
 export abstract class BaseFlowHandler implements FlowHandler {
@@ -167,6 +181,9 @@ export abstract class BaseFlowHandler implements FlowHandler {
 	protected readonly maxRetries = 3;
 	protected retryCount = 0;
 	protected readonly retryDelay = 1000; // 1 second
+	protected updateTimeout?: NodeJS.Timeout; // Add debounce timeout
+	protected updateInProgress: boolean = false; // Flag to prevent multiple concurrent updates
+	public persistent?: boolean = false; // Whether this flow should be persisted
 
 	// Lifecycle hooks
 	public onStart?(client: Client, state: FlowState): Promise<void>;
@@ -198,6 +215,8 @@ export abstract class BaseFlowHandler implements FlowHandler {
 	 * Start the flow lifecycle
 	 */
 	async start(client: Client, state: FlowState): Promise<void> {
+		// Add initial state to history
+		this.history.push({ ...state });
 		this.setState(state);
 		this.resetTimeout(client);
 		await this.onStart?.(client, state);
@@ -216,6 +235,10 @@ export abstract class BaseFlowHandler implements FlowHandler {
 		}
 		if (this.state) {
 			await this.onEnd?.(client, this.state, reason);
+		}
+		// Unpersist flow when it ends
+		if (this.persistent) {
+			await this.unpersistFlow(client);
 		}
 	}
 
@@ -327,35 +350,108 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			| ModalSubmitInteraction
 			| ChatInputCommandInteraction,
 		client: Client,
-		state: FlowState
+		data?: { [key: string]: any }
 	): Promise<FlowTransition | void> {
 		try {
 			// Reset retry count for new interaction
 			this.retryCount = 0;
+			logger.debug(
+				{
+					flowId: this.id,
+					interactionId: interaction.id,
+					stateId: this.state?.id,
+				},
+				'handle() called'
+			);
+
+			// Defer the interaction update first
+			await this.deferInteraction(interaction);
+
+			// Parse the custom ID to get component data
+			const componentData =
+				'customId' in interaction && interaction.customId
+					? parseData(interaction.customId)
+					: undefined;
 
 			// Perform security checks
-			await this.performSecurityChecks(interaction, state);
+			await this.performSecurityChecks(interaction, this.state);
 
 			// Validate state
-			this.validateState(state);
+			this.validateState(this.state);
 
-			// Handle the interaction with retry
-			return await this.retry(() => this.handleInteraction(interaction, client, state), {
-				interactionId: interaction.id,
-				stateId: state.id,
-			});
+			// Handle the interaction with retry, passing the parsed component data
+			logger.debug(
+				{
+					flowId: this.id,
+					interactionId: interaction.id,
+				},
+				'Calling handleInteraction'
+			);
+
+			const transition = await this.retry(
+				() => this.handleInteraction(interaction, client, this.state, componentData),
+				{
+					interactionId: interaction.id,
+					stateId: this.state.id,
+				}
+			);
+
+			// Process the transition if one was returned
+			if (transition) {
+				logger.debug(
+					{
+						flowId: this.id,
+						interactionId: interaction.id,
+						transition: { to: transition.to, hasData: !!transition.data },
+					},
+					'Got transition, preparing to update state'
+				);
+
+				if (transition.to === 'end') {
+					await this.end(client, 'completed');
+				} else {
+					// Update state with the transition data
+					const newState = {
+						id: transition.to,
+						data: transition.data,
+						previous: this.state.id,
+						interaction: transition.interaction ?? interaction,
+					};
+					logger.debug(
+						{
+							flowId: this.id,
+							interactionId: interaction.id,
+							fromState: this.state.id,
+							toState: newState.id,
+						},
+						'Calling setState() from handle()'
+					);
+
+					this.setState(newState);
+				}
+			} else {
+				logger.debug(
+					{
+						flowId: this.id,
+						interactionId: interaction.id,
+					},
+					'No transition returned from handleInteraction'
+				);
+			}
+
+			return transition;
 		} catch (error) {
 			const flowError =
 				error instanceof Error
 					? this.createError('FLOW_ERROR', error.message, {
 							stack: error.stack,
 							interactionId: interaction.id,
-							stateId: state.id,
+							stateId: this.state.id,
 						})
 					: this.createError('UNKNOWN_ERROR', 'An unknown error occurred', {
 							error,
 							interactionId: interaction.id,
-							stateId: state.id,
+							stateId: this.state.id,
 						});
 
 			await this.handleError(client, flowError);
@@ -366,7 +462,16 @@ export abstract class BaseFlowHandler implements FlowHandler {
 	/**
 	 * Helper method to update an existing message
 	 */
-	protected async updateExistingMessage(client: Client, message: any): Promise<Message | void> {
+	protected async updateMessage(client: Client, message: any): Promise<Message | void> {
+		logger.debug(
+			{
+				flowId: this.id,
+				messageId: this.messageId,
+				caller: new Error().stack?.split('\n')[2], // Log the caller of updateMessage
+			},
+			'updateMessage() called'
+		);
+
 		if (!this.messageId || !this.state?.interaction?.channelId) {
 			logger.warn(
 				{
@@ -401,14 +506,49 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			'Updating existing message'
 		);
 
-		const flowMsg = (await (channel as any).messages.fetch(this.messageId)) as Message;
-		return flowMsg.edit(message);
+		const flowMsg = await (channel as any).messages.fetch(this.messageId);
+
+		try {
+			// Try to edit the message first
+			return await flowMsg.edit(message);
+		} catch (error: any) {
+			// If we get a sticker error, create a new message and delete the old one
+			if (error.code === 50080) {
+				logger.debug(
+					{
+						flowId: this.id,
+						messageId: this.messageId,
+					},
+					'Message contains stickers, creating new message'
+				);
+
+				// Create new message
+				const newMessage = await (channel as any).send(message);
+
+				// Delete old message
+				await flowMsg.delete().catch((err: Error) => {
+					logger.warn(
+						{
+							flowId: this.id,
+							messageId: this.messageId,
+							error: err.message,
+						},
+						'Failed to delete old message'
+					);
+				});
+
+				// Update message ID
+				this.setMessageId(newMessage.id);
+				return newMessage;
+			}
+			throw error;
+		}
 	}
 
 	/**
 	 * Helper method to create a new message via interaction
 	 */
-	protected async createNewMessage(
+	protected async createMessage(
 		interaction:
 			| ButtonInteraction
 			| SelectMenuInteraction
@@ -455,12 +595,140 @@ export abstract class BaseFlowHandler implements FlowHandler {
 	}
 
 	setState(state: FlowState): void {
+		logger.debug(
+			{
+				flowId: this.id,
+				currentState: this.state?.id,
+				newState: state.id,
+				caller: new Error().stack?.split('\n')[2], // Log the caller of setState
+			},
+			'setState() called'
+		);
+
 		this.validateState(state);
-		this.state = state;
-		if (this.messageId && this.client) {
-			this.updateMessage(this.client);
-			this.resetTimeout(this.client);
+
+		// Only update if the state actually changed
+		if (this.statesAreEqual(this.state, state)) {
+			logger.debug(
+				{
+					flowId: this.id,
+					stateId: state.id,
+				},
+				'setState() - states are equal, skipping update'
+			);
+			return;
 		}
+
+		// Add current state to history before updating
+		if (this.state) {
+			this.history.push({ ...this.state });
+		}
+		this.state = state;
+
+		// Only update message if we have a messageId and the state changed
+		if (this.messageId && this.client) {
+			const client = this.client;
+
+			// Clear any pending update
+			if (this.updateTimeout) {
+				clearTimeout(this.updateTimeout);
+			}
+
+			// Don't schedule update if one is already in progress
+			if (this.updateInProgress) {
+				logger.debug(
+					{ flowId: this.id },
+					'Skipping update - another update is already in progress'
+				);
+				return;
+			}
+
+			// Debounce the update to prevent multiple rapid updates
+			this.updateTimeout = setTimeout(() => {
+				// Set flag to prevent concurrent updates
+				this.updateInProgress = true;
+
+				logger.debug(
+					{
+						flowId: this.id,
+						stateId: state.id,
+					},
+					'About to call build() from setState()'
+				);
+
+				this.build(client, { ...state })
+					.then((content) => {
+						if (content) {
+							return this.updateMessage(client, content);
+						}
+						return null;
+					})
+					.finally(() => {
+						// Reset flag when update is complete
+						this.updateInProgress = false;
+					});
+			}, 100); // 100ms debounce
+
+			this.resetTimeout(client);
+
+			// Persist state changes if flow is persistent
+			if (this.persistent) {
+				this.persistFlow(client).catch((error) => {
+					logger.error(
+						{
+							flowId: this.id,
+							messageId: this.messageId,
+							error: error instanceof Error ? error.message : 'Unknown error',
+						},
+						'Failed to persist flow state after update'
+					);
+				});
+			}
+		}
+	}
+
+	/**
+	 * Compare two flow states, handling BigInt values
+	 */
+	private statesAreEqual(state1: FlowState | undefined, state2: FlowState): boolean {
+		if (!state1) return false;
+
+		// Compare basic properties
+		if (state1.id !== state2.id) return false;
+		if (state1.previous !== state2.previous) return false;
+
+		// Compare data objects
+		const data1 = state1.data || {};
+		const data2 = state2.data || {};
+
+		// Compare data keys
+		const keys1 = Object.keys(data1);
+		const keys2 = Object.keys(data2);
+		if (keys1.length !== keys2.length) return false;
+
+		// Compare each data value
+		for (const key of keys1) {
+			if (!(key in data2)) return false;
+
+			const val1 = data1[key];
+			const val2 = data2[key];
+
+			// Handle BigInt values
+			if (typeof val1 === 'bigint' && typeof val2 === 'bigint') {
+				if (val1 !== val2) return false;
+			} else if (typeof val1 !== typeof val2) {
+				return false;
+			} else if (typeof val1 === 'object' && val1 !== null) {
+				// Recursively compare objects
+				if (!this.statesAreEqual(val1 as FlowState, val2 as FlowState)) {
+					return false;
+				}
+			} else if (val1 !== val2) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	setMessageId(messageId: string) {
@@ -473,98 +741,6 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			'Setting message ID'
 		);
 		return (this.messageId = messageId);
-	}
-
-	async updateMessage(client: Client) {
-		if (!this.messageId || !this.state) {
-			logger.warn(
-				{
-					flowId: this.id,
-					hasMessageId: !!this.messageId,
-					hasState: !!this.state,
-				},
-				'Cannot update message - missing messageId or state'
-			);
-			return;
-		}
-
-		// Get the channel ID from the interaction
-		const channelId = this.state.interaction?.channelId;
-		if (!channelId) {
-			logger.warn({ flowId: this.id }, 'Cannot update message - missing channel ID');
-			return;
-		}
-
-		const channel = client.channels.cache.get(channelId);
-		if (!channel || !('messages' in channel)) {
-			logger.warn(
-				{
-					flowId: this.id,
-					channelId,
-					channelFound: !!channel,
-					hasMessages: channel ? 'messages' in channel : false,
-				},
-				'Cannot update message - invalid channel'
-			);
-			return;
-		}
-
-		logger.debug(
-			{
-				flowId: this.id,
-				messageId: this.messageId,
-				channelId,
-			},
-			'Fetching message for update'
-		);
-
-		const message = await (channel as any).messages
-			.fetch(this.messageId)
-			.catch((error: Error) => {
-				logger.error(
-					{
-						flowId: this.id,
-						messageId: this.messageId,
-						error: error.message,
-					},
-					'Failed to fetch message for update'
-				);
-				return null;
-			});
-
-		if (message) {
-			logger.debug(
-				{
-					flowId: this.id,
-					messageId: this.messageId,
-				},
-				'Building new message content'
-			);
-
-			const content = await this.build(client, this.state);
-
-			logger.debug(
-				{
-					flowId: this.id,
-					messageId: this.messageId,
-				},
-				'Updating message with new content'
-			);
-
-			// Edit the message with only the necessary fields
-			await message.edit({
-				embeds: content.embeds,
-				components: content.components,
-			});
-
-			logger.debug(
-				{
-					flowId: this.id,
-					messageId: this.messageId,
-				},
-				'Message update completed'
-			);
-		}
 	}
 
 	/**
@@ -614,7 +790,13 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			| ModalSubmitInteraction
 			| ChatInputCommandInteraction,
 		client: Client,
-		state: FlowState
+		state: FlowState,
+		componentData?: {
+			id: string;
+			parent?: string;
+			group?: string;
+			data?: any;
+		}
 	): Promise<FlowTransition | void>;
 
 	/**
@@ -690,16 +872,91 @@ export abstract class BaseFlowHandler implements FlowHandler {
 	/**
 	 * Handle a transition, including sub-flow transitions
 	 */
-	protected async handleTransition(client: Client, transition: FlowTransition): Promise<void> {
+	protected async handleTransition(
+		client: Client,
+		transition: FlowTransition,
+		interaction:
+			| ButtonInteraction
+			| SelectMenuInteraction
+			| ModalSubmitInteraction
+			| ChatInputCommandInteraction
+	): Promise<void> {
 		if (transition.subFlow) {
 			await this.startSubFlow(client, transition.subFlow.id, transition.subFlow.initialState);
 		} else if (transition.returnToParent) {
 			await this.endSubFlow(client, this.getState());
 		} else {
-			this.setState({
+			// Only update state if it's actually changing
+			const newState = {
 				id: transition.to,
 				data: transition.data,
-			});
+				previous: this.state.id,
+				interaction,
+			};
+
+			// Check if the state is actually changing
+			if (!this.statesAreEqual(this.state, newState)) {
+				this.setState(newState);
+			}
+		}
+	}
+
+	/**
+	 * Persist the flow state to the database
+	 */
+	async persistFlow(client: Client): Promise<void> {
+		if (!this.persistent || !this.messageId) {
+			return;
+		}
+
+		try {
+			const state = this.getState();
+			await client.database.flows.model.findOneAndUpdate(
+				{ messageId: this.messageId },
+				{
+					messageId: this.messageId,
+					flowType: this.id.toUpperCase(),
+					currentState: state,
+					expiresAt: new Date(Date.now() + this.TIMEOUT_DURATION),
+				},
+				{ upsert: true }
+			);
+			logger.debug({ flowId: this.id, messageId: this.messageId }, 'Flow state persisted');
+		} catch (error) {
+			logger.error(
+				{
+					flowId: this.id,
+					messageId: this.messageId,
+					error: error instanceof Error ? error.message : 'Unknown error',
+				},
+				'Failed to persist flow state'
+			);
+		}
+	}
+
+	/**
+	 * Remove the flow state from the database
+	 */
+	async unpersistFlow(client: Client): Promise<void> {
+		if (!this.persistent || !this.messageId) {
+			return;
+		}
+
+		try {
+			await client.database.flows.model.deleteOne({ messageId: this.messageId });
+			logger.debug(
+				{ flowId: this.id, messageId: this.messageId },
+				'Flow state removed from database'
+			);
+		} catch (error) {
+			logger.error(
+				{
+					flowId: this.id,
+					messageId: this.messageId,
+					error: error instanceof Error ? error.message : 'Unknown error',
+				},
+				'Failed to remove flow state from database'
+			);
 		}
 	}
 }

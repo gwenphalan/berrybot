@@ -1,3 +1,6 @@
+// Import the register-aliases.ts file first
+import './register-aliases';
+
 import { GatewayIntentBits, Partials } from 'discord.js';
 import { Client } from './interfaces';
 import { logger } from './util';

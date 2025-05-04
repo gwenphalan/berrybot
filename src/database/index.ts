@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { config } from '../config';
 import { GuildSettings } from './schemas/GuildSettings';
+import { Flows } from './schemas/Flows';
 import { logger } from '../util';
 
 /**
@@ -38,7 +39,7 @@ export const guildSettings = {
 	 * @param guildId - The ID of the guild to get settings for
 	 * @returns Promise resolving to the guild settings
 	 */
-	get: async (guildId: string) => {
+	get: async (guildId: string): Promise<GuildSettings> => {
 		logger.debug(`Fetching settings for guild: ${guildId}`);
 		const settings = await GuildSettings.findOne({ guild: guildId });
 
@@ -71,7 +72,81 @@ export const guildSettings = {
 	model: GuildSettings,
 };
 
-// Add new models here
+/**
+ * Flows management
+ * Provides methods to manage persistent flows
+ */
+export const flows = {
+	/**
+	 * Get a flow by message ID
+	 * @param messageId - The ID of the message associated with the flow
+	 * @returns Promise resolving to the flow or null if not found
+	 */
+	getByMessage: async (messageId: string): Promise<Flows | null> => {
+		logger.debug(`Fetching flow for message: ${messageId}`);
+		return await Flows.findOne({ messageId });
+	},
+
+	/**
+	 * Get flows by guild and type
+	 * @param guildId - The ID of the guild
+	 * @param flowType - The type of flow
+	 * @param userId - Optional user ID for user-specific flows
+	 * @returns Promise resolving to array of matching flows
+	 */
+	getByGuild: async (guildId: string, flowType: string, userId?: string): Promise<Flows[]> => {
+		logger.debug(
+			`Fetching flows for guild: ${guildId}, type: ${flowType}${userId ? `, user: ${userId}` : ''}`
+		);
+		const query = userId ? { guildId, flowType, userId } : { guildId, flowType };
+		return await Flows.find(query);
+	},
+
+	/**
+	 * Create a new flow
+	 * @param flowData - The flow data to create
+	 * @returns Promise resolving to the created flow
+	 */
+	create: async (flowData: Partial<Flows>): Promise<Flows> => {
+		logger.debug(`Creating new flow: ${flowData.flowType}`);
+		return await Flows.create(flowData);
+	},
+
+	/**
+	 * Update an existing flow
+	 * @param messageId - The message ID of the flow to update
+	 * @param flowData - The new flow data
+	 * @returns Promise resolving to the updated flow
+	 */
+	update: async (messageId: string, flowData: Partial<Flows>): Promise<Flows | null> => {
+		logger.debug(`Updating flow for message: ${messageId}`);
+		return await Flows.findOneAndUpdate({ messageId }, flowData, { new: true });
+	},
+
+	/**
+	 * Delete a flow
+	 * @param messageId - The message ID of the flow to delete
+	 */
+	delete: async (messageId: string): Promise<void> => {
+		logger.debug(`Deleting flow for message: ${messageId}`);
+		await Flows.findOneAndDelete({ messageId });
+	},
+
+	/**
+	 * Clean up expired flows
+	 * @returns Promise resolving to the number of deleted flows
+	 */
+	cleanupExpired: async (): Promise<number> => {
+		logger.debug('Cleaning up expired flows');
+		const result = await Flows.deleteMany({
+			expiresAt: { $lt: new Date() },
+		});
+		return result.deletedCount || 0;
+	},
+
+	/** Mongoose model for flows */
+	model: Flows,
+};
 
 /**
  * Database interface
@@ -79,5 +154,5 @@ export const guildSettings = {
  */
 export const database = {
 	guildSettings,
-	// Add new models here
+	flows,
 };

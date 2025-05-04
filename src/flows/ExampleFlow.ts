@@ -92,11 +92,11 @@ export class ExampleFlow extends BaseFlowHandler {
 
 		// Handle updating an existing message
 		if (this.messageId && interaction?.channelId) {
-			return this.updateExistingMessage(client, message);
+			return this.updateMessage(client, message);
 		}
 		// Handle creating a new message via interaction
 		else if (interaction) {
-			return this.createNewMessage(interaction, message);
+			return this.createMessage(interaction, message);
 		}
 
 		logger.error({ flowId: this.id }, 'No valid message target found for build');

@@ -8,6 +8,7 @@ import { BaseMessageComponent, MessageComponent } from './MessageComponent';
 import { logger } from '../util';
 import { compressToUTF16 } from 'lz-string';
 import { FlowManager } from '../handlers/FlowManager';
+import components from '@/components';
 /**
  * Extended Discord.js Client class that adds custom functionality
  * for command handling, event management, and component interactions
@@ -21,6 +22,8 @@ export class Client extends BaseClient {
 	events = new Collection<string, Event['execute']>();
 	/** Collection of registered message components (buttons, select menus, modals) */
 	messageComponents = new Collection<string, BaseMessageComponent | MessageComponent>();
+	/** import of all components */
+	componentBuilders = components;
 	// Flow Handler
 	flowManager = new FlowManager(this);
 	/** Database instance for data persistence */
@@ -71,7 +74,7 @@ export class Client extends BaseClient {
 	getCustomID(id: string, data?: any): string {
 		logger.debug(`Generating custom ID for component: ${id}`);
 
-		if (!data) {
+		if (!data || Object.keys(data).length === 0 || data === undefined) {
 			logger.debug(`No data provided, returning base ID: ${id}`);
 			return id;
 		}

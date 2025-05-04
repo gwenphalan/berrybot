@@ -14,6 +14,10 @@
         - [Build Method](#build-method)
         - [Execute Method](#execute-method)
     - [Persistent Component Data](#persistent-component-data)
+        - [Custom ID Format](#custom-id-format)
+        - [ID Structure Hierarchy](#id-structure-hierarchy)
+        - [Flow Interaction Handling](#flow-interaction-handling)
+        - [Supported Formats](#supported-formats)
         - [Basic Usage](#basic-usage)
         - [Data Limitations](#data-limitations)
         - [Best Practices](#best-practices)
@@ -25,22 +29,7 @@
 
 ## Overview
 
-BerryBot's message component system provides a robust framework for creating interactive Discord messages. The system supports various types of interactive components and offers features for state management, data persistence, and user interaction. Key features include:
-
-- **Component Types**: Support for buttons, select menus, and modals
-- **State Management**: Built-in support for persistent component data
-- **Type Safety**: Full TypeScript support with proper interfaces
-- **Custom ID System**: Secure and efficient custom ID generation
-- **Error Handling**: Comprehensive error handling and logging
-- **Permission Control**: Fine-grained permission management
-- **Component Organization**: Clear structure and separation of concerns
-
-The component system is designed to be:
-
-- **Reusable**: Components can be easily shared and reused
-- **Maintainable**: Clear structure and organization
-- **Secure**: Built-in data validation and sanitization
-- **Performant**: Efficient state management and data handling
+Message components in BerryBot are modular, reusable UI elements that can be added to Discord messages. They include buttons, select menus, and modals, each with their own interaction handling.
 
 ## Component Types
 
@@ -176,15 +165,119 @@ async execute(interaction: ComponentInteraction, client: Client, data?: any) {
 
 Components can store persistent data in their custom IDs using the client's `getCustomID` function. This allows components to maintain state between interactions without requiring database storage.
 
+### Custom ID Format
+
+Components can use a structured custom ID format to organize and group related components. The format supports parent and group identifiers:
+
+```typescript
+// Format: parent:group:componentId
+// Examples:
+'config:roles:edit'; // Basic format
+'config:edit'; // Without group
+'edit'; // Minimal format
+```
+
+### ID Structure Hierarchy
+
+The custom ID format follows a hierarchical structure:
+
+| Part          | Description                     | Example                                          |
+| ------------- | ------------------------------- | ------------------------------------------------ |
+| `parent`      | The parent command or flow      | `roles` (for role management)                    |
+| `group`       | The message template or view    | `config-main-menu` (for role configuration menu) |
+| `componentId` | The specific component's action | `edit` (for edit button)                         |
+
+Example breakdown:
+
+```typescript
+'roles:config-main-menu:edit';
+// parent: roles (role management system)
+// group: config-main-menu (main configuration view)
+// componentId: edit (edit button)
+```
+
+### Flow Interaction Handling
+
+The parent and group identifiers are particularly useful for handling interactions within flows. They help organize and route interactions to the correct handlers:
+
+```typescript
+// Example from RoleConfigFlow
+protected async handleInteraction(
+    interaction: ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction,
+    client: Client,
+    state: FlowState
+): Promise<FlowTransition | void> {
+    // Early return if not in a guild context
+    if (!interaction.guild) return;
+
+    // Parse the custom ID to get component identifiers and data
+    // Example: "roles:config-main-menu:edit[compressedData]" becomes:
+    // { id: 'edit', parent: 'roles', group: 'config-main-menu', data: {...} }
+    const { id, parent, group, data } = parseData(interaction.customId);
+
+    // Handle different interaction types
+    if (interaction instanceof ButtonInteraction) {
+        // Route based on the group (current view)
+        switch (group) {
+            case 'config-main-menu':
+                // Handle main menu button interactions
+                switch (id) {
+                    case 'edit':
+                        // Transition to category selection view
+                        return {
+                            to: 'category-select'
+                        }
+                    case 'create':
+                        // Transition to category name input with create action
+                        return {
+                            to: 'category-name-input',
+                            data: {
+                                action: 'create'
+                            }
+                        }
+                }
+            case 'category-edit':
+                // Handle category edit view button interactions
+                switch (id) {
+                    case 'name':
+                        // Transition to name input with edit action and category data
+                        return {
+                            to: 'category-name-input',
+                            data: {
+                                action: 'edit',
+                                category: data?.category
+                            }
+                        }
+                }
+        }
+    }
+}
+```
+
+This structure allows for:
+
+- Clear organization of related components
+- Easy routing of interactions to the correct flow handlers
+- Consistent handling of component interactions across different views
+- Simplified flow state management
+
+### Supported Formats
+
+1. `parent:componentId` - Parent without data
+2. `componentId` - Basic without data
+3. `parent:group:componentId` - Full format without data
+
 ### Basic Usage
 
 ```typescript
-// Store simple data
-const data = { count: 5 };
-const customId = client.getCustomID('button-id', data);
+/**
+ * @param id - Component ID or full path (e.g., 'config:roles:edit')
+ * @param data - Data to be compressed and stored in the custom ID
+ * @returns Formatted custom ID string with compressed data
+ */
 
-// Store complex data
-const modal_data = {
+// Example with complex data structure:
+const testJSON = {
 	type: 'modal',
 	id: 'mod_history',
 	userId: '123456789012345678',
@@ -197,8 +290,20 @@ const modal_data = {
 		resolved: false,
 	},
 };
-const button_id = await client.getCustomID('open-history', modal_data);
-// console.log(button_id) => open-history[ᯡࠫ䅜Ā匰ᜨאỠጢణㄠ㑀আ䆅栯倢恠材⠤炯ࠢ巉你䦃ࠨ怩䀹䀥䀵䀭䀽䀣䀳䀡䁄≬獈డ暑爛瀣ᠲ挡浡ᑕ͐ጔ〣ಀǹ々壬㇁䧂⩔ຎѰ໬ね⧜;∠ɐ恚丐öɻʜ㤥䲊〥氁∈ș䠲ᔦ䊹䎁㋠ǘ悘竸瘠⿃⠠]
+
+const button_id = await client.getCustomID('test-button', testJSON);
+// Returns: "test-button[ᯡࠫ䅜Ā匰ᜨאỠጢణㄠ㑀আ䆅栯倢恠材⠤炯ࠢ巉你䦃ࠨ怩䀹䀥䀵䀭䀽䀣䀳䀡䁄≬獈డ暑爛瀣ᠲ挡浡ᑕ͐ጔ〣ಀǹ々壬㇁䧂⩔ຎѰ໬ね⧜;∠ɐ恚丐öɻʜ㤥䲊〥氁∈ș䠲ᔦ䊹䎁㋠ǘ悘竸瘠⿃⠠]"
+
+// Example with simple data:
+const simpleData = {
+	boolean: true,
+	number: 1,
+	string: 'test',
+	array: [1, 2, 3],
+};
+
+const simple_id = await client.getCustomID('test-button', simpleData);
+// Returns: "test-button[compressedData]"
 ```
 
 ### Data Limitations
@@ -264,37 +369,43 @@ src/
     ├── buttons/         # Button Components
     ├── modals/          # Modals
     └── selectMenus/     # Select Menus
+```
 
 ## Best Practices
 
 1. **Component IDs**
-   - Use descriptive, unique IDs
-   - Follow a consistent naming convention
-   - Include component type in the ID
+
+    - Use descriptive, unique IDs
+    - Follow a consistent naming convention
+    - Include component type in the ID
 
 2. **Data Handling**
-   - Keep custom IDs under 100 characters
-   - Use JSON for complex data structures
-   - Validate data before processing
+
+    - Keep custom IDs under 100 characters
+    - Use JSON for complex data structures
+    - Validate data before processing
 
 3. **Error Handling**
-   - Implement proper error checks
-   - Provide user feedback for errors
-   - Log errors for debugging
+
+    - Implement proper error checks
+    - Provide user feedback for errors
+    - Log errors for debugging
 
 4. **Permissions**
-   - Check user permissions before execution
-   - Provide clear feedback for permission issues
-   - Use the `permissions` property when appropriate
+
+    - Check user permissions before execution
+    - Provide clear feedback for permission issues
+    - Use the `permissions` property when appropriate
 
 5. **State Management**
-   - Use the flow system for complex interactions
-   - Maintain state in component data
-   - Clear state when no longer needed
+    - Use the flow system for complex interactions
+    - Maintain state in component data
+    - Clear state when no longer needed
 
 ## Component Registration
 
 Components are automatically registered by the `MessageComponentHandler`:
+
 1. Components are loaded from their respective directories
 2. Each component is validated and registered
 3. Components are stored in the client's component collection
@@ -303,22 +414,24 @@ Components are automatically registered by the `MessageComponentHandler`:
 ## Common Issues
 
 1. **Component Not Responding**
-   - Check component ID matches
-   - Verify component is properly registered
-   - Ensure proper error handling
+
+    - Check component ID matches
+    - Verify component is properly registered
+    - Ensure proper error handling
 
 2. **Permission Issues**
-   - Verify required permissions
-   - Check bot permissions
-   - Validate user permissions
+
+    - Verify required permissions
+    - Check bot permissions
+    - Validate user permissions
 
 3. **Data Serialization**
-   - Keep custom IDs under size limit
-   - Validate data structure
-   - Handle data parsing errors
+
+    - Keep custom IDs under size limit
+    - Validate data structure
+    - Handle data parsing errors
 
 4. **Interaction Timeouts**
-   - Implement proper timeout handling
-   - Use deferred replies for long operations
-   - Clear components after timeout
-```
+    - Implement proper timeout handling
+    - Use deferred replies for long operations
+    - Clear components after timeout

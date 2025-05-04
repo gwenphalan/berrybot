@@ -1,5 +1,5 @@
 import { SlashCommandSubcommandBuilder } from 'discord.js';
-import { modals } from '../../../components';
+import { Test_Modal } from '../../../components';
 import { Command } from '../../../interfaces';
 
 // Test command for demonstrating modal component functionality
@@ -16,7 +16,7 @@ const command: Command = {
 		}
 
 		// Build and show test modal
-		const modal = await modals.TestModal.build(_client);
+		const modal = await Test_Modal.build(_client);
 		return await interaction.showModal(modal);
 	},
 };

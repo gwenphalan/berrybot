@@ -4,7 +4,7 @@ import {
 	ChatInputCommandInteraction,
 	SlashCommandSubcommandBuilder,
 } from 'discord.js';
-import { buttons } from '../../../components';
+import { Test_Button } from '../../../components';
 import { Command } from '../../../interfaces';
 
 // Test command for demonstrating button component functionality
@@ -22,7 +22,7 @@ const command: Command = {
 
 		// Create action row with test button component
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			await buttons.TestButton.build(client)
+			await Test_Button.build(client)
 		);
 
 		// Send message with button

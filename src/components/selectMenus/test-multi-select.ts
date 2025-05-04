@@ -7,7 +7,7 @@ export const MessageComponent: SelectMenuComponent = {
 	type: ComponentTypes.SelectMenu,
 	multi_select: true,
 
-	async build(_client) {
+	async build(client) {
 		// Create a test menu with 3 options, allowing 1-3 selections
 		return new StringSelectMenuBuilder()
 			.setCustomId('test-select')
