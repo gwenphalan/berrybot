@@ -30,7 +30,7 @@ export class RoleConfigFlow extends BaseFlowHandler {
 	// Define the state schema
 	stateSchema = {
 		required: [],
-		optional: ['action', 'category', 'roles', 'name', 'emoji'],
+		optional: ['action', 'category', 'roles', 'name'],
 		validate: (state: FlowState) => {
 			return true;
 		},
@@ -94,9 +94,6 @@ export class RoleConfigFlow extends BaseFlowHandler {
 					break;
 				case 'channel-select':
 					// Channel select message builder
-					break;
-				case 'emoji-select':
-					// Emoji select message builder
 					break;
 				case 'role-select':
 					// Role select message builder
@@ -190,13 +187,6 @@ export class RoleConfigFlow extends BaseFlowHandler {
 								to: 'category-name-input',
 								data: {
 									action: 'edit',
-									category: data?.category,
-								},
-							};
-						case 'emoji':
-							return {
-								to: 'emoji-select',
-								data: {
 									category: data?.category,
 								},
 							};
