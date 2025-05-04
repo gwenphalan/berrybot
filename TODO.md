@@ -1,10 +1,18 @@
-# BerryBot Improvement TODOs
+# BerryBot TODOs
 
 This document outlines key improvements to bring BerryBot up to date with the latest Discord.js best practices and features.
 
 ---
 
 # General TODOs
+
+- [ ] Finish porting self-roles feature to new Flow architecture
+    - [ ] Create `category-edit` page and corresponding message components
+        - [ ] `name`, `emoji`, `roles`, `delete` buttons
+        - [ ] `delete-confirm` modal
+        - [ ] `category-edit` message template
+        - [ ] `emoji-select` message template + `emoji` button functionality
+        - [ ] Finish `RoleConfigFlow.ts`
 
 ---
 
