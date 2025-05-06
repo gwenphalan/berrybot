@@ -1,9 +1,9 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder } from 'discord.js';
-import { MessageBuilder } from '../interfaces/MessageBuilder';
-import { Client } from '../interfaces/Client';
-import { FlowState } from '../interfaces/Flow';
-import { logger } from '../util/Logger';
-import { MessageComponent as CounterButton } from '../components/buttons/counter';
+import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
+import { Client } from '@/core/client/BerryClient';
+import { FlowState } from '@/core/interfaces/Flow';
+import { logger } from '@/core/logging/Logger';
+import { MessageComponent as CounterButton } from '@/components/buttons/counter';
 
 export const CounterMessage: MessageBuilder = {
 	embeds: [

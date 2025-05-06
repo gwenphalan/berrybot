@@ -1,8 +1,8 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder } from 'discord.js';
-import { MessageBuilder } from '@/interfaces/MessageBuilder';
-import { Client } from '@/interfaces/Client';
-import { FlowState } from '@/interfaces/Flow';
-import { logger } from '@/util/Logger';
+import { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
+import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
+import { Client } from '@/core/client/BerryClient';
+import { FlowState } from '@/core/interfaces/Flow';
+import { logger } from '@/core/logging/Logger';
 import { Roles_CategorySelect } from '@/components';
 
 /**
@@ -24,7 +24,7 @@ export const CategorySelect: MessageBuilder = {
 	 * @param state - The current flow state (if used in a flow)
 	 * @param options - Additional options for building the message
 	 */
-	async build(client: Client, guildId: string, state?: FlowState) {
+	async build(client: Client, guildId: string, _state?: FlowState) {
 		const guildSettings =
 			guildId && guildId !== undefined
 				? await client.database.guildSettings.get(guildId)

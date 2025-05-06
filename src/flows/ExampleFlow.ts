@@ -6,10 +6,10 @@ import {
 	StringSelectMenuInteraction,
 	PermissionsBitField,
 } from 'discord.js';
-import { BaseFlowHandler, FlowHandler, FlowState, FlowTransition } from '../interfaces/Flow';
-import { Client } from '@/interfaces';
-import { CounterMessage } from '../messages/counter';
-import { logger } from '../util';
+import { BaseFlowHandler, FlowState, FlowTransition } from '@/core/interfaces/Flow';
+import type { Client } from '@/core/interfaces';
+import { CounterMessage } from '@/messages/counter';
+import { logger } from '@/core/logging/Logger';
 
 /**
  * ExampleFlow demonstrates a simple counter flow with a button interaction.

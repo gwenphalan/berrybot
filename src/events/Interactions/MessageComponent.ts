@@ -7,16 +7,16 @@ import {
 	MessageComponentInteraction,
 	ModalSubmitInteraction,
 } from 'discord.js';
-import { config } from '../../config';
-import { Client, Event } from '../../interfaces';
+import { config } from '@/core/config/config';
+import type { Client, Event } from '@/core/interfaces';
 import {
 	ButtonComponent,
 	ModalComponent,
 	MultiSelectMenuComponent,
 	SingleSelectMenuComponent,
-} from '../../interfaces/MessageComponent';
+} from '@/core/interfaces/MessageComponent';
 import { decompressFromUTF16 } from 'lz-string';
-import { logger } from '../../util';
+import { logger } from '@/core/logging/Logger';
 
 /**
  * Parses component customId to extract component ID, parent, group, and any compressed data
@@ -151,7 +151,7 @@ export const event: Event = {
 
 		if (member) {
 			const permissions = new PermissionsBitField();
-			component.permissions?.forEach((p) => permissions.add(p));
+			component.permissions?.forEach((p: bigint) => permissions.add(p));
 
 			if (!member.permissions.has(permissions)) {
 				logger.warn(

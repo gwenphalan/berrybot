@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
-import { Command } from '../../../interfaces';
+import { Command } from '@/core/interfaces';
 
 // Simple example command that responds with 'Pong!'
 const command: Command = {

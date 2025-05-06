@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js';
-import { Command } from '../../interfaces';
+import { Command } from '@/core/types/interfaces';
 
 // Example command demonstrating various command features
 const command: Command = {

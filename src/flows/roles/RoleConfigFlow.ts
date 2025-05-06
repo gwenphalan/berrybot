@@ -7,11 +7,11 @@ import {
 	PermissionsBitField,
 	BaseMessageOptions,
 } from 'discord.js';
-import { BaseFlowHandler, FlowState, FlowTransition } from '@/interfaces/Flow';
-import { Client } from '@/interfaces/Client';
-import { logger } from '@/util/Logger';
-import { parseData } from '@/events/Interactions/MessageComponent';
+import { BaseFlowHandler, FlowState, FlowTransition } from '@/core/interfaces/Flow';
+import type { Client } from '@/core/client/BerryClient';
+import { logger } from '@/core/logging/Logger';
 import { MainMenu, CategorySelect } from '@/messages/roles';
+import { MessageComponent as CategoryDeleteConfirmation } from '@/components/modals/roles/category-delete-confirmation';
 
 /**
  * FlowName - Flow Description
@@ -31,7 +31,7 @@ export class RoleConfigFlow extends BaseFlowHandler {
 	stateSchema = {
 		required: [],
 		optional: ['action', 'category', 'roles', 'name'],
-		validate: (state: FlowState) => {
+		validate: (_state: FlowState) => {
 			return true;
 		},
 	};
@@ -54,7 +54,7 @@ export class RoleConfigFlow extends BaseFlowHandler {
 			}
 			return false;
 		},
-		checkState: async (state: FlowState) => {
+		checkState: async (_state: FlowState) => {
 			// Add your state validation here
 			return true;
 		},
@@ -103,6 +103,16 @@ export class RoleConfigFlow extends BaseFlowHandler {
 					break;
 				case 'category-delete-confirmation':
 					// Category delete confirmation modal builder
+					if (
+						state.interaction instanceof ButtonInteraction ||
+						state.interaction instanceof StringSelectMenuInteraction ||
+						state.interaction instanceof ChatInputCommandInteraction
+					) {
+						state.interaction.showModal(
+							await CategoryDeleteConfirmation.build(client, state.data)
+						);
+						return;
+					}
 					break;
 			}
 
@@ -156,8 +166,7 @@ export class RoleConfigFlow extends BaseFlowHandler {
 			};
 		}
 
-		const { action, category } = state.data || {};
-		const { id, parent, group, data } = componentData || { id: '' };
+		const { id, group, data } = componentData || { id: '' };
 
 		if (interaction instanceof ButtonInteraction) {
 			switch (group) {
@@ -243,7 +252,7 @@ export class RoleConfigFlow extends BaseFlowHandler {
 							category: data?.category,
 						},
 					};
-				case 'delete-confirmation':
+				case 'category-delete-confirmation':
 					return {
 						to: 'main-menu',
 					};

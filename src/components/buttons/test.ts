@@ -1,6 +1,6 @@
 import { ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageComponent';
-import { logger } from '../../util';
+import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { logger } from '@/core/logging/Logger';
 
 // Example button component for testing custom ID data handling
 export const MessageComponent: ButtonComponent = {

@@ -1,5 +1,0 @@
-export * as Files from './Files';
-export * as Color from './Color';
-export * as Locale from './Locale';
-export * as String from './String';
-export { logger, stream } from './Logger';

@@ -1,10 +1,128 @@
 # BerryBot TODOs
 
+> This file is a living document. Please keep it concise and up to date.
+
+## Table of Contents
+
+- [BerryBot TODOs](#berrybot-todos)
+    - [Table of Contents](#table-of-contents)
+- [General TODOs](#general-todos)
+- [Bot Features Road Map](#bot-features-road-map)
+    - [1. Core Architecture and Extensibility](#1-core-architecture-and-extensibility)
+    - [2. Advanced Administration Utilities](#2-advanced-administration-utilities)
+    - [3. Moderation \& Logging](#3-moderation--logging)
+    - [4. Community Feedback](#4-community-feedback)
+    - [5. User Experience \& Engagement](#5-user-experience--engagement)
+    - [6. Utility \& Information](#6-utility--information)
+    - [7. Entertainment \& Games](#7-entertainment--games)
+- [Core Road Map](#core-road-map)
+    - [1. Command System Improvements](#1-command-system-improvements)
+        - [1.1 Add Command Localization Support](#11-add-command-localization-support)
+    - [2. Enhance Option Validation](#2-enhance-option-validation)
+    - [3. Implement Autocomplete Support](#3-implement-autocomplete-support)
+    - [4. Update Component Implementation](#4-update-component-implementation)
+        - [5.1 Component Interface Modernization](#51-component-interface-modernization)
+        - [5.2 Enhanced Custom ID System](#52-enhanced-custom-id-system)
+        - [5.3 Component Utilities](#53-component-utilities)
+        - [5.4 Component Management](#54-component-management)
+    - [6. Simplify Flow System](#6-simplify-flow-system)
+    - [7. Improve Light Flow and Flow architecture](#7-improve-light-flow-and-flow-architecture)
+    - [8. Enhance Message Template System](#8-enhance-message-template-system)
+        - [8.1 Message Builder Interface](#81-message-builder-interface)
+        - [8.2 Template Management](#82-template-management)
+        - [8.3 Template Utilities](#83-template-utilities)
+        - [8.4 Template Factory](#84-template-factory)
+- [Codebase Improvements](#codebase-improvements)
+    - [1. Code Quality Enhancements](#1-code-quality-enhancements)
+- [Reference \& Implementation Details](#reference--implementation-details)
+    - [Command System](#command-system)
+        - [Localization](#localization)
+        - [Validation](#validation)
+        - [Autocomplete](#autocomplete)
+    - [Component Implementation](#component-implementation)
+        - [Component Interface Modernization](#component-interface-modernization)
+        - [Enhanced Custom ID System](#enhanced-custom-id-system)
+        - [Component Utilities](#component-utilities)
+        - [Component Management](#component-management)
+    - [Flow System](#flow-system)
+        - [LightFlow and Flow Simplification](#lightflow-and-flow-simplification)
+        - [Flow Architecture Improvements](#flow-architecture-improvements)
+    - [Message Template System](#message-template-system)
+        - [Message Builder Interface](#message-builder-interface)
+        - [Template Management](#template-management)
+        - [Template Utilities](#template-utilities)
+        - [Template Factory](#template-factory)
+
 This document outlines key improvements to bring BerryBot up to date with the latest Discord.js best practices and features.
 
 ---
 
 # General TODOs
+
+- [ ] Refactor: Project Restructure
+
+    - [ ] Review and reorganize project directory structure for clarity and scalability
+    - [ ] Consolidate duplicate or legacy folders (e.g., merge dist/src if possible)
+    - [ ] Standardize naming conventions for all folders and files
+    - [ ] Move all type/interface definitions to a dedicated types/ or interfaces/ directory
+    - [ ] Ensure all config, util, and handler files are in their respective folders
+    - [ ] Update import paths throughout the codebase to match new structure
+    - [ ] Update documentation to reflect new project layout
+
+    **Recommended Folder Structure:**
+
+    ```
+    src/
+      core/
+        bot.ts                # Main bot startup logic
+        index.ts              # Entrypoint (could be in root if preferred)
+        sharding.ts           # Sharding logic
+        BerryClient.ts        # Your extended Discord.js Client class
+        FlowManager.ts        # Core flow management
+        CommandManager.ts     # Core command loading/registration
+        EventManager.ts       # Core event loading/registration
+        ComponentManager.ts   # Core component loading/registration
+        Logger.ts             # Logging utility
+        config.ts             # Centralized config
+        database.ts           # DB connection/init
+        types.ts              # Core types/interfaces (or a subfolder)
+        utils.ts              # Core utilities (or a subfolder)
+      commands/
+        Public/
+        Private/
+        ...
+      components/
+        buttons/
+        modals/
+        selectMenus/
+        ...
+      events/
+        Client/
+        Interactions/
+        ...
+      flows/
+        roles/
+        ...
+      database/
+        schemas/
+        ...
+      interfaces/             # (Optional: for extension-specific interfaces)
+      types/                  # (Optional: for extension-specific types)
+      util/                   # (Optional: for extension-specific utilities)
+      config/                 # (Optional: for extension-specific config)
+      messages/
+      ...
+    ```
+
+- [ ] Refactor: Upgrade bot core to support components v2
+
+    - [ ] Audit all usages of message components (buttons, select menus, modals)
+    - [ ] Review and update custom ID parsing and validation logic for new component structure
+    - [ ] Ensure all select menus and modals use the latest builder APIs and features (e.g., default_values)
+    - [ ] Update or add TypeScript types/interfaces for any new component types or data
+    - [ ] Test and validate all component flows (manual and automated)
+    - [ ] Update documentation and code comments to reflect new component APIs and patterns
+    - [ ] Remove any deprecated helpers/utilities related to old component APIs
 
 - [ ] Finish porting self-roles feature to new Flow architecture
     - [ ] Create `category-edit` page and corresponding message components
@@ -12,9 +130,7 @@ This document outlines key improvements to bring BerryBot up to date with the la
         - [ ] `delete-confirm` modal
         - [ ] `category-edit` message template
         - [ ] `emoji-select` message template + `emoji` button functionality
-        - [ ] Finish `RoleConfigFlow.ts`
-
----
+    - [ ] Finish `RolenfigFlow.ts`
 
 # Bot Features Road Map
 
@@ -22,7 +138,7 @@ This document outlines key improvements to bring BerryBot up to date with the la
 
 - [ ] Implement a Plugin Loader
 
-    - Scan a /src/plugins/ directory at startup and dynamically register each plugins commands, event hooks, message components, message templates, and flows.
+    - Scan a /dist/plugins/ directory at startup and dynamically register each plugins commands, event hooks, message components, message templates, and flows.
     - Add hot-reloading so new plugins can be added or updated without restarting the bot.
 
 - [ ] Create a plugin template CLI
@@ -136,11 +252,206 @@ This document outlines key improvements to bring BerryBot up to date with the la
 
 # Core Road Map
 
-## 1. Add Command Localization Support
+## 1. Command System Improvements
+
+- [ ] Enforce strict, consistent command interface signatures (always require both interaction and client)
+- [ ] Implement a global error handler for commands, with user-facing error replies and detailed logging
+- [ ] Add a Validators.ts utility and use Discord.js option validation features (setMinLength, setMaxLength, etc.) [See details: [Validation](#validation)]
+- [ ] Implement localization for commands (names, descriptions, options) [See details: [Localization](#localization)]
+- [ ] Add support for autocomplete handlers for relevant options [See details: [Autocomplete](#autocomplete)]
+- [ ] Add optional metadata (usage, examples, category) to the command interface for help/auto-docs
+- [ ] Document the command system and add tests for command logic
+- [ ] Consider a plugin/feature-based command organization for scalability
+- [ ] Add a command reload/hot-reload feature for development
+- [ ] Ensure all command handlers are async and properly await all promises
+- [ ] Update docs/commands.md to reflect new best practices and patterns
+
+### 1.1 Add Command Localization Support
 
 Discord.js now supports command and option name/description localization, making your bot more accessible to international users.
 
-- [ ] Implement `setNameLocalizations()` and `setDescriptionLocalizations()` in command builders
+- [ ] See [1. Command System Improvements](#1-command-system-improvements) and [Localization](#localization) in the Reference & Implementation Details section.
+
+## 2. Enhance Option Validation
+
+Add more robust option validation to improve user experience and prevent errors.
+
+- [ ] See [1. Command System Improvements](#1-command-system-improvements) and [Validation](#validation) in the Reference & Implementation Details section.
+
+## 3. Implement Autocomplete Support
+
+Add autocomplete functionality to provide dynamic suggestions as users type command options.
+
+- [ ] See [1. Command System Improvements](#1-command-system-improvements) and [Autocomplete](#autocomplete) in the Reference & Implementation Details section.
+
+## 4. Update Component Implementation
+
+Enhance the component system to better leverage Discord.js capabilities.
+
+### 5.1 Component Interface Modernization
+
+- [ ] Update component interfaces to support Discord.js v14+ components
+    - [ ] Add generic type support for component data parsing
+    - [ ] Update method signatures for better type safety
+    - [ ] Create specialized interfaces for new component types
+- [ ] Enhance component event handling with proper typing
+    - [ ] Add support for all interaction types
+    - [ ] Implement typed data extraction from custom IDs
+    - [ ] Create proper error handling for component interactions
+- [ ] Implement better builder patterns for components
+    - [ ] Add fluent interface for component creation
+    - [ ] Create standardized component styling
+    - [ ] Support disabled states, emoji, and other visual options
+
+### 5.2 Enhanced Custom ID System
+
+- [ ] Implement type-safe data extraction from customIds
+    - [ ] Create generic `getCustomIDData<T>` utility
+    - [ ] Add validation for extracted data
+    - [ ] Implement error handling for malformed data
+- [ ] Improve data compression for component data
+    - [ ] Optimize JSON serialization/deserialization
+    - [ ] Add support for complex data structures
+    - [ ] Implement data validation during compression
+- [ ] Create standardized customId format
+    - [ ] Support hierarchical component IDs
+    - [ ] Add versioning for backward compatibility
+    - [ ] Implement consistent naming conventions
+
+### 5.3 Component Utilities
+
+- [ ] Create a ComponentUtils class with helper methods
+    - [ ] Add `createConfirmationButtons()` utility
+    - [ ] Implement `createPaginationRow()` for navigation
+    - [ ] Create `buildSelectMenuOptions()` for dynamic options
+- [ ] Implement reusable component patterns
+    - [ ] Add confirmation dialog components
+    - [ ] Create pagination components with page tracking
+    - [ ] Implement form components with validation
+- [ ] Create components for common interaction patterns
+    - [ ] Add role selection components
+    - [ ] Implement multi-step form components
+    - [ ] Create navigation component systems
+
+### 5.4 Component Management
+
+- [ ] Create a dedicated ComponentManager class
+    - [ ] Implement component registration system
+    - [ ] Add typed component retrieval methods
+    - [ ] Create component validation during registration
+- [ ] Enhance component loading and organization
+    - [ ] Implement dynamic component loading by category
+    - [ ] Add component versioning support
+    - [ ] Create component dependency management
+- [ ] Improve component error handling
+    - [ ] Implement standardized error responses
+    - [ ] Add component interaction timeout handling
+    - [ ] Create component debugging utilities
+
+## 6. Simplify Flow System
+
+While powerful, the current flow system may be overly complex for simple use cases.
+
+- [ ] Create a simplified "LightFlow" version for basic interactions [See details: [Flow System](#flow-system)]
+- [ ] Add examples of common flow patterns for quick implementation
+- [ ] Improve flow state management with type-safe interfaces
+- [ ] Create utility functions for common flow operations
+- [ ] Provide documentation for choosing between full and light flow systems
+
+## 7. Improve Light Flow and Flow architecture
+
+- [ ] Add support for ephemeral flows [See details: [Flow System](#flow-system)]
+- [ ] Create dynamic message and component templates that can be reused across multiple flows
+- [ ] Implement flow composition and nesting
+- [ ] Improve flow testing and debugging tools
+- [ ] Add persistent storage options for long-running flows
+
+## 8. Enhance Message Template System
+
+### 8.1 Message Builder Interface
+
+- [ ] Update message builder interfaces to support Discord.js v14+ components
+    - [ ] Add generic type support for message data parsing
+    - [ ] Update method signatures for better type safety
+    - [ ] Create specialized interfaces for new message types
+- [ ] Enhance message event handling with proper typing
+    - [ ] Add support for all interaction types
+    - [ ] Implement typed data extraction from custom IDs
+    - [ ] Create proper error handling for message interactions
+- [ ] Implement better builder patterns for messages
+    - [ ] Add fluent interface for message creation
+    - [ ] Create standardized message styling
+    - [ ] Support disabled states, emoji, and other visual options
+
+### 8.2 Template Management
+
+- [ ] Create a TemplateManager class with helper methods
+    - [ ] Add `createMessageTemplate()` utility
+    - [ ] Implement `createMessageTemplate()` for dynamic message creation
+    - [ ] Create `buildMessageTemplateOptions()` for dynamic message customization
+- [ ] Implement reusable message patterns
+    - [ ] Add message template components
+    - [ ] Create message template factories
+    - [ ] Implement message template validation
+- [ ] Create templates for common interaction patterns
+    - [ ] Add message template components
+    - [ ] Implement message template builders
+    - [ ] Create message template utilities
+
+### 8.3 Template Utilities
+
+- [ ] Create a TemplateUtils class with helper methods
+    - [ ] Add `createMessageTemplate()` utility
+    - [ ] Implement `createMessageTemplate()` for dynamic message creation
+    - [ ] Create `buildMessageTemplateOptions()` for dynamic message customization
+- [ ] Implement reusable message patterns
+    - [ ] Add message template components
+    - [ ] Create message template factories
+    - [ ] Implement message template validation
+- [ ] Create templates for common interaction patterns
+    - [ ] Add message template components
+    - [ ] Implement message template builders
+    - [ ] Create message template utilities
+
+### 8.4 Template Factory
+
+- [ ] Create a TemplateFactory class with helper methods
+    - [ ] Add `createMessageTemplate()` utility
+    - [ ] Implement `createMessageTemplate()` for dynamic message creation
+    - [ ] Create `buildMessageTemplateOptions()` for dynamic message customization
+- [ ] Implement reusable message patterns
+    - [ ] Add message template components
+    - [ ] Create message template factories
+    - [ ] Implement message template validation
+- [ ] Create templates for common interaction patterns
+    - [ ] Add message template components
+    - [ ] Implement message template builders
+    - [ ] Create message template utilities
+
+---
+
+# Codebase Improvements
+
+This section focuses on technical improvements, optimizations, and code quality enhancements that don't necessarily add new features but improve the overall codebase.
+
+## 1. Code Quality Enhancements
+
+- [ ] Implement consistent error handling patterns
+    - Create standardized error classes in `src/util/errors/`:
+        - `BotError`: Base error class with error codes and structured data
+        - `CommandError`: For command execution failures
+        - `ValidationError`: For input validation failures
+        - `
+
+# Reference \& Implementation Details
+
+## Command System
+
+### Localization
+
+Discord.js now supports command and option name/description localization, making your bot more accessible to international users.
+
+- Implement `setNameLocalizations()` and `setDescriptionLocalizations()` in command builders
     - Create locale resources for supported languages:
         - Add `src/locales/` directory with JSON files (`en.json`, `de.json`, `fr.json`, etc.)
         - Structure locale files with nested objects (`commands.ping.name`, `commands.ping.description`)
@@ -153,7 +464,7 @@ Discord.js now supports command and option name/description localization, making
         - Modify command loading to detect and apply localizations
         - Update command registration to include localization data
         - Ensure compatibility with existing subcommand system
-- [ ] Add localization support for option names and descriptions
+- Add localization support for option names and descriptions
     - Maintain compatibility with the existing Command interface structure:
         - Extend `src/interfaces/Command.ts` to support localized options
         - Add localization support to BaseCommand and SubCommand interfaces
@@ -165,7 +476,7 @@ Discord.js now supports command and option name/description localization, making
         - Ensure localization doesn't break validation logic
         - Maintain compatibility with current option parsers
         - Update command execution handlers to work with localized commands
-- [ ] Create a centralized locale management system
+- Create a centralized locale management system
     - Implement within the existing utility structure:
         - Create `src/util/Locale.ts` with `LocaleManager` class
         - Add locale loading/caching system
@@ -178,7 +489,7 @@ Discord.js now supports command and option name/description localization, making
         - Update `src/config/index.ts` with locale settings
         - Create toggles for enabling/disabling specific languages
         - Add locale detection and negotiation system
-- [ ] Add documentation for localization in command system documentation
+- Add documentation for localization in command system documentation
     - Update existing documentation to include localization best practices:
         - Add "Localization" section to `docs/commands.md`
         - Document locale file format and structure
@@ -203,11 +514,11 @@ Example implementation:
 })
 ```
 
-## 2. Enhance Option Validation
+### Validation
 
 Add more robust option validation to improve user experience and prevent errors.
 
-- [ ] Implement string validation with `setMinLength()` and `setMaxLength()`
+- Implement string validation with `setMinLength()` and `setMaxLength()`
     - Integrate these methods into existing string option handling
     - Ensure compatibility with current command structure
     - Add support for common string validation patterns:
@@ -215,7 +526,7 @@ Add more robust option validation to improve user experience and prevent errors.
         - Tag patterns (alphanumeric with hashtag format)
         - Server-specific IDs and format rules
         - Basic URL validation for links and references
-- [ ] Add numeric validation with `setMinValue()` and `setMaxValue()`
+- Add numeric validation with `setMinValue()` and `setMaxValue()`
     - Apply to both Integer and Number option types
     - Support range validation for commonly used numeric parameters:
         - Count/amount limits (1-100 for pagination, etc.)
@@ -225,7 +536,7 @@ Add more robust option validation to improve user experience and prevent errors.
     - Ensure appropriate error handling for out-of-range values
         - Create `src/util/ValidationError.ts` for standardized error responses
         - Implement user-friendly error messages with suggested valid ranges
-- [ ] Include channel type restrictions with `addChannelTypes()`
+- Include channel type restrictions with `addChannelTypes()`
     - Filter available channels based on command requirements
     - Support multiple channel types using the ChannelType enum:
         ```typescript
@@ -236,11 +547,11 @@ Add more robust option validation to improve user experience and prevent errors.
         ChannelType.GuildAnnouncement;
         ```
     - Integrate with permission systems for proper channel access
-- [ ] Update command documentation with examples of advanced validation
+- Update command documentation with examples of advanced validation
     - Document best practices for different option types
     - Include examples that fit with your command implementation pattern
     - Update validation sections in existing documentation
-- [ ] Create utility functions to standardize validation across commands
+- Create utility functions to standardize validation across commands
     - Build helper functions in `src/util/Validators.ts`:
         - `validateUsername(input: string): boolean`
         - `validateNumericRange(value: number, min: number, max: number): boolean`
@@ -271,11 +582,11 @@ Example implementation:
 )
 ```
 
-## 3. Implement Autocomplete Support
+### Autocomplete
 
 Add autocomplete functionality to provide dynamic suggestions as users type command options.
 
-- [ ] Create autocomplete handler system
+- Create autocomplete handler system
     - Extend the current `SlashCommands.ts` interaction handler to support autocomplete interactions:
         - Add autocomplete detection in the main interaction handler
         - Create a dedicated `AutocompleteHandler` class in `src/handlers/AutocompleteHandler.ts`
@@ -288,7 +599,7 @@ Add autocomplete functionality to provide dynamic suggestions as users type comm
         - Add safeguards against handling non-autocomplete interactions
         - Create TypeScript type guards for autocomplete interactions
         - Add error handling specific to autocomplete failures
-- [ ] Implement autocomplete for relevant command options
+- Implement autocomplete for relevant command options
     - Update command interface to support autocomplete option configuration:
         - Extend `src/interfaces/Command.ts` with autocomplete handler definitions
         - Add `AutocompleteOption` interface with required methods
@@ -301,7 +612,7 @@ Add autocomplete functionality to provide dynamic suggestions as users type comm
         - Create backward compatibility for commands without autocomplete
         - Provide fallback behavior for autocomplete failures
         - Optimize for performance with potentially large option lists
-- [ ] Add documentation for autocomplete implementation
+- Add documentation for autocomplete implementation
     - Document the autocomplete workflow and architecture in `docs/commands.md`
     - Provide examples that follow your command implementation pattern:
         - Simple static list example
@@ -311,7 +622,7 @@ Add autocomplete functionality to provide dynamic suggestions as users type comm
         - Client-side filtering strategies
         - Query optimization techniques
         - Caching implementations for frequently accessed data
-- [ ] Create reusable autocomplete functions for common data types
+- Create reusable autocomplete functions for common data types
     - Develop utility functions in `src/util/Autocomplete.ts`:
         - `createStaticAutocomplete(choices: Array<{name: string, value: string}>)`
         - `createDatabaseAutocomplete(queryFn: (input: string) => Promise<Array<{name: string, value: string}>>)`
@@ -362,135 +673,358 @@ export class ExampleAutocompleteHandler implements AutocompleteHandler {
 }
 ```
 
-## 4. Update Component Implementation
+## Component Implementation
 
-Enhance the component system to better leverage Discord.js capabilities.
+### Component Interface Modernization
 
-- [ ] Implement component choices with more structured data
-    - Enhance the SelectMenuBuilder options with richer metadata:
-        - Add categorization for select menu options
-        - Implement emoji support for visual recognition
-        - Create consistent styling for similar option types
-    - Add support for grouped options in select menus:
-        - Create `OptionGroup` class in `src/interfaces/components/OptionGroup.ts`
-        - Implement rendering logic for grouped options
-        - Add collapsible group support with default states
-    - Improve the visual hierarchy of component choices:
-        - Standardize formatting for option descriptions
-        - Add visual indicators for recommended/default options
-        - Implement consistent style guide for option labels
-- [ ] Enhance all existing message component types in `MessageComponent.ts`
-    - Improve Button components:
-        - Add support for styled button variants (success, danger, etc.)
-        - Create utilities for context-sensitive button generation
-        - Implement button state management (disabled states, loading states)
-    - Expand Select Menu capabilities:
-        - Add support for multi-column select layouts
-        - Implement dynamic placeholder text based on selection state
-        - Create utilities for filtered and paginated select options
-    - Enhance Modal implementation:
-        - Add convenience methods for common modal creation patterns
-        - Implement improved type safety for TextInputComponent fields
-        - Create form validation utilities for modal data submission
-    - Improve overall component architecture:
-        - Implement comprehensive type checking across all components
-        - Create standard patterns for component state preservation
-        - Add lifecycle hooks for component creation and updates
-- [ ] Create better examples for component interaction handling
-    - Document best practices for different component interactions in `docs/message_component.md`:
-        - Button interaction patterns for common actions
-        - Modal form handling and validation
-        - Select menu navigation patterns
-    - Create standardized patterns for common interaction flows:
-        - Multi-step form submission process
-        - Confirmation dialog pattern
-        - Data collection sequence
-    - Provide examples that fit with your current architecture:
-        - Component integration with existing flow system
-        - Database interaction patterns
-        - Error handling and recovery examples
-- [ ] Improve component data serialization/deserialization
-    - Enhance the existing custom ID parsing system in `Client.ts`:
-        - Add typed data extraction with generics (`getCustomIDData<T>(customId: string): T`)
-        - Create schema validation for component data
-        - Implement more advanced compression algorithms for larger datasets
-    - Optimize the current compression strategy:
-        - Add dictionary-based compression for common data patterns
-        - Create specialized serializers for common data types (arrays, dates, etc.)
-        - Implement binary data encoding for more efficient storage
-    - Expand error handling for the existing system:
-        - Add robust error recovery for partially corrupted data
-        - Create data versioning for backward compatibility
-        - Improve debugging tools for component data inspection
-- [ ] Add helper functions for common component execution methods
-    - Create a `ComponentUtils` utility class in `src/util/ComponentUtils.ts`:
-        - Add `createConfirmationButtons(customId: string, labels?: {confirm: string, cancel: string})` method
-        - Implement `createPaginationRow(customId: string, currentPage: number, totalPages: number)` function
-        - Create `buildSelectMenuOptions(items: any[], labelKey: string, valueKey: string)` helper
-    - Implement flow-aware component builder methods:
-        - Add `createFlowTransitionButton(flow: BaseFlow, targetState: string, data?: any)` function
-        - Create `buildFlowAwareMenu(flow: BaseFlow, choices: any[])` utility
-        - Implement state serialization/deserialization for flow transitions
-    - Add standardized permission checkers:
-        - Create `ensureComponentPermission(interaction: ComponentInteraction, permissions: PermissionResolvable[])` function
-        - Implement role-based component access control
-        - Add audit logging for permission checks
-    - Create reusable interaction handlers for common patterns:
-        - Confirmation patterns: `confirmActionHandler(interaction, confirmFn, cancelFn)`
-        - Pagination: `createPaginationHandler(getPageFn, itemsPerPage)`
-        - Multi-step forms: `createFormFlow(steps: FormStep[], onComplete: Function)`
-- [ ] Update message component documentation with more comprehensive examples
-    - Document the component lifecycle and interaction handling:
-        - Add component registration process
-        - Document event handling patterns
-        - Create troubleshooting guide for common issues
-    - Provide visual examples of component implementation:
-        - Add screenshots/mockups of component UIs
-        - Create code samples for each component type
-        - Include before/after examples for improvements
-    - Include performance best practices:
-        - Document component caching strategies
-        - Provide guidance on interaction timeout handling
-        - Add tips for minimizing component count
+Update component interfaces to support Discord.js v14+ components and improve type safety.
 
-Example implementation:
+- Modernize component interfaces with proper typing
+    - Update `MessageComponent.ts` interfaces with generics:
+        ```typescript
+        export interface ButtonComponent<T extends Record<string, any> = Record<string, any>>
+        	extends Omit<BaseMessageComponent, 'multi_select'> {
+        	id: string;
+        	type: ComponentTypes.Button;
+        	permissions?: bigint[];
+        	developer?: boolean;
+        	execute(
+        		interaction: ButtonInteraction,
+        		client: Client,
+        		data?: T,
+        		guild?: Guild
+        	): Promise<void> | void;
+        	build(
+        		client: Client,
+        		options?: {
+        			style?: ButtonStyle;
+        			emoji?: string | APIMessageComponentEmoji;
+        			label?: string;
+        			disabled?: boolean;
+        			url?: string;
+        			data?: T;
+        		}
+        	): Promise<ButtonBuilder>;
+        }
+        ```
+    - Add support for all select menu types and modal components:
+        - `StringSelectMenuComponent`: For string select menus
+        - `UserSelectMenuComponent`: For user select menus
+        - `RoleSelectMenuComponent`: For role select menus
+        - `ChannelSelectMenuComponent`: For channel select menus
+        - `MentionableSelectMenuComponent`: For mentionable select menus
+    - Update modal component interface with better form handling:
+        ```typescript
+        export interface ModalComponent<T extends Record<string, any> = Record<string, any>>
+        	extends Omit<BaseMessageComponent, 'execute' | 'multi_select'> {
+        	id: string;
+        	type: ComponentTypes.Modal;
+        	execute(
+        		interaction: ModalSubmitInteraction,
+        		client: Client,
+        		response: Collection<string, TextInputComponentData>,
+        		data?: T,
+        		guild?: Guild
+        	): Promise<void> | void;
+        	build(
+        		client: Client,
+        		options?: {
+        			title: string;
+        			components: TextInputComponentOptions[];
+        			data?: T;
+        		}
+        	): Promise<ModalBuilder>;
+        }
+        ```
+    - Create new interfaces for component data:
+        - Add `ComponentData` interface for standard properties
+        - Implement `SelectMenuOptionData` for option data
+        - Create `ModalComponentData` for form field data
+- Update component event handling
+    - Enhance the interaction handler in `src/events/Interactions/MessageComponent.ts`:
+        - Add proper interaction type checking with TypeScript guards
+        - Improve interaction routing based on component type
+        - Implement consistent error handling for different component types
+    - Add support for all component interaction types:
+        - Update handling for all select menu types
+        - Add proper modal submission handling
+        - Implement button interaction handling with better context
+    - Create component event hooks for common patterns:
+        - Add `beforeInteraction` and `afterInteraction` hooks
+        - Implement rate limiting for component interactions
+        - Create permission-based interaction filtering
+- Implement improved builder patterns
+    - Create fluent builder patterns for components:
+        ```typescript
+        // Example button builder
+        const button = new ButtonBuilder()
+        	.setId('action:delete')
+        	.setStyle(ButtonStyle.Danger)
+        	.setLabel('Delete')
+        	.setEmoji('🗑️')
+        	.setDisabled(false)
+        	.withData({ itemId: '123' });
+        ```
+    - Implement component factories for common patterns:
+        - Create `ButtonFactory` with predefined styles (primary, danger, etc.)
+        - Implement `SelectMenuFactory` with option builders
+        - Add `ModalFactory` with form field templates
+    - Add component styling utilities:
+        - Implement consistent color schemes for buttons
+        - Create standard labeling patterns
+        - Add icon/emoji consistency helpers
 
-```typescript
-// Select menu with structured choices and grouping
-import { ComponentUtils } from '../util/ComponentUtils';
+### Enhanced Custom ID System
 
-// Create categorized options
-const gameOptions = [
-	{ label: 'Minecraft', value: 'minecraft', emoji: '⛏️' },
-	{ label: 'Fortnite', value: 'fortnite', emoji: '🔫' },
-];
+Improve the custom ID system for better type safety, validation, and data handling.
 
-const musicOptions = [
-	{ label: 'Rock', value: 'rock', emoji: '🎸' },
-	{ label: 'Pop', value: 'pop', emoji: '🎤' },
-];
+- Implement typed data extraction system
+    - Create a generic data extraction utility:
+        ```typescript
+        export class ComponentDataExtractor {
+        	static extract<T extends Record<string, any>>(
+        		customId: string
+        	): { id: string; parent?: string; group?: string; data?: T } {
+        		// Implementation
+        	}
+        }
+        ```
+    - Add schema validation for extracted data:
+        - Implement validation against predefined schemas
+        - Add type guards for data structures
+        - Create error handling for invalid data
+    - Improve error recovery for malformed data:
+        - Add fallback values for missing properties
+        - Implement data sanitization
+        - Create logging for data extraction failures
+- Optimize data compression for component data
+    - Enhance the existing compression system:
+        - Implement more efficient serialization for common data types
+        - Add dictionary-based compression for repeated patterns
+        - Create binary encoding for complex data structures
+    - Add support for complex data types:
+        - Implement special handling for dates and timestamps
+        - Add array compression optimizations
+        - Create nested object handling with path compression
+    - Implement data validation during compression:
+        - Add size limit checks before compression
+        - Create fallback mechanisms for oversized data
+        - Implement warning system for approaching limits
+- Create standardized customId format
+    - Implement hierarchical component identifiers:
+        ```
+        domain:group:action[data]
+        ```
+        - Domain: Feature area or plugin (e.g., "roles", "tickets")
+        - Group: Component group or context (e.g., "config", "selection")
+        - Action: Specific action (e.g., "add", "remove", "edit")
+        - Data: Optional compressed JSON data
+    - Add versioning for backward compatibility:
+        - Implement version prefixes for component IDs
+        - Create migration utilities for old formats
+        - Add compatibility layer for legacy components
+    - Standardize naming conventions:
+        - Create style guide for component IDs
+        - Implement validation for ID formats
+        - Add documentation generator for component IDs
 
-// Using the utility to create a grouped select menu
-const menu = ComponentUtils.createGroupedSelectMenu('interests', [
-	{ name: 'Games', options: gameOptions },
-	{ name: 'Music', options: musicOptions },
-]);
+### Component Utilities
 
-// Add confirmation buttons
-const confirmRow = ComponentUtils.createConfirmationButtons('confirm_interests');
+Create utility classes and functions to standardize component creation and interaction handling.
 
-// Build the complete message
-const message = {
-	content: 'Please select your interests:',
-	components: [menu, confirmRow],
-};
-```
+- Implement ComponentUtils utility class
+    - Create confirmation button utilities:
+        ```typescript
+        export class ComponentUtils {
+        	// Create a standard confirmation button row
+        	static createConfirmationButtons(
+        		baseId: string,
+        		data?: Record<string, any>,
+        		options?: {
+        			confirmLabel?: string;
+        			cancelLabel?: string;
+        			confirmStyle?: ButtonStyle;
+        			cancelStyle?: ButtonStyle;
+        			confirmEmoji?: string;
+        			cancelEmoji?: string;
+        		}
+        	): ActionRowBuilder<ButtonBuilder> {
+        		// Implementation
+        	}
+        }
+        ```
+    - Add pagination utilities:
+        ```typescript
+        static createPaginationRow(
+          baseId: string,
+          currentPage: number,
+          totalPages: number,
+          data?: Record<string, any>
+        ): ActionRowBuilder<ButtonBuilder> {
+          // Implementation with prev/next/first/last buttons
+        }
+        ```
+    - Implement select menu option builders:
+        ```typescript
+        static createSelectMenuOptions<T>(
+          items: T[],
+          config: {
+            labelProperty: keyof T | ((item: T) => string);
+            valueProperty: keyof T | ((item: T) => string);
+            descriptionProperty?: keyof T | ((item: T) => string);
+            emojiProperty?: keyof T | ((item: T) => string | APIMessageComponentEmoji);
+            defaultSelected?: (item: T) => boolean;
+          }
+        ): APISelectMenuOption[] {
+          // Implementation
+        }
+        ```
+- Create reusable component patterns
+    - Implement standard confirmation dialogs:
+        ```typescript
+        export class ConfirmationDialog {
+        	static async create(
+        		interaction: CommandInteraction | MessageComponentInteraction,
+        		options: {
+        			title: string;
+        			description: string;
+        			confirmLabel?: string;
+        			cancelLabel?: string;
+        			onConfirm: (i: ButtonInteraction) => Promise<void>;
+        			onCancel?: (i: ButtonInteraction) => Promise<void>;
+        			ephemeral?: boolean;
+        			timeout?: number;
+        		}
+        	): Promise<void> {
+        		// Implementation
+        	}
+        }
+        ```
+    - Add pagination components:
+        - Create `Paginator` class for list pagination
+        - Implement `GridView` for tiled content display
+        - Add `Carousel` for cycling through content
+    - Build form components with validation:
+        - Implement `FormBuilder` with field validation
+        - Create `WizardForm` for multi-step forms
+        - Add `ModalForm` for input collection
+- Implement common interaction patterns
+    - Create role selection components:
+        ```typescript
+        export class RoleSelector {
+        	static async create(
+        		interaction: CommandInteraction,
+        		options: {
+        			roles: Collection<string, Role> | Role[];
+        			multiple?: boolean;
+        			placeholder?: string;
+        			onSelect: (roles: Role | Role[], i: SelectMenuInteraction) => Promise<void>;
+        		}
+        	): Promise<void> {
+        		// Implementation
+        	}
+        }
+        ```
+    - Add multi-step component flows:
+        - Create standardized navigation between component states
+        - Implement data collection across multiple interactions
+        - Add progress indicators for multi-step flows
+    - Implement common UI patterns:
+        - Create dropdown menus with subcategories
+        - Add expandable/collapsible sections
+        - Implement tabbed interfaces with buttons
 
-## 5. Simplify Flow System
+### Component Management
+
+Create a dedicated component management system for better organization and type safety.
+
+- Create ComponentManager class
+    - Implement component registration system:
+        ```typescript
+        export class ComponentManager {
+        	private readonly components = new Collection<string, BaseMessageComponent>();
+        	private readonly client: Client;
+
+        	constructor(client: Client) {
+        		this.client = client;
+        	}
+
+        	register<T extends BaseMessageComponent>(component: T): void {
+        		const key = `${component.id}:${component.type.toLowerCase()}`;
+        		this.components.set(key, component);
+        	}
+
+        	get<T extends BaseMessageComponent>(id: string, type: ComponentTypes): T | undefined {
+        		const key = `${id}:${type.toLowerCase()}`;
+        		return this.components.get(key) as T | undefined;
+        	}
+
+        	createCustomId<T extends Record<string, any>>(
+        		id: string,
+        		data?: T,
+        		schema?: Record<string, any>
+        	): string {
+        		// Implementation with validation
+        	}
+        }
+        ```
+    - Add type-safe component retrieval:
+        - Implement generic methods for component access
+        - Create type guards for component types
+        - Add component existence validation
+    - Implement component validation during registration:
+        - Validate component structure and required methods
+        - Check permissions and configuration
+        - Ensure component ID uniqueness
+- Enhance component loading system
+    - Create dynamic component loader:
+        ```typescript
+        export class ComponentLoader {
+        	static async loadComponents(
+        		client: Client,
+        		directories: string[] = ['buttons', 'selectMenus', 'modals']
+        	): Promise<number> {
+        		// Implementation
+        	}
+        }
+        ```
+    - Implement component categorization:
+        - Organize components by feature area
+        - Create component tagging system
+        - Add component metadata for documentation
+    - Add component dependency management:
+        - Implement component dependencies resolution
+        - Create component initialization order
+        - Add component relationship tracking
+- Improve component error handling
+    - Create standardized error responses:
+        ```typescript
+        export class ComponentErrorHandler {
+        	static async handleError(
+        		interaction: MessageComponentInteraction | ModalSubmitInteraction,
+        		error: Error,
+        		component?: BaseMessageComponent
+        	): Promise<void> {
+        		// Implementation with user-friendly messages
+        	}
+        }
+        ```
+    - Add interaction timeout handling:
+        - Implement automatic interaction acknowledgment
+        - Create deferred response handling
+        - Add timeout recovery mechanisms
+    - Implement component debugging tools:
+        - Create component testing utilities
+        - Add component state inspection tools
+        - Implement component performance monitoring
+
+## Flow System
+
+### LightFlow and Flow Simplification
 
 While powerful, the current flow system may be overly complex for simple use cases.
 
-- [ ] Create a simplified "LightFlow" version for basic interactions
+- Create a simplified "LightFlow" version for basic interactions
     - Develop a streamlined version of BaseFlowHandler:
         - Create `src/interfaces/LightFlow.ts` extending BaseFlowHandler from `src/interfaces/Flow.ts`
         - Reduce required override methods to minimal set
@@ -507,7 +1041,7 @@ While powerful, the current flow system may be overly complex for simple use cas
         - Ensure LightFlow works with current FlowManager
         - Add type compatibility with existing flow interfaces
         - Create migration utilities for converting between flow types
-- [ ] Add examples of common flow patterns for quick implementation
+- Add examples of common flow patterns for quick implementation
     - Create reusable templates in `src/flows/templates/`:
         - `ConfirmationFlow.ts`: Simple yes/no decision with callback
         - `FormFlow.ts`: Multi-step data collection with validation
@@ -521,7 +1055,7 @@ While powerful, the current flow system may be overly complex for simple use cas
         - Add progress indicators for multi-step flows
         - Create branching logic based on previous selections
         - Implement completion handlers with collected data
-- [ ] Improve flow state management with type-safe interfaces
+- Improve flow state management with type-safe interfaces
     - Add generics to FlowState:
         ```typescript
         // Example of generic FlowState
@@ -538,7 +1072,7 @@ While powerful, the current flow system may be overly complex for simple use cas
         - Add schema-based validation for state transitions
         - Create transition guards with typed parameters
         - Implement error handling for type violations
-- [ ] Create utility functions for common flow operations
+- Create utility functions for common flow operations
     - Build helper functions in `src/util/FlowUtils.ts`:
         - `transitionTo<T>(flow: BaseFlow, state: string, data: T): Promise<void>`
         - `mergeState<T>(currentState: FlowState<T>, newData: Partial<T>): FlowState<T>`
@@ -551,7 +1085,7 @@ While powerful, the current flow system may be overly complex for simple use cas
         - Add database integration for flow state persistence
         - Implement state recovery mechanisms for interrupted flows
         - Create state migration tools for version changes
-- [ ] Provide documentation for choosing between full and light flow systems
+- Provide documentation for choosing between full and light flow systems
     - Document use cases for each flow system in `docs/flows.md`:
         - When to use full flow (complex state, many steps, custom logic)
         - When to use light flow (simple interactions, few states, standard patterns)
@@ -664,9 +1198,9 @@ export class SimplePollFlow extends LightFlow<PollState> {
 }
 ```
 
-## 6. Improve Light Flow and Flow architecture
+### Flow Architecture Improvements
 
-- [ ] Add support for ephemeral flows
+- Add support for ephemeral flows
 
     - Implement ephemeral message handling in flow system:
         - Add `ephemeral` flag to flow configuration options
@@ -681,7 +1215,7 @@ export class SimplePollFlow extends LightFlow<PollState> {
         - Implement efficient cleanup mechanisms for expired flows
         - Add monitoring for ephemeral flow usage and performance
 
-- [ ] Create dynamic message and component templates that can be reused across multiple flows
+- Create dynamic message and component templates that can be reused across multiple flows
 
     - Develop a template system for consistent UI elements:
         - Create `src/templates/MessageTemplates.ts` with standard message layouts
@@ -697,7 +1231,7 @@ export class SimplePollFlow extends LightFlow<PollState> {
         - Build list/grid templates for data presentation
         - Add pagination templates for large datasets
 
-- [ ] Implement flow composition and nesting
+- Implement flow composition and nesting
 
     - Create system for combining multiple flows:
         - Develop parent-child flow relationship architecture
@@ -712,7 +1246,7 @@ export class SimplePollFlow extends LightFlow<PollState> {
         - Implement parallel flow execution for complex interactions
         - Add flow dependency resolution system
 
-- [ ] Improve flow testing and debugging tools
+- Improve flow testing and debugging tools
 
     - Create specialized testing utilities:
         - Implement `FlowTester` class for simulating user interactions
@@ -727,7 +1261,7 @@ export class SimplePollFlow extends LightFlow<PollState> {
         - Implement user engagement tracking for flows
         - Create dashboards for flow usage statistics
 
-- [ ] Add persistent storage options for long-running flows
+- Add persistent storage options for long-running flows
     - Implement database integration for flow persistence:
         - Create serialization/deserialization for flow states
         - Add TTL (time-to-live) options for stored flows
@@ -824,17 +1358,64 @@ export class AccountDeletionFlow extends LightFlow<{ userId: string }> {
 }
 ```
 
----
+## Message Template System
 
-# Codebase Improvements
+### Message Builder Interface
 
-This section focuses on technical improvements, optimizations, and code quality enhancements that don't necessarily add new features but improve the overall codebase.
+- [ ] Update message builder interfaces to support Discord.js v14+ components
+    - [ ] Add generic type support for message data parsing
+    - [ ] Update method signatures for better type safety
+    - [ ] Create specialized interfaces for new message types
+- [ ] Enhance message event handling with proper typing
+    - [ ] Add support for all interaction types
+    - [ ] Implement typed data extraction from custom IDs
+    - [ ] Create proper error handling for message interactions
+- [ ] Implement better builder patterns for messages
+    - [ ] Add fluent interface for message creation
+    - [ ] Create standardized message styling
+    - [ ] Support disabled states, emoji, and other visual options
 
-## 1. Code Quality Enhancements
+### Template Management
 
-- [ ] Implement consistent error handling patterns
-    - Create standardized error classes in `src/util/errors/`:
-        - `BotError`: Base error class with error codes and structured data
-        - `CommandError`: For command execution failures
-        - `ValidationError`: For input validation failures
-        - `
+- [ ] Create a TemplateManager class with helper methods
+    - [ ] Add `createMessageTemplate()` utility
+    - [ ] Implement `createMessageTemplate()` for dynamic message creation
+    - [ ] Create `buildMessageTemplateOptions()` for dynamic message customization
+- [ ] Implement reusable message patterns
+    - [ ] Add message template components
+    - [ ] Create message template factories
+    - [ ] Implement message template validation
+- [ ] Create templates for common interaction patterns
+    - [ ] Add message template components
+    - [ ] Implement message template builders
+    - [ ] Create message template utilities
+
+### Template Utilities
+
+- [ ] Create a TemplateUtils class with helper methods
+    - [ ] Add `createMessageTemplate()` utility
+    - [ ] Implement `createMessageTemplate()` for dynamic message creation
+    - [ ] Create `buildMessageTemplateOptions()` for dynamic message customization
+- [ ] Implement reusable message patterns
+    - [ ] Add message template components
+    - [ ] Create message template factories
+    - [ ] Implement message template validation
+- [ ] Create templates for common interaction patterns
+    - [ ] Add message template components
+    - [ ] Implement message template builders
+    - [ ] Create message template utilities
+
+### Template Factory
+
+- [ ] Create a TemplateFactory class with helper methods
+    - [ ] Add `createMessageTemplate()` utility
+    - [ ] Implement `createMessageTemplate()` for dynamic message creation
+    - [ ] Create `buildMessageTemplateOptions()` for dynamic message customization
+- [ ] Implement reusable message patterns
+    - [ ] Add message template components
+    - [ ] Create message template factories
+    - [ ] Implement message template validation
+- [ ] Create templates for common interaction patterns
+    - [ ] Add message template components
+    - [ ] Implement message template builders
+    - [ ] Create message template utilities

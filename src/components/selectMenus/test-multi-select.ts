@@ -1,13 +1,13 @@
 // Example multi-select menu component for testing purposes
 import { StringSelectMenuBuilder } from 'discord.js';
-import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
+import { ComponentTypes, SelectMenuComponent } from '@/core/interfaces/MessageComponent';
 
 export const MessageComponent: SelectMenuComponent = {
 	id: 'test-multi-select',
 	type: ComponentTypes.SelectMenu,
 	multi_select: true,
 
-	async build(client) {
+	async build(_client) {
 		// Create a test menu with 3 options, allowing 1-3 selections
 		return new StringSelectMenuBuilder()
 			.setCustomId('test-select')

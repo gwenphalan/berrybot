@@ -1,6 +1,6 @@
 import { ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '@/interfaces/MessageComponent';
-import { logger } from '@/util';
+import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { logger } from '@/core/logging/Logger';
 import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
 
 /**

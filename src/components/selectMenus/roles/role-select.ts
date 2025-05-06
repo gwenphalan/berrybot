@@ -1,6 +1,6 @@
-import { StringSelectMenuBuilder, PermissionFlagsBits, Collection } from 'discord.js';
-import { SelectMenuComponent, ComponentTypes } from '@/interfaces/MessageComponent';
-import { logger } from '@/util';
+import { StringSelectMenuBuilder, Collection } from 'discord.js';
+import { SelectMenuComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { logger } from '@/core/logging/Logger';
 
 /**
  * Role Select - Selects a role for the role message, and edit category roles

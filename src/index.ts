@@ -1,9 +1,9 @@
 // Import the register-aliases.ts file first
-import './register-aliases';
+import '@/register-aliases';
 
 import { ShardingManager } from 'discord.js';
-import { config } from './config';
-import { logger } from './util';
+import { config } from '@/core/config/config';
+import { logger } from '@/core/logging/Logger';
 
 // Initialize sharding manager with bot entry point
 logger.info('Initializing sharding manager');

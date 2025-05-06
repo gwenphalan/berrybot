@@ -1,6 +1,6 @@
 // Example single-select menu component for testing purposes
 import { StringSelectMenuBuilder } from 'discord.js';
-import { ComponentTypes, SelectMenuComponent } from '../../interfaces/MessageComponent';
+import { ComponentTypes, SelectMenuComponent } from '@/core/interfaces/MessageComponent';
 
 export const MessageComponent: SelectMenuComponent = {
 	id: 'test-select',

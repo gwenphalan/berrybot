@@ -1,10 +1,6 @@
 import { StringSelectMenuBuilder, PermissionFlagsBits } from 'discord.js';
-import {
-	SelectMenuComponent,
-	ComponentTypes,
-	SingleSelectMenuComponent,
-} from '@/interfaces/MessageComponent';
-import { logger } from '@/util';
+import { ComponentTypes, SingleSelectMenuComponent } from '@/core/interfaces/MessageComponent';
+import { logger } from '@/core/logging/Logger';
 
 /**
  * Category Select - Selects a category for the role message, single select

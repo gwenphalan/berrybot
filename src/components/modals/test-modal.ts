@@ -1,7 +1,8 @@
 // Example modal component for testing modal functionality
 import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
-import { ModalComponent, ComponentTypes } from '../../interfaces/MessageComponent';
-import { logger } from '../../util';
+import { ModalComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { logger } from '@/core/logging/Logger';
+import AsciiTable from 'ascii-table';
 
 export const MessageComponent: ModalComponent = {
 	id: 'test-modal',
@@ -26,7 +27,7 @@ export const MessageComponent: ModalComponent = {
 		// Log modal response in a formatted table
 		logger.info(
 			'\n' +
-				new (require('ascii-table'))()
+				new AsciiTable()
 					.setHeading('Field', 'Response')
 					.addRow('test-modal-input', fields.get('test-modal-input')?.value)
 					.toString()

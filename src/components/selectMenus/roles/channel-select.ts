@@ -1,6 +1,6 @@
 import { StringSelectMenuBuilder, PermissionFlagsBits, Collection } from 'discord.js';
-import { ComponentTypes, SingleSelectMenuComponent } from '@/interfaces/MessageComponent';
-import { logger } from '@/util';
+import { ComponentTypes, SingleSelectMenuComponent } from '@/core/interfaces/MessageComponent';
+import { logger } from '@/core/logging/Logger';
 
 /**
  * Channel Select - Selects a channel for the role message, single select

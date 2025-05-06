@@ -1,5 +1,5 @@
 import * as discord from 'discord.js';
-import { Command } from '@/interfaces';
+import { Command } from '@/core/interfaces';
 import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
 
 // Self-roles management command for server administrators

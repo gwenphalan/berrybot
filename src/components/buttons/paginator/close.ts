@@ -1,13 +1,13 @@
 import { ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '../../../interfaces/MessageComponent';
-import { logger } from '../../../util';
+import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { logger } from '@/core/logging/Logger';
 
 export const MessageComponent: ButtonComponent = {
 	id: 'paginator.close',
 	type: ComponentTypes.Button,
 	permissions: [PermissionFlagsBits.ManageRoles],
 
-	async build(client) {
+	async build(_client) {
 		logger.debug('Building paginator.close button component');
 
 		const button = new ButtonBuilder()

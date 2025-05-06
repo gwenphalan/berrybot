@@ -1,20 +1,34 @@
-import { Event } from '../../interfaces';
+import { Event } from '@/core/interfaces';
 import { Events } from 'discord.js';
-import { loadCommands } from '../../handlers';
-import { Client } from '../../interfaces';
-import { logger } from '../../util';
-import { database } from '../../database';
+import { loadCommands } from '@/core/managers';
+import type { Client } from '@/core/client/BerryClient';
+import { logger } from '@/core/logging/Logger';
+import { database } from '@/core/config/database';
 
 /**
  * Register active flows with the FlowManager
  */
-async function registerFlows(client: Client) {
+async function registerFlows(_client: Client) {
 	try {
 		logger.info('Registering active flows...');
+
+		// Check if there are any flows that need to be registered
 		const flows = await database.flows.model.find({
 			expiresAt: { $gt: new Date() },
 		});
 
+		if (flows.length === 0) {
+			logger.info('No active flows found to register');
+			return;
+		}
+
+		// Log the number of flows found but don't attempt to register them yet
+		logger.info(
+			`Found ${flows.length} active flows, but flow registration is not fully implemented yet`
+		);
+
+		// Uncomment and implement this code when persistent flows are needed
+		/*
 		for (const flow of flows) {
 			try {
 				// Create a new handler instance based on flow type
@@ -27,6 +41,12 @@ async function registerFlows(client: Client) {
 					default:
 						logger.warn(`Unknown flow type: ${flow.flowType}`);
 						continue;
+				}
+
+				// Only proceed if we have a valid handler
+				if (!handler) {
+					logger.warn(`No handler initialized for flow: ${flow.flowType}`);
+					continue;
 				}
 
 				// Set the state from the database
@@ -42,8 +62,7 @@ async function registerFlows(client: Client) {
 				);
 			}
 		}
-
-		logger.info(`Registered ${flows.length} active flows`);
+		*/
 	} catch (error) {
 		logger.error({ error }, 'Failed to register flows');
 	}

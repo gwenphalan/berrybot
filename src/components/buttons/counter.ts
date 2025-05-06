@@ -1,8 +1,7 @@
 import { ButtonBuilder, ButtonStyle, ButtonInteraction } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '../../interfaces/MessageComponent';
-import { Client } from '../../interfaces/Client';
-import { logger } from '../../util/Logger';
-import { ExampleFlow } from '../../flows/ExampleFlow';
+import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import type { Client } from '@/core/client/BerryClient';
+import { logger } from '@/core/logging/Logger';
 
 // Button component for incrementing a counter in a flow
 export const MessageComponent: ButtonComponent = {

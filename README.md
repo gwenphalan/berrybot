@@ -27,21 +27,30 @@ BerryBot is an Open Source discord bot created to replace the corrupt discord bo
     cd berrybot
     ```
 
-2. **Install Dependencies**
+## Setup Wizard
+
+```bash
+yarn setup
+```
+
+## Manual Setup
+
+1. **Install Dependencies**
 
     ```bash
     yarn install
     ```
 
-3. **Environment Setup**
+2. **Environment Setup**
    Create a `.env` file in the root directory:
 
     ```env
     DISCORD_TOKEN=your_bot_token
-    MONGODB_URI=your_mongodb_uri
+    MONGO_STRING=your_mongodb_uri
+    DEVELOPER_ID=your_user_id
     ```
 
-4. **Build and Start**
+3. **Build and Start**
     ```bash
     yarn build
     yarn start
@@ -67,6 +76,7 @@ For detailed documentation, please visit our [documentation directory](docs/):
 ### Scripts
 
 ```bash
+yarn setup       # Interactive setup wizard for first-time installation
 yarn build        # Build the project
 yarn start        # Start the bot
 yarn dev          # Start in development mode

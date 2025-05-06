@@ -2,19 +2,16 @@ import {
 	EmbedBuilder,
 	ActionRowBuilder,
 	ButtonBuilder,
-	StringSelectMenuBuilder,
 	ButtonInteraction,
 	StringSelectMenuInteraction,
 	ModalSubmitInteraction,
 	ChatInputCommandInteraction,
-	ComponentType,
 	Role,
-	ButtonComponent,
 } from 'discord.js';
-import { MessageBuilder } from '@/interfaces/MessageBuilder';
-import { Client } from '@/interfaces/Client';
-import { FlowState } from '@/interfaces/Flow';
-import { logger } from '@/util/Logger';
+import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
+import { Client } from '@/core/client/BerryClient';
+import { FlowState } from '@/core/interfaces/Flow';
+import { logger } from '@/core/logging/Logger';
 // Import main menu components
 import {
 	Roles_ConfigMainMenu_Create,

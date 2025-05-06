@@ -1,7 +1,7 @@
 import { ButtonBuilder, ButtonStyle, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '../../../interfaces/MessageComponent';
-import { logger } from '../../../util';
-import { books } from '../../../messages/paginator';
+import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { logger } from '@/core/logging/Logger';
+import { books } from '@/messages/paginator';
 
 export const MessageComponent: ButtonComponent = {
 	id: 'paginator.back',

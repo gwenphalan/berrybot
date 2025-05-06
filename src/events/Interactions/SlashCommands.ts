@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, Events } from 'discord.js';
-import { config } from '../../config';
-import { Client, Event } from '../../interfaces';
-import { logger } from '../../util';
+import { config } from '@/core/config/config';
+import type { Client, Event } from '@/core/interfaces';
+import { logger } from '@/core/logging/Logger';
 
 // Event handler for slash command interactions
 export const event: Event = {
