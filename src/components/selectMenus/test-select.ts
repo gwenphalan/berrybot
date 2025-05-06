@@ -1,38 +1,37 @@
 // Example single-select menu component for testing purposes
-import { StringSelectMenuBuilder } from 'discord.js';
-import { ComponentTypes, SelectMenuComponent } from '@/core/interfaces/MessageComponent';
+import { StringSelectMenuInteraction, APISelectMenuOption } from 'discord.js';
+import { StringSelectMenuComponent } from '@/core/classes/StringSelectMenuComponent';
+import type { Client } from '@/core/client/BerryClient';
 
-export const MessageComponent: SelectMenuComponent = {
-	id: 'test-select',
-	type: ComponentTypes.SelectMenu,
+class TestSelectMenu extends StringSelectMenuComponent<object> {
+	id = 'test-select';
+	placeholder = 'Test Select';
+	min_values = 1;
+	max_values = 1;
 
-	async build(_client) {
-		// Create a test menu with 3 options, requiring exactly one selection
-		return new StringSelectMenuBuilder()
-			.setCustomId('test-select')
-			.setPlaceholder('Test Select')
-			.setMinValues(1)
-			.setMaxValues(1)
-			.addOptions([
-				{
-					label: 'Test Option 1',
-					value: 'test-option-1',
-				},
-				{
-					label: 'Test Option 2',
-					value: 'test-option-2',
-				},
-				{
-					label: 'Test Option 3',
-					value: 'test-option-3',
-				},
-			]);
-	},
+	async build(client: Client, options: { data: object }) {
+		const select = await super.build(client, {
+			placeholder: this.placeholder,
+			min_values: this.min_values,
+			max_values: this.max_values,
+			options: [
+				{ label: 'Test Option 1', value: 'test-option-1' },
+				{ label: 'Test Option 2', value: 'test-option-2' },
+				{ label: 'Test Option 3', value: 'test-option-3' },
+			],
+			data: options.data,
+		});
+		return select;
+	}
 
-	execute(interaction, _client, selected) {
-		// Display the single selected option
-		interaction.reply({ content: `You selected ${selected.label}`, ephemeral: true });
-	},
-};
+	async execute(
+		interaction: StringSelectMenuInteraction,
+		client: Client,
+		selected: APISelectMenuOption,
+		_data: object
+	) {
+		await interaction.reply({ content: `You selected ${selected.label}`, ephemeral: true });
+	}
+}
 
-export default MessageComponent;
+export default TestSelectMenu;

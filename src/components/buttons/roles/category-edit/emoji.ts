@@ -1,5 +1,12 @@
-import { ButtonBuilder, ButtonStyle, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import {
+	ButtonInteraction,
+	EmbedBuilder,
+	PermissionFlagsBits,
+	MessageReaction,
+	User,
+} from 'discord.js';
+import { ButtonComponent } from '@/core/classes/ButtonComponent';
+import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
 
@@ -7,27 +14,18 @@ import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
  * Emoji Select - Triggers emoji select menu
  * Handles emoji button in role category edit menu
  */
-export const MessageComponent: ButtonComponent = {
-	id: 'roles:category-edit:emoji',
-	type: ComponentTypes.Button,
-	permissions: [PermissionFlagsBits.ManageRoles],
+export class CategoryEditEmojiButton extends ButtonComponent<{ category: string }> {
+	id = 'emoji';
+	group = 'category-edit';
+	parent = 'roles';
+	label = 'Emoji';
+	style = 2; // ButtonStyle.Secondary
+	emoji = '🎨';
+	static permissions = [PermissionFlagsBits.ManageRoles];
 
-	async build(client, data: { category: string }) {
-		logger.debug({ data }, 'Building emoji select button component with data');
-
-		const button = new ButtonBuilder()
-			.setCustomId(await client.getCustomID(this.id, data))
-			.setLabel('Emoji')
-			.setStyle(ButtonStyle.Secondary)
-			.setEmoji('🎨');
-
-		logger.debug('Emoji select button built successfully');
-		return button;
-	},
-
-	async execute(interaction, client, data: { category: string }) {
+	async execute(interaction: ButtonInteraction, client: Client, data: { category: string }) {
 		const flow = client.flowManager.getHandler<RoleConfigFlow>(interaction.message.id);
-		logger.debug({ data }, this.id + 'button clicked with data');
+		logger.debug({ data }, this.id + ' button clicked with data');
 		if (!interaction.guildId) {
 			logger.error('No guild id found for interaction');
 			return;
@@ -46,7 +44,7 @@ export const MessageComponent: ButtonComponent = {
 
 		// Wait for exactly 1 reaction from the command user
 		const reactions = await message.awaitReactions({
-			filter: (reaction, user) => {
+			filter: (reaction: MessageReaction, user: User) => {
 				// Check if it's from the command user
 				if (user.id !== interaction.user.id) return false;
 
@@ -86,7 +84,9 @@ export const MessageComponent: ButtonComponent = {
 
 		const guildSettings = await client.database.guildSettings.get(interaction.guildId);
 
-		const category = guildSettings.selfRoles.categories.find((c) => c.name === data.category);
+		const category = guildSettings.selfRoles.categories.find(
+			(c: any) => c.name === data.category
+		);
 		if (category) {
 			category.emoji = emoji.emoji.id ?? emoji.emoji.name ?? '';
 			await guildSettings.save();
@@ -95,7 +95,7 @@ export const MessageComponent: ButtonComponent = {
 		flow.handle(interaction, client, {
 			id: 'category-edit',
 		});
-	},
-};
+	}
+}
 
-export default MessageComponent;
+export default CategoryEditEmojiButton;

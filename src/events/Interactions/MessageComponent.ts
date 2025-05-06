@@ -9,14 +9,9 @@ import {
 } from 'discord.js';
 import { config } from '@/core/config/config';
 import type { Client, Event } from '@/core/interfaces';
-import {
-	ButtonComponent,
-	ModalComponent,
-	MultiSelectMenuComponent,
-	SingleSelectMenuComponent,
-} from '@/core/interfaces/MessageComponent';
 import { decompressFromUTF16 } from 'lz-string';
 import { logger } from '@/core/logging/Logger';
+import { ComponentManager } from '@/core/managers/MessageComponentHandler';
 
 /**
  * Parses component customId to extract component ID, parent, group, and any compressed data
@@ -77,7 +72,7 @@ export const event: Event = {
 	 * Handles all types of message component interactions
 	 * @param {MessageComponentInteraction} interaction - The interaction object from Discord
 	 */
-	execute(interaction: BaseInteraction, client: Client) {
+	execute: async function (interaction: BaseInteraction, client: Client) {
 		logger.debug({ interaction }, 'Received interaction');
 
 		// Only handle message component and modal submit interactions
@@ -119,22 +114,32 @@ export const event: Event = {
 			return;
 		}
 		logger.debug(`Component type: ${type}`);
-		const regex = /\[(.*)\]/;
-		const id = messageComponentInteraction.customId.replace(regex, '');
 
-		// Get the component handler from our collection
-		const componentName = `${id}:${type}`;
-		const component = client.messageComponents.get(componentName);
+		// Build the hierarchical key for lookup
+		let key: string;
+		if (data.parent && data.group) {
+			key = `${data.parent}:${data.group}:${data.id}`;
+		} else if (data.parent) {
+			key = `${data.parent}:${data.id}`;
+		} else {
+			key = data.id;
+		}
+		key += `:${type}`;
+
+		// Use ComponentManager for lookup
+		/** @ts-expect-error: componentManager is a runtime extension of Client for component management */
+		const manager: ComponentManager = client.componentManager;
+		const component = manager.get(key, type);
 		if (!component) {
-			logger.warn(`Component handler not found: ${componentName}`);
+			logger.warn(`Component handler not found: ${key}:${type}`);
 			return;
 		}
-		logger.debug(`Found component handler: ${componentName}`);
+		logger.debug(`Found component handler: ${key}:${type}`);
 
 		// Check if component is developer-only
 		if (component.developer && config.developer !== messageComponentInteraction.user.id) {
 			logger.warn(
-				`User ${messageComponentInteraction.user.id} attempted to use developer-only component: ${componentName}`
+				`User ${messageComponentInteraction.user.id} attempted to use developer-only component: ${key}:${type}`
 			);
 			return messageComponentInteraction.reply({
 				content: 'This is a developer only component.',
@@ -155,7 +160,7 @@ export const event: Event = {
 
 			if (!member.permissions.has(permissions)) {
 				logger.warn(
-					`User ${messageComponentInteraction.user.id} lacks permissions for component: ${componentName}`
+					`User ${messageComponentInteraction.user.id} lacks permissions for component: ${key}:${type}`
 				);
 				return messageComponentInteraction.reply({
 					content: 'You do not have permission to do this.',
@@ -163,7 +168,7 @@ export const event: Event = {
 				});
 			}
 			logger.debug(
-				`User ${messageComponentInteraction.user.id} has required permissions for component: ${componentName}`
+				`User ${messageComponentInteraction.user.id} has required permissions for component: ${key}:${type}`
 			);
 		}
 
@@ -174,17 +179,19 @@ export const event: Event = {
 				messageComponentInteraction.isButton()
 			) {
 				// Handle button interactions
-				logger.debug(`Executing button component: ${componentName}`);
-				const button: ButtonComponent = component as ButtonComponent;
-				button.execute(messageComponentInteraction, client, data.data);
+				logger.debug(`Executing button component: ${key}:${type}`);
+				await component.execute(
+					messageComponentInteraction,
+					client,
+					data.data,
+					messageComponentInteraction.guild ?? undefined
+				);
 			} else if (
 				'isStringSelectMenu' in messageComponentInteraction &&
 				messageComponentInteraction.isStringSelectMenu()
 			) {
 				// Handle select menu interactions
-				logger.debug(`Executing select menu component: ${componentName}`);
-				const selectMenu: SingleSelectMenuComponent | MultiSelectMenuComponent =
-					component as SingleSelectMenuComponent | MultiSelectMenuComponent;
+				logger.debug(`Executing select menu component: ${key}:${type}`);
 				const stringInteraction =
 					messageComponentInteraction as StringSelectMenuInteraction;
 				const options = stringInteraction.component.options;
@@ -193,22 +200,26 @@ export const event: Event = {
 					(option) => option.value === selectedOptions[0]
 				);
 
-				if (selectMenu.multi_select) {
+				if (component.multi_select) {
 					// Handle multi-select menus
 					logger.debug(
 						`Executing multi-select menu with ${selectedOptions.length} selections`
 					);
-					selectMenu.execute(
+					await component.execute(
 						messageComponentInteraction,
 						client,
-						options.filter((option) => selectedOptions.includes(option.value)),
-						data.data
+						data.data,
+						messageComponentInteraction.guild ?? undefined,
+						undefined,
+						options.filter((option: import('discord.js').APISelectMenuOption) =>
+							selectedOptions.includes(option.value)
+						)
 					);
 				} else {
 					// Handle single-select menus
 					if (!selectedOption) {
 						logger.warn(
-							`No valid option selected in single-select menu: ${componentName}`
+							`No valid option selected in single-select menu: ${key}:${type}`
 						);
 						return messageComponentInteraction.reply({
 							content: 'Something went wrong with your selection!',
@@ -218,11 +229,13 @@ export const event: Event = {
 					logger.debug(
 						`Executing single-select menu with selection: ${selectedOption.value}`
 					);
-					selectMenu.execute(
+					await component.execute(
 						messageComponentInteraction,
 						client,
-						selectedOption,
-						data.data
+						data.data,
+						messageComponentInteraction.guild ?? undefined,
+						undefined,
+						selectedOption
 					);
 				}
 			} else if (
@@ -230,17 +243,86 @@ export const event: Event = {
 				messageComponentInteraction.isModalSubmit()
 			) {
 				// Handle modal submissions
-				logger.debug(`Executing modal component: ${componentName}`);
-				const modal: ModalComponent = component as ModalComponent;
+				logger.debug(`Executing modal component: ${key}:${type}`);
 				const modalInteraction = messageComponentInteraction as ModalSubmitInteraction;
 				const fields = modalInteraction.fields.fields;
-				modal.execute(modalInteraction, client, fields, data.data);
+				await component.execute(
+					modalInteraction,
+					client,
+					data.data,
+					modalInteraction.guild ?? undefined,
+					fields
+				);
+			} else if (
+				'messageComponentInteraction' in { messageComponentInteraction } &&
+				(messageComponentInteraction as any).isUserSelectMenu &&
+				(messageComponentInteraction as any).isUserSelectMenu()
+			) {
+				const userSelect =
+					messageComponentInteraction as import('discord.js').UserSelectMenuInteraction;
+				logger.debug(`Executing user select menu component: ${key}:${type}`);
+				await component.execute(
+					userSelect,
+					client,
+					data.data,
+					userSelect.guild ?? undefined,
+					undefined,
+					undefined
+				);
+			} else if (
+				'messageComponentInteraction' in { messageComponentInteraction } &&
+				(messageComponentInteraction as any).isRoleSelectMenu &&
+				(messageComponentInteraction as any).isRoleSelectMenu()
+			) {
+				const roleSelect =
+					messageComponentInteraction as import('discord.js').RoleSelectMenuInteraction;
+				logger.debug(`Executing role select menu component: ${key}:${type}`);
+				await component.execute(
+					roleSelect,
+					client,
+					data.data,
+					roleSelect.guild ?? undefined,
+					undefined,
+					undefined
+				);
+			} else if (
+				'messageComponentInteraction' in { messageComponentInteraction } &&
+				(messageComponentInteraction as any).isChannelSelectMenu &&
+				(messageComponentInteraction as any).isChannelSelectMenu()
+			) {
+				const channelSelect =
+					messageComponentInteraction as import('discord.js').ChannelSelectMenuInteraction;
+				logger.debug(`Executing channel select menu component: ${key}:${type}`);
+				await component.execute(
+					channelSelect,
+					client,
+					data.data,
+					channelSelect.guild ?? undefined,
+					undefined,
+					undefined
+				);
+			} else if (
+				'messageComponentInteraction' in { messageComponentInteraction } &&
+				(messageComponentInteraction as any).isMentionableSelectMenu &&
+				(messageComponentInteraction as any).isMentionableSelectMenu()
+			) {
+				const mentionableSelect =
+					messageComponentInteraction as import('discord.js').MentionableSelectMenuInteraction;
+				logger.debug(`Executing mentionable select menu component: ${key}:${type}`);
+				await component.execute(
+					mentionableSelect,
+					client,
+					data.data,
+					mentionableSelect.guild ?? undefined,
+					undefined,
+					undefined
+				);
 			}
 		} catch (error) {
 			logger.error(
 				{
 					error,
-					component: componentName,
+					component: `${key}:${type}`,
 					type,
 					user: messageComponentInteraction.user.id,
 					guild: messageComponentInteraction.guild?.id,

@@ -1,26 +1,35 @@
-import { StringSelectMenuBuilder, Collection } from 'discord.js';
-import { SelectMenuComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { StringSelectMenuInteraction, Collection } from 'discord.js';
+import { StringSelectMenuComponent } from '@/core/classes/StringSelectMenuComponent';
+import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 
 /**
- * Role Select - Selects a role for the role message, and edit category roles
+ * RoleSelectMenu - Selects a role for the role message, and edit category roles
  * Handles role select menu in role category edit menu
  */
-export const MessageComponent: SelectMenuComponent = {
-	id: 'roles:role-select',
-	type: ComponentTypes.SelectMenu,
-	multi_select: true,
+export class RoleSelectMenu extends StringSelectMenuComponent<{
+	roles: Collection<string, string>;
+	action: 'select' | 'edit';
+}> {
+	id = 'role-select';
+	parent = 'roles';
+	placeholder = 'Select roles';
+	min_values = 1;
+	max_values = 25;
 
-	async build(client, data: { roles: Collection<string, string>; action: 'select' | 'edit' }) {
-		logger.debug({ data }, 'Building  select menu component with data');
+	async build(
+		client: Client,
+		options: { data: { roles: Collection<string, string>; action: 'select' | 'edit' } }
+	) {
+		logger.debug({ data: options.data }, 'Building role select menu component with data');
+		const select = await super.build(client, {
+			placeholder: this.placeholder,
+			min_values: this.min_values,
+			max_values: options.data.roles.size,
+			data: options.data,
+		});
 
-		const select = new StringSelectMenuBuilder()
-			.setCustomId(await client.getCustomID(this.id, {}))
-			.setPlaceholder('')
-			.setMinValues(1)
-			.setMaxValues(data.roles.size);
-
-		data.roles.forEach((val, key) => {
+		options.data.roles.forEach((val, key) => {
 			select.addOptions({
 				label: val,
 				value: key,
@@ -28,11 +37,17 @@ export const MessageComponent: SelectMenuComponent = {
 		});
 		logger.debug('Role Select select menu built successfully');
 		return select;
-	},
+	}
 
-	async execute(interaction, client, selected, data?: Record<string, never>) {
-		logger.debug({ data, selected }, ' select menu clicked with data');
-	},
-};
+	async execute(
+		interaction: StringSelectMenuInteraction,
+		client: Client,
+		selected: { label: string; value: string },
+		data?: Record<string, never>
+	) {
+		logger.debug({ data, selected }, 'Role select menu clicked with data');
+		// Add your flow or business logic here as needed
+	}
+}
 
-export default MessageComponent;
+export default RoleSelectMenu;

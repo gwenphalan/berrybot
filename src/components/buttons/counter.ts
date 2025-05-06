@@ -1,24 +1,17 @@
-import { ButtonBuilder, ButtonStyle, ButtonInteraction } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { ButtonInteraction } from 'discord.js';
+import { ButtonComponent } from '@/core/classes/ButtonComponent';
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 
-// Button component for incrementing a counter in a flow
-export const MessageComponent: ButtonComponent = {
-	// Unique ID for this button component (used for routing interactions)
-	id: 'counter',
-	type: ComponentTypes.Button,
+/**
+ * Counter Button - Increments a counter in a flow
+ * Handles button click to increment a counter
+ */
+export class CounterButton extends ButtonComponent<{ count: number }> {
+	id = 'counter';
+	label = 'Click Me!';
+	style = 1; // ButtonStyle.Primary
 
-	// Builds the button to be shown in the message
-	async build(client: Client, data: { count: number }) {
-		logger.debug({ count: data.count }, 'Building counter button');
-		return new ButtonBuilder()
-			.setCustomId(client.getCustomID('counter', data)) // Custom ID for Discord to identify this button
-			.setLabel('Click Me!') // Button label
-			.setStyle(ButtonStyle.Primary); // Button color/style
-	},
-
-	// Handles button click interactions
 	async execute(interaction: ButtonInteraction, client: Client, data: { count: number }) {
 		logger.debug(
 			{
@@ -30,5 +23,7 @@ export const MessageComponent: ButtonComponent = {
 
 		// Let the flow system handle the interaction
 		await client.flowManager.handleInteraction(interaction);
-	},
-};
+	}
+}
+
+export default CounterButton;

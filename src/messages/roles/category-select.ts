@@ -3,7 +3,7 @@ import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
 import { Client } from '@/core/client/BerryClient';
 import { FlowState } from '@/core/interfaces/Flow';
 import { logger } from '@/core/logging/Logger';
-import { Roles_CategorySelect } from '@/components';
+import CategorySelectMenu from '@/components/selectMenus/roles/category-select';
 
 /**
  * CategorySelect - Message Description
@@ -35,7 +35,7 @@ export const CategorySelect: MessageBuilder = {
 			categories.push(category.name);
 		});
 
-		const select = await Roles_CategorySelect.build(client, { categories: categories });
+		const select = await new CategorySelectMenu().build(client, { data: { categories } });
 		const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 
 		// Return updated message

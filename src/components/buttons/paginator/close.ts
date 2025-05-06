@@ -1,29 +1,34 @@
-import { ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { ButtonInteraction, PermissionFlagsBits } from 'discord.js';
+import { ButtonComponent } from '@/core/classes/ButtonComponent';
+import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 
-export const MessageComponent: ButtonComponent = {
-	id: 'paginator.close',
-	type: ComponentTypes.Button,
-	permissions: [PermissionFlagsBits.ManageRoles],
+/**
+ * PaginatorCloseButton
+ *
+ * Button component for closing (deleting) the paginator message.
+ * Extends the abstract ButtonComponent for type safety and builder integration.
+ */
+export class PaginatorCloseButton extends ButtonComponent<undefined> {
+	/** Unique component ID for registration and customId generation */
+	id = 'paginator.close';
+	/** Button label */
+	label = 'Close';
+	/** Button style (Danger) */
+	style = 4; // ButtonStyle.Danger
+	/** Required permissions to use this button */
+	static permissions = [PermissionFlagsBits.ManageRoles];
 
-	async build(_client) {
-		logger.debug('Building paginator.close button component');
-
-		const button = new ButtonBuilder()
-			.setCustomId(this.id)
-			.setLabel('Close')
-			.setStyle(ButtonStyle.Danger);
-
-		logger.debug('paginator.close button built successfully');
-		return button;
-	},
-
-	async execute(interaction, _client, data) {
-		logger.debug({ data }, 'paginator.close button clicked with data');
+	/**
+	 * Handles the button interaction to delete the paginator message.
+	 * @param interaction - The ButtonInteraction from Discord.js
+	 * @param _client - The BerryClient instance (unused)
+	 */
+	async execute(interaction: ButtonInteraction, _client: Client) {
+		logger.debug('paginator.close button clicked');
 		logger.debug({ messageId: interaction.message.id }, 'Deleting paginator message');
-		interaction.message.delete();
-	},
-};
+		await interaction.message.delete();
+	}
+}
 
-export default MessageComponent;
+export default PaginatorCloseButton;

@@ -59,15 +59,15 @@ This document outlines key improvements to bring BerryBot up to date with the la
 
 # General TODOs
 
-- [ ] Refactor: Project Restructure
+- [x] Refactor: Project Restructure
 
-    - [ ] Review and reorganize project directory structure for clarity and scalability
-    - [ ] Consolidate duplicate or legacy folders (e.g., merge dist/src if possible)
-    - [ ] Standardize naming conventions for all folders and files
-    - [ ] Move all type/interface definitions to a dedicated types/ or interfaces/ directory
-    - [ ] Ensure all config, util, and handler files are in their respective folders
-    - [ ] Update import paths throughout the codebase to match new structure
-    - [ ] Update documentation to reflect new project layout
+    - [x] Review and reorganize project directory structure for clarity and scalability
+    - [x] Consolidate duplicate or legacy folders (e.g., merge dist/src if possible)
+    - [x] Standardize naming conventions for all folders and files
+    - [x] Move all type/interface definitions to a dedicated types/ or interfaces/ directory
+    - [x] Ensure all config, util, and handler files are in their respective folders
+    - [x] Update import paths throughout the codebase to match new structure
+    - [x] Update documentation to reflect new project layout
 
     **Recommended Folder Structure:**
 
@@ -290,18 +290,15 @@ Enhance the component system to better leverage Discord.js capabilities.
 
 ### 5.1 Component Interface Modernization
 
-- [ ] Update component interfaces to support Discord.js v14+ components
-    - [ ] Add generic type support for component data parsing
-    - [ ] Update method signatures for better type safety
-    - [ ] Create specialized interfaces for new component types
-- [ ] Enhance component event handling with proper typing
-    - [ ] Add support for all interaction types
-    - [ ] Implement typed data extraction from custom IDs
-    - [ ] Create proper error handling for component interactions
-- [ ] Implement better builder patterns for components
-    - [ ] Add fluent interface for component creation
-    - [ ] Create standardized component styling
-    - [ ] Support disabled states, emoji, and other visual options
+- [x] Add support for all select menu types and modal components
+- [x] Enhance component event handling with proper typing
+    - [x] Add support for all interaction types
+    - [x] Implement typed data extraction from custom IDs
+    - [x] Create proper error handling for component interactions
+- [x] Implement better builder patterns for components
+    - [x] Add fluent interface for component creation
+    - [x] Create standardized component styling
+    - [x] Support disabled states, emoji, and other visual options
 
 ### 5.2 Enhanced Custom ID System
 
@@ -335,18 +332,16 @@ Enhance the component system to better leverage Discord.js capabilities.
 
 ### 5.4 Component Management
 
-- [ ] Create a dedicated ComponentManager class
-    - [ ] Implement component registration system
-    - [ ] Add typed component retrieval methods
-    - [ ] Create component validation during registration
-- [ ] Enhance component loading and organization
-    - [ ] Implement dynamic component loading by category
-    - [ ] Add component versioning support
-    - [ ] Create component dependency management
-- [ ] Improve component error handling
-    - [ ] Implement standardized error responses
-    - [ ] Add component interaction timeout handling
-    - [ ] Create component debugging utilities
+- [x] Create a dedicated ComponentManager class
+- [x] Implement component registration system
+- [x] Add typed component retrieval methods
+- [x] Create component validation during registration
+- [x] Enhance component loading and organization
+- [x] Implement dynamic component loading by category
+- [x] Improve component error handling
+    - [x] Implement standardized error responses
+    - [x] Add component interaction timeout handling
+    - [x] Create component debugging utilities
 
 ## 6. Simplify Flow System
 
@@ -939,7 +934,9 @@ Create utility classes and functions to standardize component creation and inter
 Create a dedicated component management system for better organization and type safety.
 
 - Create ComponentManager class
+
     - Implement component registration system:
+
         ```typescript
         export class ComponentManager {
         	private readonly components = new Collection<string, BaseMessageComponent>();
@@ -968,6 +965,7 @@ Create a dedicated component management system for better organization and type 
         	}
         }
         ```
+
     - Add type-safe component retrieval:
         - Implement generic methods for component access
         - Create type guards for component types
@@ -976,6 +974,7 @@ Create a dedicated component management system for better organization and type 
         - Validate component structure and required methods
         - Check permissions and configuration
         - Ensure component ID uniqueness
+
 - Enhance component loading system
     - Create dynamic component loader:
         ```typescript

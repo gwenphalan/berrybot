@@ -3,7 +3,7 @@ import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
 import { Client } from '@/core/client/BerryClient';
 import { FlowState } from '@/core/interfaces/Flow';
 import { logger } from '@/core/logging/Logger';
-import { MessageComponent as CounterButton } from '@/components/buttons/counter';
+import CounterButton from '@/components/buttons/counter';
 
 export const CounterMessage: MessageBuilder = {
 	embeds: [
@@ -40,8 +40,8 @@ export const CounterMessage: MessageBuilder = {
 				},
 			]);
 
-		// Create button
-		const button = await CounterButton.build(client, { count: count });
+		// Create button using the new class-based system
+		const button = await new CounterButton().build(client, { count });
 		logger.debug({ button }, 'Built counter button');
 
 		// Create action row with button

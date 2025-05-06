@@ -1,29 +1,37 @@
 // Example modal component for testing modal functionality
-import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
-import { ModalComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { ModalSubmitInteraction, TextInputStyle } from 'discord.js';
+import { ModalComponent, ModalBuildOptions, TextInputOptions } from '@/core/classes/ModalComponent';
+import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 import AsciiTable from 'ascii-table';
 
-export const MessageComponent: ModalComponent = {
-	id: 'test-modal',
-	type: ComponentTypes.Modal,
+/**
+ * TestModal - Example modal component for testing modal functionality
+ */
+export class TestModal extends ModalComponent<unknown> {
+	id = 'test-modal';
+	title = 'Test Modal';
+	fields = [];
 
-	async build(_client) {
-		// Create text input field for testing
-		const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
-			new TextInputBuilder()
-				.setCustomId('test-modal-input')
-				.setPlaceholder('Test Input')
-				.setStyle(TextInputStyle.Short)
-				.setLabel('Test Input')
-		);
-		return new ModalBuilder()
-			.setTitle('Test Modal')
-			.setCustomId('test-modal')
-			.setComponents([row]);
-	},
+	async build(client: Client, _options: ModalBuildOptions<unknown>) {
+		const field: TextInputOptions = {
+			custom_id: 'test-modal-input',
+			placeholder: 'Test Input',
+			style: TextInputStyle.Short,
+			label: 'Test Input',
+		};
+		return super.build(client, {
+			title: this.title,
+			fields: [field],
+			data: {},
+		});
+	}
 
-	async execute(interaction, _client, fields) {
+	async execute(
+		interaction: ModalSubmitInteraction,
+		_client: Client,
+		fields: Map<string, { value: string }>
+	) {
 		// Log modal response in a formatted table
 		logger.info(
 			'\n' +
@@ -38,7 +46,7 @@ export const MessageComponent: ModalComponent = {
 			content: `This is a test modal! You said: ${fields.get('test-modal-input')?.value}`,
 			ephemeral: true,
 		});
-	},
-};
+	}
+}
 
-export default MessageComponent;
+export default TestModal;

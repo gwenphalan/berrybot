@@ -1,44 +1,25 @@
-import { ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { ButtonInteraction, PermissionFlagsBits } from 'discord.js';
+import { ButtonComponent } from '@/core/classes/ButtonComponent';
+import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 
-// Example button component for testing custom ID data handling
-export const MessageComponent: ButtonComponent = {
-	id: 'test-button',
-	type: ComponentTypes.Button,
-	permissions: [PermissionFlagsBits.ManageEvents, PermissionFlagsBits.ManageRoles],
+/**
+ * Example button component for testing custom ID data handling
+ */
+export class TestButton extends ButtonComponent<{
+	boolean: boolean;
+	number: number;
+	string: string;
+	array: number[];
+}> {
+	id = 'test-button';
+	label = 'Test Button';
+	style = 1; // ButtonStyle.Primary
+	static permissions = [PermissionFlagsBits.ManageEvents, PermissionFlagsBits.ManageRoles];
 
-	async build(client) {
-		logger.debug('Building test button component');
-
-		// Example JSON data to demonstrate custom ID serialization
-		const testJSON = {
-			type: 'modal',
-			id: 'mod_history',
-			userId: '123456789012345678',
-			page: 2,
-			filters: {
-				sort: 'recent',
-				category: 'moderation',
-				tags: ['bans', 'kicks', 'mutes'],
-				priority: 'high',
-				resolved: false,
-			},
-		};
-
-		// Create a primary button with serialized data in custom ID
-		const button = new ButtonBuilder()
-			.setCustomId(await client.getCustomID(this.id, testJSON))
-			.setLabel('Test Button')
-			.setStyle(ButtonStyle.Primary);
-
-		logger.debug('Test button built successfully');
-		return button;
-	},
-
-	execute(
-		interaction,
-		_client,
+	async execute(
+		interaction: ButtonInteraction,
+		_client: Client,
 		data: {
 			boolean: boolean;
 			number: number;
@@ -53,7 +34,7 @@ export const MessageComponent: ButtonComponent = {
 			content: `This is a test button!`,
 			ephemeral: true,
 		});
-	},
-};
+	}
+}
 
-export default MessageComponent;
+export default TestButton;

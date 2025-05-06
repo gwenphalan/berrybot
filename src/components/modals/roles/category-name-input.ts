@@ -1,45 +1,46 @@
-import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
-import { ModalComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { ModalSubmitInteraction, TextInputStyle } from 'discord.js';
+import { ModalComponent, ModalBuildOptions, TextInputOptions } from '@/core/classes/ModalComponent';
+import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 
 /**
- *  -
- * Handles
+ * CategoryNameInputModal - Modal for creating or editing a category name
  */
-export const MessageComponent: ModalComponent = {
-	id: 'roles:category-name-input',
-	type: ComponentTypes.Modal,
+export class CategoryNameInputModal extends ModalComponent<{
+	action: 'create' | 'edit';
+	category?: string;
+}> {
+	id = 'category-name-input';
+	parent = 'roles';
+	title = 'Category Name';
+	fields = [];
 
 	async build(
-		client: any,
-		data: { action: 'create' | 'edit'; category?: string }
-	): Promise<ModalBuilder> {
-		logger.debug('Building  modal component');
-
-		const row = new ActionRowBuilder<TextInputBuilder>().addComponents(
-			new TextInputBuilder()
-				.setCustomId('category-name')
-				.setPlaceholder(data.action === 'create' ? 'New Category' : data.category || '')
-				.setStyle(TextInputStyle.Short)
-				.setLabel('Category Name')
-				.setRequired()
-				.setMinLength(0)
-				.setMaxLength(32)
-		);
-
-		const modal = new ModalBuilder()
-			.setTitle(data.action === 'create' ? 'Create Category' : 'Edit Category Name')
-			.setCustomId(client.getCustomID(this.id, data))
-			.setComponents([row]);
-
-		logger.debug('Category name input modal built successfully');
-		return modal;
-	},
+		client: Client,
+		options: ModalBuildOptions<{ action: 'create' | 'edit'; category?: string }>
+	) {
+		logger.debug('Building category name input modal component');
+		const field: TextInputOptions = {
+			custom_id: 'category-name',
+			placeholder:
+				options.data.action === 'create' ? 'New Category' : options.data.category || '',
+			style: TextInputStyle.Short,
+			label: 'Category Name',
+			required: true,
+			min_length: 0,
+			max_length: 32,
+		};
+		return super.build(client, {
+			title: options.data.action === 'create' ? 'Create Category' : 'Edit Category Name',
+			fields: [field],
+			data: options.data,
+		});
+	}
 
 	async execute(
-		interaction,
-		client,
-		response,
+		interaction: ModalSubmitInteraction,
+		client: Client,
+		response: Map<string, { value: string }>,
 		data: { action: 'create' | 'edit'; category: string }
 	) {
 		const _name = response.get('category-name')?.value;
@@ -49,7 +50,7 @@ export const MessageComponent: ModalComponent = {
 		const guildSettings = await client.database.guildSettings.get(interaction.guildId);
 		if (!guildSettings) return flow.handle(interaction, client, data);
 		logger.debug({ response }, ' modal submitted with fields');
-	},
-};
+	}
+}
 
-export default MessageComponent;
+export default CategoryNameInputModal;

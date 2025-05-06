@@ -1,6 +1,8 @@
 import * as discord from 'discord.js';
 import { MessageBuilder, Client } from '@/core/interfaces';
-import { Paginator_BackButton, Paginator_NextButton, Paginator_CloseButton } from '../components';
+import PaginatorBackButton from '@/components/buttons/paginator/back';
+import PaginatorNextButton from '@/components/buttons/paginator/next';
+import PaginatorCloseButton from '@/components/buttons/paginator/close';
 import { Collection } from 'discord.js';
 import { logger } from '@/core/logging/Logger';
 
@@ -35,20 +37,14 @@ export const paginator: MessageBuilder = {
 		logger.debug({ id, pageCount: pages.length }, 'Registered paginator in books collection');
 
 		// Component data
-		const backButtonData = {
-			id,
-		};
-
-		const nextButtonData = {
-			id,
-		};
-
+		const backButtonData = { id };
+		const nextButtonData = { id };
 		logger.debug({ backButtonData, nextButtonData }, 'Prepared button data');
 
-		// Build components
-		const backButton = await Paginator_BackButton.build(client, backButtonData);
-		const nextButton = await Paginator_NextButton.build(client, nextButtonData);
-		const closeButton = await Paginator_CloseButton.build(client);
+		// Build components using the new class-based system
+		const backButton = await new PaginatorBackButton().build(client, backButtonData);
+		const nextButton = await new PaginatorNextButton().build(client, nextButtonData);
+		const closeButton = await new PaginatorCloseButton().build(client, undefined);
 
 		logger.debug('Built all paginator buttons');
 

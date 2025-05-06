@@ -1,5 +1,6 @@
-import { ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { ButtonInteraction, PermissionFlagsBits } from 'discord.js';
+import { ButtonComponent } from '@/core/classes/ButtonComponent';
+import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
 
@@ -7,27 +8,18 @@ import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
  * Name Input - Triggers name input modal
  * Handles name button in role category edit menu
  */
-export const MessageComponent: ButtonComponent = {
-	id: 'roles:category-edit:name',
-	type: ComponentTypes.Button,
-	permissions: [PermissionFlagsBits.ManageRoles],
+export class CategoryEditNameButton extends ButtonComponent<{ category: string }> {
+	id = 'name';
+	group = 'category-edit';
+	parent = 'roles';
+	label = 'Name';
+	style = 2; // ButtonStyle.Secondary
+	emoji = '✏️';
+	static permissions = [PermissionFlagsBits.ManageRoles];
 
-	async build(client, data: { category: string }) {
-		logger.debug({ data }, 'Building name input button component with data');
-
-		const button = new ButtonBuilder()
-			.setCustomId(await client.getCustomID(this.id, data))
-			.setLabel('Name')
-			.setStyle(ButtonStyle.Secondary)
-			.setEmoji('✏️');
-
-		logger.debug('Name input button built successfully');
-		return button;
-	},
-
-	async execute(interaction, client, data: { category: string }) {
+	async execute(interaction: ButtonInteraction, client: Client, data: { category: string }) {
 		const flow = client.flowManager.getHandler<RoleConfigFlow>(interaction.message.id);
-		logger.debug({ data }, this.id + 'button clicked with data');
+		logger.debug({ data }, this.id + ' button clicked with data');
 
 		if (!flow) {
 			logger.error('No flow found for message id', { messageId: interaction.message.id });
@@ -35,7 +27,7 @@ export const MessageComponent: ButtonComponent = {
 		}
 
 		flow.handle(interaction, client, data);
-	},
-};
+	}
+}
 
-export default MessageComponent;
+export default CategoryEditNameButton;

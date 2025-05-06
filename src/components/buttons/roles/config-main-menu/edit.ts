@@ -1,5 +1,6 @@
-import { ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '@/core/interfaces/MessageComponent';
+import { ButtonInteraction, PermissionFlagsBits } from 'discord.js';
+import { ButtonComponent } from '@/core/classes/ButtonComponent';
+import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
 
@@ -7,27 +8,16 @@ import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
  * Edit Role Category - Triggers select menu for role categories to edit
  * Handles edit button in role category edit menu
  */
-export const MessageComponent: ButtonComponent = {
-	id: 'roles:config-main-menu:edit',
-	type: ComponentTypes.Button,
-	permissions: [PermissionFlagsBits.ManageRoles],
+export class ConfigMainMenuEditButton extends ButtonComponent<undefined> {
+	id = 'roles:config-main-menu:edit';
+	label = 'Edit';
+	style = 2; // ButtonStyle.Secondary
+	emoji = '✏️';
+	static permissions = [PermissionFlagsBits.ManageRoles];
 
-	async build(client) {
-		logger.debug('Building create role category button component');
-
-		const button = new ButtonBuilder()
-			.setCustomId(await client.getCustomID(this.id))
-			.setStyle(ButtonStyle.Secondary)
-			.setLabel('Edit')
-			.setEmoji('✏️');
-
-		logger.debug('Edit button built successfully');
-		return button;
-	},
-
-	async execute(interaction, client) {
+	async execute(interaction: ButtonInteraction, client: Client) {
 		const flow = client.flowManager.getHandler<RoleConfigFlow>(interaction.message.id);
-		logger.debug(this.id + 'button clicked with data');
+		logger.debug(this.id + ' button clicked');
 
 		if (!flow) {
 			logger.error('No flow found for message id', { messageId: interaction.message.id });
@@ -35,7 +25,7 @@ export const MessageComponent: ButtonComponent = {
 		}
 
 		await flow.handle(interaction, client);
-	},
-};
+	}
+}
 
-export default MessageComponent;
+export default ConfigMainMenuEditButton;

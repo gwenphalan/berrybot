@@ -1,42 +1,40 @@
 // Example multi-select menu component for testing purposes
-import { StringSelectMenuBuilder } from 'discord.js';
-import { ComponentTypes, SelectMenuComponent } from '@/core/interfaces/MessageComponent';
+import { StringSelectMenuInteraction, APISelectMenuOption } from 'discord.js';
+import { StringSelectMenuComponent } from '@/core/classes/StringSelectMenuComponent';
+import type { Client } from '@/core/client/BerryClient';
 
-export const MessageComponent: SelectMenuComponent = {
-	id: 'test-multi-select',
-	type: ComponentTypes.SelectMenu,
-	multi_select: true,
+class TestMultiSelectMenu extends StringSelectMenuComponent<object> {
+	id = 'test-multi-select';
+	placeholder = 'Test Select';
+	min_values = 1;
+	max_values = 3;
 
-	async build(_client) {
-		// Create a test menu with 3 options, allowing 1-3 selections
-		return new StringSelectMenuBuilder()
-			.setCustomId('test-select')
-			.setPlaceholder('Test Select')
-			.setMinValues(1)
-			.setMaxValues(3)
-			.addOptions([
-				{
-					label: 'Test Option 1',
-					value: 'test-option-1',
-				},
-				{
-					label: 'Test Option 2',
-					value: 'test-option-2',
-				},
-				{
-					label: 'Test Option 3',
-					value: 'test-option-3',
-				},
-			]);
-	},
+	async build(client: Client, options: { data: object }) {
+		const select = await super.build(client, {
+			placeholder: this.placeholder,
+			min_values: this.min_values,
+			max_values: this.max_values,
+			options: [
+				{ label: 'Test Option 1', value: 'test-option-1' },
+				{ label: 'Test Option 2', value: 'test-option-2' },
+				{ label: 'Test Option 3', value: 'test-option-3' },
+			],
+			data: options.data,
+		});
+		return select;
+	}
 
-	execute(interaction, _client, selected) {
-		// Display selected options in a comma-separated list
-		interaction.reply({
+	async execute(
+		interaction: StringSelectMenuInteraction,
+		client: Client,
+		selected: APISelectMenuOption[],
+		_data: object
+	) {
+		await interaction.reply({
 			content: `You selected ${selected.map((option) => option.label).join(', ')}`,
 			ephemeral: true,
 		});
-	},
-};
+	}
+}
 
-export default MessageComponent;
+export default TestMultiSelectMenu;

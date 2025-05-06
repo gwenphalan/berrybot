@@ -29,31 +29,11 @@
 
 ## Overview
 
-Message components in BerryBot are modular, reusable UI elements that can be added to Discord messages. They include buttons, select menus, and modals, each with their own interaction handling.
+Message components in BerryBot are modular, reusable UI elements that can be added to Discord messages. They include buttons, select menus, and modals, each with their own interaction handling. All components are implemented as classes extending abstract base classes, providing type safety, modularity, and extensibility.
 
 ## Component Types
 
-Each component must be named `MessageComponent` and use its corresponding interface from the MessageComponent interfaces:
-
-```typescript
-// Button Component
-import { ButtonComponent, ComponentTypes } from '../interfaces/MessageComponent';
-export const MessageComponent: ButtonComponent = {
-	// Component implementation
-};
-
-// Select Menu Component
-import { SelectMenuComponent, ComponentTypes } from '../interfaces/MessageComponent';
-export const MessageComponent: SelectMenuComponent = {
-	// Component implementation
-};
-
-// Modal Component
-import { ModalComponent, ComponentTypes } from '../interfaces/MessageComponent';
-export const MessageComponent: ModalComponent = {
-	// Component implementation
-};
-```
+Each component is implemented as a class extending the appropriate abstract base class from `src/core/classes/`:
 
 ### 1. Buttons
 
@@ -61,19 +41,29 @@ Interactive clickable elements that can trigger actions or navigation.
 Located in `src/components/buttons/`
 
 ```typescript
-import { ButtonBuilder, ButtonStyle } from 'discord.js';
-import { ButtonComponent, ComponentTypes } from '../interfaces/MessageComponent';
+import { ButtonComponent } from '@/core/classes/ButtonComponent';
+import type { Client } from '@/core/client/BerryClient';
+import * as discord from 'discord.js';
 
-export const MessageComponent: ButtonComponent = {
-	id: 'example-button',
-	type: ComponentTypes.Button,
-	async build(client, data) {
-		return new ButtonBuilder()
-			.setCustomId(client.getCustomID(this.id, data))
-			.setLabel('Click Me')
-			.setStyle(ButtonStyle.Primary);
-	},
-};
+class ExampleButton extends ButtonComponent<{ count?: number }> {
+	id = 'example-button';
+	label = 'Click Me';
+	style = discord.ButtonStyle.Primary;
+
+	async build(client: Client, data?: { count?: number }) {
+		return await super.build(client, data);
+	}
+
+	async execute(
+		interaction: discord.ButtonInteraction,
+		client: Client,
+		data?: { count?: number }
+	) {
+		// Handle interaction
+	}
+}
+
+export default ExampleButton;
 ```
 
 ### 2. Select Menus
@@ -82,25 +72,40 @@ Dropdown menus for selecting one or multiple options.
 Located in `src/components/selectMenus/`
 
 ```typescript
-import { StringSelectMenuBuilder } from 'discord.js';
-import { SelectMenuComponent, ComponentTypes } from '../interfaces/MessageComponent';
+import { StringSelectMenuComponent } from '@/core/classes/StringSelectMenuComponent';
+import type { Client } from '@/core/client/BerryClient';
+import * as discord from 'discord.js';
 
-export const MessageComponent: SelectMenuComponent = {
-	id: 'example-select',
-	type: ComponentTypes.SelectMenu,
-	multi_select: true,
-	async build(client, data) {
-		return new StringSelectMenuBuilder()
-			.setCustomId(client.getCustomID(this.id, data))
-			.setPlaceholder('Select Options')
-			.setMinValues(1)
-			.setMaxValues(3)
-			.addOptions([
+class ExampleSelectMenu extends StringSelectMenuComponent<object> {
+	id = 'example-select';
+	placeholder = 'Select Options';
+	min_values = 1;
+	max_values = 3;
+
+	async build(client: Client, options?: { data?: object }) {
+		return await super.build(client, {
+			placeholder: this.placeholder,
+			min_values: this.min_values,
+			max_values: this.max_values,
+			options: [
 				{ label: 'Option 1', value: 'opt1' },
 				{ label: 'Option 2', value: 'opt2' },
-			]);
-	},
-};
+			],
+			...options,
+		});
+	}
+
+	async execute(
+		interaction: discord.StringSelectMenuInteraction,
+		client: Client,
+		selected: discord.APISelectMenuOption,
+		data?: object
+	) {
+		// Handle interaction
+	}
+}
+
+export default ExampleSelectMenu;
 ```
 
 ### 3. Modals
@@ -109,24 +114,35 @@ Form-like interfaces for collecting user input.
 Located in `src/components/modals/`
 
 ```typescript
-import { ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
-import { ModalComponent, ComponentTypes } from '../interfaces/MessageComponent';
+import { ModalComponent, TextInputOptions } from '@/core/classes/ModalComponent';
+import type { Client } from '@/core/client/BerryClient';
+import * as discord from 'discord.js';
 
-export const MessageComponent: ModalComponent = {
-	id: 'example-modal',
-	type: ComponentTypes.Modal,
-	async build(client, data) {
-		const input = new TextInputBuilder()
+class ExampleModal extends ModalComponent<object> {
+	id = 'example-modal';
+	title = 'Example Modal';
+	fields = [
+		new discord.TextInputBuilder()
 			.setCustomId('input')
 			.setLabel('Enter Text')
-			.setStyle(TextInputStyle.Short);
+			.setStyle(discord.TextInputStyle.Short),
+	];
 
-		return new ModalBuilder()
-			.setCustomId(client.getCustomID(this.id, data))
-			.setTitle('Example Modal')
-			.addComponents(input);
-	},
-};
+	async build(client: Client, options?: { data?: object }) {
+		return await super.build(client, options);
+	}
+
+	async execute(
+		interaction: discord.ModalSubmitInteraction,
+		client: Client,
+		fields: discord.Collection<string, discord.TextInputComponent>,
+		data?: object
+	) {
+		// Handle interaction
+	}
+}
+
+export default ExampleModal;
 ```
 
 ## Component Structure
@@ -136,27 +152,36 @@ export const MessageComponent: ModalComponent = {
 | Property       | Type                    | Description                                    | Required |
 | -------------- | ----------------------- | ---------------------------------------------- | -------- |
 | `id`           | `string`                | Unique identifier for the component            | Yes      |
-| `type`         | `ComponentTypes`        | Type of component (Button/SelectMenu/Modal)    | Yes      |
+| `parent`       | `string`                | Parent identifier for hierarchical IDs         | No       |
+| `group`        | `string`                | Group identifier for hierarchical IDs          | No       |
+| `style`        | `ButtonStyle`           | Button style (buttons only)                    | No       |
+| `label`        | `string`                | Button label (buttons only)                    | No       |
+| `placeholder`  | `string`                | Placeholder text (select menus only)           | No       |
+| `min_values`   | `number`                | Minimum selections (select menus only)         | No       |
+| `max_values`   | `number`                | Maximum selections (select menus only)         | No       |
 | `permissions`  | `PermissionFlagsBits[]` | Required permissions to use the component      | No       |
-| `multi_select` | `boolean`               | Enable multiple selections (Select Menus only) | No       |
+| `multi_select` | `boolean`               | Enable multiple selections (select menus only) | No       |
 
 ### Build Method
 
-The `build` method creates the component instance with its configuration:
+The `build` method creates the component instance with its configuration. **All build options are now optional.**
 
 ```typescript
-async build(client: Client, data?: any) {
+async build(client: Client, options?: BuildOptionsType) {
     // Create and configure component
     return component;
 }
 ```
+
+- You may omit the `options` argument if you do not need to pass any dynamic data.
+- The `data` property inside options is also optional.
 
 ### Execute Method
 
 The `execute` method handles component interactions:
 
 ```typescript
-async execute(interaction: ComponentInteraction, client: Client, data?: any) {
+async execute(interaction: ComponentInteraction, client: Client, ...args) {
     // Handle interaction
 }
 ```
@@ -167,7 +192,7 @@ Components can store persistent data in their custom IDs using the client's `get
 
 ### Custom ID Format
 
-Components can use a structured custom ID format to organize and group related components. The format supports parent and group identifiers:
+Components use a structured custom ID format to organize and group related components. The format supports parent and group identifiers:
 
 ```typescript
 // Format: parent:group:componentId
@@ -292,7 +317,7 @@ const testJSON = {
 };
 
 const button_id = await client.getCustomID('test-button', testJSON);
-// Returns: "test-button[ᯡࠫ䅜Ā匰ᜨאỠጢణㄠ㑀আ䆅栯倢恠材⠤炯ࠢ巉你䦃ࠨ怩䀹䀥䀵䀭䀽䀣䀳䀡䁄≬獈డ暑爛瀣ᠲ挡浡ᑕ͐ጔ〣ಀǹ々壬㇁䧂⩔ຎѰ໬ね⧜;∠ɐ恚丐öɻʜ㤥䲊〥氁∈ș䠲ᔦ䊹䎁㋠ǘ悘竸瘠⿃⠠]"
+// Returns: "test-button[compressedData]"
 
 // Example with simple data:
 const simpleData = {
@@ -335,30 +360,32 @@ const simple_id = await client.getCustomID('test-button', simpleData);
 ### Example Implementation
 
 ```typescript
-export const MessageComponent: ButtonComponent = {
-	id: 'example-button',
-	type: ComponentTypes.Button,
+import { ButtonComponent } from '@/core/classes/ButtonComponent';
+import type { Client } from '@/core/client/BerryClient';
+import * as discord from 'discord.js';
 
-	async build(client, data) {
+class ExampleButton extends ButtonComponent<{ count?: number }> {
+	id = 'example-button';
+	label = 'Click Me';
+	style = discord.ButtonStyle.Primary;
+
+	async build(client: Client, data?: { count?: number }) {
 		// Store data in custom ID
-		const customId = client.getCustomID(this.id, {
-			action: 'increment',
-			count: data.count || 0,
-			timestamp: Date.now(),
-		});
+		return await super.build(client, data);
+	}
 
-		return new ButtonBuilder()
-			.setCustomId(customId)
-			.setLabel('Click Me')
-			.setStyle(ButtonStyle.Primary);
-	},
-
-	async execute(interaction, client, data) {
+	async execute(
+		interaction: discord.ButtonInteraction,
+		client: Client,
+		data?: { count?: number }
+	) {
 		// Access stored data
-		const { count, timestamp } = data;
+		const { count } = data || {};
 		// Handle interaction
-	},
-};
+	}
+}
+
+export default ExampleButton;
 ```
 
 ## Directory Structure

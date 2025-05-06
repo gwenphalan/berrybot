@@ -12,12 +12,9 @@ import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
 import { Client } from '@/core/client/BerryClient';
 import { FlowState } from '@/core/interfaces/Flow';
 import { logger } from '@/core/logging/Logger';
-// Import main menu components
-import {
-	Roles_ConfigMainMenu_Create,
-	Roles_ConfigMainMenu_Edit,
-	Roles_ConfigMainMenu_Message,
-} from '@/components';
+import ConfigMainMenuCreateButton from '@/components/buttons/roles/config-main-menu/create';
+import ConfigMainMenuEditButton from '@/components/buttons/roles/config-main-menu/edit';
+import ConfigMainMenuMessageButton from '@/components/buttons/roles/config-main-menu/message';
 
 /**
  * Main Menu - Main menu for self roles configuration
@@ -77,30 +74,34 @@ export const MainMenu: MessageBuilder = {
 		const categories = guildSettings.selfRoles.categories;
 
 		// Add categories to embed, each category is a field with a list of the roles in the category
-		categories.forEach((category) => {
+		for (const category of categories) {
 			const roleIds = category.roles;
 			const roles: string[] = [];
-			roleIds.forEach(async (roleId) => {
+			for (const roleId of roleIds) {
 				let role: Role | undefined = interaction.guild?.roles.cache.get(roleId);
 				if (!role) {
-					const fetchedRole = await interaction.guild?.roles.fetch(roleId); // fetch from guild
-					if (fetchedRole) {
-						role = fetchedRole;
+					try {
+						const fetchedRole = await interaction.guild?.roles.fetch(roleId);
+						if (fetchedRole) {
+							role = fetchedRole;
+						}
+					} catch (e) {
+						logger.warn({ roleId, error: e }, 'Failed to fetch role');
 					}
 				}
 				if (role) {
 					roles.push(role.toString());
 				}
-			});
-
+			}
 			embed.addFields({
 				name: category.name,
-				value: roles.join('\n'),
+				value: roles.length > 0 ? roles.join('\n') : 'No roles',
 			});
-		});
-		const createBtn = await Roles_ConfigMainMenu_Create.build(client);
-		const editBtn = await Roles_ConfigMainMenu_Edit.build(client);
-		const messageBtn = await Roles_ConfigMainMenu_Message.build(client);
+		}
+
+		const createBtn = await new ConfigMainMenuCreateButton().build(client, undefined);
+		const editBtn = await new ConfigMainMenuEditButton().build(client, undefined);
+		const messageBtn = await new ConfigMainMenuMessageButton().build(client, undefined);
 
 		// Create action row with components
 		const rows = [
