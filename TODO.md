@@ -114,15 +114,15 @@ This document outlines key improvements to bring BerryBot up to date with the la
       ...
     ```
 
-- [ ] Refactor: Upgrade bot core to support components v2
+- [x] Refactor: Upgrade bot core to support components v2
 
-    - [ ] Audit all usages of message components (buttons, select menus, modals)
-    - [ ] Review and update custom ID parsing and validation logic for new component structure
-    - [ ] Ensure all select menus and modals use the latest builder APIs and features (e.g., default_values)
-    - [ ] Update or add TypeScript types/interfaces for any new component types or data
-    - [ ] Test and validate all component flows (manual and automated)
-    - [ ] Update documentation and code comments to reflect new component APIs and patterns
-    - [ ] Remove any deprecated helpers/utilities related to old component APIs
+    - [x] Audit all usages of message components (buttons, select menus, modals)
+    - [x] Review and update custom ID parsing and validation logic for new component structure
+    - [x] Ensure all select menus and modals use the latest builder APIs and features (e.g., default_values)
+    - [x] Update or add TypeScript types/interfaces for any new component types or data
+    - [x] Test and validate all component flows (manual and automated)
+    - [x] Update documentation and code comments to reflect new component APIs and patterns
+    - [x] Remove any deprecated helpers/utilities related to old component APIs
 
 - [ ] Finish porting self-roles feature to new Flow architecture
     - [ ] Create `category-edit` page and corresponding message components
