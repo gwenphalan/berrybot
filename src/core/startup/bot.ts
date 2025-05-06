@@ -1,6 +1,3 @@
-// Import the register-aliases.ts file first
-import './register-aliases';
-
 import { GatewayIntentBits, Partials } from 'discord.js';
 import { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';

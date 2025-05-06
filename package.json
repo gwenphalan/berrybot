@@ -5,8 +5,8 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "tsc",
-		"start": "yarn build && node -r dotenv/config dist/index.js",
-		"dev": "yarn build && node dist/bot.js",
+		"start": "yarn build && cross-env NODE_ENV=production node -r dotenv/config dist/index.js",
+		"start:dev": "yarn build && cross-env NODE_ENV=development node -r dotenv/config dist/index.js --dev",
 		"lint": "eslint ./src/**/*.ts --fix",
 		"format": "prettier --write \"src/**/*.{ts,js,json}\"",
 		"format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
@@ -66,6 +66,7 @@
 		"@types/yargs": "^17.0.33",
 		"@typescript-eslint/eslint-plugin": "^8.32.0",
 		"@typescript-eslint/parser": "^8.32.0",
+		"cross-env": "^7.0.3",
 		"eslint": "^9.26.0",
 		"eslint-config-prettier": "^10.0.0",
 		"eslint-plugin-prettier": "^5.0.0",

@@ -1,8 +1,8 @@
 import * as discord from 'discord.js';
-import { MessageBuilder } from '../interfaces';
+import { MessageBuilder, Client } from '@/core/interfaces';
 import { Paginator_BackButton, Paginator_NextButton, Paginator_CloseButton } from '../components';
 import { Collection } from 'discord.js';
-import { logger } from '../util';
+import { logger } from '@/core/logging/Logger';
 
 export const books = new Collection<string, string[]>();
 
@@ -18,7 +18,7 @@ export const paginator: MessageBuilder = {
 	],
 	components: [],
 	async build(
-		client,
+		client: Client,
 		id: string,
 		pages: string[],
 		title: string,

@@ -31,7 +31,6 @@ const FlowsSchema = new mongoose.Schema(
 		messageId: {
 			type: String,
 			required: true,
-			index: true,
 		},
 		userId: {
 			type: String,

@@ -1,5 +1,5 @@
+import { Client, MessageBuilder } from '@/core/interfaces';
 import * as discord from 'discord.js';
-import { MessageBuilder } from '../interfaces';
 
 // Example message builder demonstrating basic message construction
 export const example: MessageBuilder = {
@@ -9,7 +9,7 @@ export const example: MessageBuilder = {
 			.setDescription('This is an example message.'),
 	],
 	components: [new discord.ActionRowBuilder<discord.ButtonBuilder>()],
-	async build(client) {
+	async build(client: Client) {
 		// Example data to demonstrate custom ID generation
 		const testJSON = {
 			boolean: true,
