@@ -1,4 +1,5 @@
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
+import { logger } from '@/core/logging/Logger';
 
 export interface CustomIdOptions {
 	parent?: string;
@@ -62,6 +63,7 @@ export function parseCustomId<T = any>(customId: string): ParsedCustomId<T> {
 			const json = decompressFromUTF16(compressedData);
 			data = json ? JSON.parse(json) : undefined;
 		} catch (e) {
+			logger.error(`Error decompressing data from customId: ${customId}. Error: ${e}`);
 			data = undefined;
 		}
 	}

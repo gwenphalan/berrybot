@@ -11,7 +11,7 @@ export const example: MessageBuilder = {
 			.setDescription('This is an example message.'),
 	],
 	components: [new discord.ActionRowBuilder<discord.ButtonBuilder>()],
-	async build(client: Client) {
+	async build(_client: Client) {
 		// Example data to demonstrate custom ID generation
 		const testJSON = {
 			boolean: true,
