@@ -55,14 +55,7 @@ export class ComponentManager {
 export const loadComponents = async (client: Client) => {
 	const table = new AsciiTable().setHeading('Type', 'Name', 'Status');
 
-	// Use ComponentManager for component registration
-	/** @ts-expect-error: componentManager is a runtime extension of Client for component management */
-	if (!client.componentManager) {
-		/** @ts-expect-error: componentManager is a runtime extension of Client for component management */
-		client.componentManager = new ComponentManager(client);
-	}
-	/** @ts-expect-error: componentManager is a runtime extension of Client for component management */
-	const manager = client.componentManager as ComponentManager;
+	const manager = client.componentManager;
 
 	// Clear existing components before loading new ones in case of reload
 	logger.debug('Clearing existing message components...');

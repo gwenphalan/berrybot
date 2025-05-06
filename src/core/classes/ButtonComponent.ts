@@ -33,7 +33,9 @@ export abstract class ButtonComponent<TData = unknown> {
 			idString = this.id;
 		}
 
-		const customId = client.getCustomID(idString, data);
+		const customId = client.utils.CustomId.createCustomId(idString, {
+			data: data as Record<string, any>,
+		});
 		builder.setCustomId(customId);
 		return builder;
 	}

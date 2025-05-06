@@ -1,5 +1,6 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
+import { createCustomId } from '@/core/utils/CustomIdUtils';
 
 export interface StringSelectMenuBuildOptions<TData = unknown> {
 	placeholder?: string;
@@ -42,7 +43,7 @@ export abstract class StringSelectMenuComponent<TData = unknown> {
 		} else {
 			idString = this.id;
 		}
-		const customId = client.getCustomID(idString, options?.data);
+		const customId = createCustomId(idString, { data: options?.data as Record<string, any> });
 		builder.setCustomId(customId);
 		return builder;
 	}

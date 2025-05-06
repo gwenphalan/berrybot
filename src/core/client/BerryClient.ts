@@ -3,13 +3,20 @@ import { config } from '@/core/config/config';
 import { database } from '@/core/config/database';
 import type { BaseCommand, SubCommand } from '@/core/interfaces/Command';
 import type { Event } from '@/core/interfaces/Event';
-import { BaseMessageComponent, MessageComponent } from '@/core/interfaces/MessageComponent';
 import { logger } from '@/core/logging/Logger';
-import { compressToUTF16 } from 'lz-string';
 import components from '@/components';
 import { FlowManager } from '@/core/managers/FlowManager';
 import { loadEvents } from '@/core/managers/EventHandler';
-import { loadComponents } from '@/core/managers/MessageComponentHandler';
+import { loadComponents, ComponentManager } from '@/core/managers/ComponentManager';
+import { BaseMessageComponent } from '@/core/interfaces/MessageComponent';
+import { ChannelSelectMenuComponent } from '@/core/classes/ChannelSelectMenuComponent';
+import { StringSelectMenuComponent } from '@/core/classes/StringSelectMenuComponent';
+import { ButtonComponent } from '@/core/classes/ButtonComponent';
+import { ModalComponent } from '@/core/classes/ModalComponent';
+import { UserSelectMenuComponent } from '@/core/classes/UserSelectMenuComponent';
+import { RoleSelectMenuComponent } from '@/core/classes/RoleSelectMenuComponent';
+import { MentionableSelectMenuComponent } from '@/core/classes/MentionableSelectMenuComponent';
+import * as utils from '@/core/utils';
 /**
  * Extended Discord.js Client class that adds custom functionality
  * for command handling, event management, and component interactions
@@ -21,14 +28,28 @@ export class Client extends BaseClient {
 	subCommands = new Collection<string, SubCommand>();
 	/** Collection of registered event handlers */
 	events = new Collection<string, Event['execute']>();
+	/** import of all components */
 	/** Collection of registered message components (buttons, select menus, modals) */
-	messageComponents = new Collection<string, BaseMessageComponent | MessageComponent>();
+	messageComponents = new Collection<
+		string,
+		| BaseMessageComponent
+		| ButtonComponent
+		| StringSelectMenuComponent
+		| ChannelSelectMenuComponent
+		| ModalComponent
+		| UserSelectMenuComponent
+		| RoleSelectMenuComponent
+		| MentionableSelectMenuComponent
+	>();
 	/** import of all components */
 	componentBuilders = components;
 	// Flow Handler
 	flowManager = new FlowManager(this);
 	/** Database instance for data persistence */
 	database = database;
+	/** Expose all core utilities */
+	utils: typeof utils;
+	componentManager: ComponentManager = new ComponentManager(this);
 
 	/**
 	 * Creates a new Client instance with specified intents and partials
@@ -40,6 +61,8 @@ export class Client extends BaseClient {
 			partials: config.partials,
 		});
 		logger.debug('Client instance created with intents and partials');
+		this.utils = utils;
+		this.componentManager = new ComponentManager(this);
 	}
 
 	/**
@@ -64,58 +87,6 @@ export class Client extends BaseClient {
 		// Login to Discord
 		logger.debug('Logging in to Discord...');
 		return this.login(config.token);
-	}
-
-	/**
-	 * Generates a custom ID for message components with optional compressed data
-	 * @param id - Base component ID
-	 * @param data - Optional data to be compressed and included in the custom ID
-	 * @returns Formatted custom ID string
-	 */
-	getCustomID(id: string, data?: any): string {
-		logger.debug(`Generating custom ID for component: ${id}`);
-
-		if (!data || Object.keys(data).length === 0 || data === undefined) {
-			logger.debug(`No data provided, returning base ID: ${id}`);
-			return id;
-		}
-
-		const dataJson = JSON.stringify(data, null, 0);
-		const compressed = compressToUTF16(dataJson);
-		const value = `${id}[${compressed.length < dataJson.length ? compressed : dataJson}]`;
-
-		logger.debug(
-			{
-				componentId: id,
-				jsonLength: dataJson.length,
-				compressedLength: compressed.length,
-				isCompressed: compressed.length < dataJson.length,
-				finalLength: value.length,
-			},
-			'Custom ID generation details'
-		);
-
-		// Log compression details
-		logger.debug(`Data JSON (Length: ${dataJson.length}): ${dataJson}`);
-		logger.debug(`Data String (Length: ${compressed.length}): ${compressed}`);
-		logger.debug(`Data Compressed: ${compressed.length < dataJson.length}`);
-
-		// Check if custom ID exceeds Discord's limit
-		if (value.length > 100) {
-			logger.error(
-				{
-					componentId: id,
-					totalLength: value.length,
-					idLength: id.length,
-					dataLength: value.length - id.length,
-				},
-				'Custom ID exceeds Discord limit of 100 characters'
-			);
-			return id;
-		}
-
-		logger.debug(`Generated custom ID: ${value}`);
-		return value;
 	}
 
 	/**

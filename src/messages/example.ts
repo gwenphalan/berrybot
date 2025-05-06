@@ -1,5 +1,6 @@
 import { Client, MessageBuilder } from '@/core/interfaces';
 import * as discord from 'discord.js';
+import { createCustomId } from '@/core/utils/CustomIdUtils';
 // import TestButton from '@/components/buttons/test'; // Uncomment if you have a test button component class
 
 // Example message builder demonstrating basic message construction
@@ -24,7 +25,7 @@ export const example: MessageBuilder = {
 		// If no such class exists, fallback to a simple button for demonstration
 		this.components[0].addComponents(
 			new discord.ButtonBuilder()
-				.setCustomId(client.getCustomID('test-button', testJSON))
+				.setCustomId(createCustomId('test-button', { data: testJSON }))
 				.setLabel('Test Button')
 				.setStyle(discord.ButtonStyle.Primary)
 		);

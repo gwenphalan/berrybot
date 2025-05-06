@@ -12,6 +12,7 @@ import type { Client, Event } from '@/core/interfaces';
 import { decompressFromUTF16 } from 'lz-string';
 import { logger } from '@/core/logging/Logger';
 import { ComponentManager } from '@/core/managers/MessageComponentHandler';
+import { parseCustomId } from '@/core/utils/CustomIdUtils';
 
 /**
  * Parses component customId to extract component ID, parent, group, and any compressed data
@@ -92,7 +93,7 @@ export const event: Event = {
 		// Parse the component's customId to get its ID and any stored data
 		const data =
 			'customId' in messageComponentInteraction
-				? parseData(messageComponentInteraction.customId)
+				? parseCustomId(messageComponentInteraction.customId)
 				: { id: '', data: undefined };
 
 		// Determine the type of component being interacted with

@@ -41,7 +41,9 @@ export abstract class ModalComponent<TData = unknown> {
 		} else {
 			idString = this.id;
 		}
-		const customId = client.getCustomID(idString, options?.data);
+		const customId = client.utils.CustomId.createCustomId(idString, {
+			data: options?.data as Record<string, any>,
+		});
 		builder.setCustomId(customId);
 
 		const fields = options?.fields

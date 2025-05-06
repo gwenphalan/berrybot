@@ -1,6 +1,7 @@
 # Build output
 dist/
 build/
+.cursorrules
 
 # Node dependencies
 node_modules/
