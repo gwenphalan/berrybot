@@ -1,3 +1,7 @@
+// TODO: Locale Migration
+// keys:
+//   select.channel.placeholder: 'Select a channel'
+
 import {
 	ChannelSelectMenuInteraction,
 	PermissionFlagsBits,
@@ -7,6 +11,7 @@ import {
 import { ChannelSelectMenuComponent } from '@/core/classes/ChannelSelectMenuComponent';
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
+import { t } from '@/core/utils/Locale';
 
 /**
  * ChannelSelectMenu - Selects a channel for the role message, single select
@@ -18,22 +23,31 @@ export class ChannelSelectMenu extends ChannelSelectMenuComponent<{
 }> {
 	id = 'channel-select';
 	parent = 'roles';
-	placeholder = 'Select a channel';
 	min_values = 1;
 	max_values = 1;
 	static permissions = [PermissionFlagsBits.ManageRoles];
 
 	async build(
 		client: Client,
-		options: { data: { channels: Collection<string, GuildBasedChannel> } }
+		options: { data: { channels: Collection<string, GuildBasedChannel> } },
+		sessionId?: string,
+		locale: string = 'en-US'
 	) {
+		const placeholderKey = 'select.channel.placeholder';
+		const placeholder = t(placeholderKey, { locale });
 		logger.debug({ data: options.data }, 'Building channel select menu component with data');
-		const select = await super.build(client, {
-			placeholder: this.placeholder,
-			min_values: this.min_values,
-			max_values: this.max_values,
-			data: options.data,
-		});
+		const select = await super.build(
+			client,
+			{
+				placeholder,
+				min_values: this.min_values,
+				max_values: this.max_values,
+				data: options.data,
+			},
+			sessionId,
+			placeholderKey,
+			locale
+		);
 		// Channel select menus do not support addOptions; options are determined by Discord based on channel types.
 		logger.debug('Channel Select select menu built successfully');
 		return select;

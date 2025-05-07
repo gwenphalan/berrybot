@@ -1,9 +1,17 @@
+// TODO: Locale Migration
+// keys:
+//   modal.test.title: 'Test Modal'
+//   modal.test.label: 'Test Input'
+//   modal.test.placeholder: 'Test Input'
+//   modal.test.reply: 'This is a test modal! You said: {{value}}'
+
 // Example modal component for testing modal functionality
 import { ModalSubmitInteraction, TextInputStyle } from 'discord.js';
 import { ModalComponent, ModalBuildOptions, TextInputOptions } from '@/core/classes/ModalComponent';
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 import AsciiTable from 'ascii-table';
+import { t } from '@/core/utils/Locale';
 
 /**
  * TestModal - Example modal component for testing modal functionality
@@ -17,24 +25,39 @@ export class TestModal extends ModalComponent<unknown> {
 		super('Test Modal', []);
 	}
 
-	async build(client: Client, _options: ModalBuildOptions<unknown>) {
+	async build(
+		client: Client,
+		_options: ModalBuildOptions<unknown> = { data: {} },
+		sessionId?: string,
+		locale: string = 'en-US'
+	) {
+		const titleKey = 'modal.test.title';
+		const labelKey = 'modal.test.label';
+		const placeholderKey = 'modal.test.placeholder';
 		const field: TextInputOptions = {
 			custom_id: 'test-modal-input',
-			placeholder: 'Test Input',
+			placeholder: t(placeholderKey, { locale }),
 			style: TextInputStyle.Short,
-			label: 'Test Input',
+			label: t(labelKey, { locale }),
 		};
-		return super.build(client, {
-			title: this.title,
-			fields: [field],
-			data: {},
-		});
+		return super.build(
+			client,
+			{
+				title: t(titleKey, { locale }),
+				fields: [field],
+				data: {},
+			},
+			sessionId,
+			titleKey,
+			locale
+		);
 	}
 
 	async execute(
 		interaction: ModalSubmitInteraction,
 		_client: Client,
-		fields: Map<string, { value: string }>
+		fields: Map<string, { value: string }>,
+		locale: string = 'en-US'
 	) {
 		// Log modal response in a formatted table
 		logger.info(
@@ -47,7 +70,10 @@ export class TestModal extends ModalComponent<unknown> {
 
 		// Reply to the interaction with the response
 		interaction.reply({
-			content: `This is a test modal! You said: ${fields.get('test-modal-input')?.value}`,
+			content: t('modal.test.reply', {
+				locale,
+				variables: { value: fields.get('test-modal-input')?.value ?? '' },
+			}),
 			ephemeral: true,
 		});
 	}

@@ -1,7 +1,13 @@
+// TODO: Locale Migration
+// keys:
+//   modal.category_delete_confirmation.title: 'Delete Confirmation'
+//   modal.category_delete_confirmation.label: 'Type {{category}} to confirm deletion.'
+
 import { ModalSubmitInteraction, TextInputStyle } from 'discord.js';
 import { ModalComponent, ModalBuildOptions, TextInputOptions } from '@/core/classes/ModalComponent';
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
+import { t } from '@/core/utils/Locale';
 
 /**
  * CategoryDeleteConfirmationModal - Modal for confirming deletion of a role category
@@ -16,21 +22,34 @@ export class CategoryDeleteConfirmationModal extends ModalComponent<{ category: 
 		super('Delete Confirmation', []);
 	}
 
-	async build(client: Client, options: ModalBuildOptions<{ category: string }>) {
+	async build(
+		client: Client,
+		options: ModalBuildOptions<{ category: string }> = { data: { category: '' } },
+		sessionId?: string,
+		locale: string = 'en-US'
+	) {
 		logger.debug('Building category delete confirmation modal component');
+		const titleKey = 'modal.category_delete_confirmation.title';
+		const labelKey = 'modal.category_delete_confirmation.label';
 		const field: TextInputOptions = {
 			custom_id: 'category-name',
 			style: TextInputStyle.Short,
-			label: `Type ${options.data.category} to confirm deletion.`,
+			label: t(labelKey, { locale, variables: { category: options.data.category } }),
 			required: true,
 			min_length: 0,
 			max_length: options.data.category.length,
 		};
-		return super.build(client, {
-			title: this.title,
-			fields: [field],
-			data: options.data,
-		});
+		return super.build(
+			client,
+			{
+				title: t(titleKey, { locale }),
+				fields: [field],
+				data: options.data,
+			},
+			sessionId,
+			titleKey,
+			locale
+		);
 	}
 
 	async execute(

@@ -64,7 +64,10 @@ export class RoleConfigFlow extends BaseFlowHandler {
 
 	constructor(client: Client) {
 		super(client);
-		logger.debug({ flowId: this.id }, '[RoleConfigFlow.constructor] FlowName instance created');
+		logger.debug(
+			{ flowId: this.id },
+			'[RoleConfigFlow.constructor] RoleConfigFlow instance created'
+		);
 	}
 
 	/**
@@ -90,6 +93,8 @@ export class RoleConfigFlow extends BaseFlowHandler {
 				components: [],
 			};
 
+			const locale = await this.resolveLocale();
+
 			// Build your message here
 			switch (state.id) {
 				case 'main-menu':
@@ -97,7 +102,13 @@ export class RoleConfigFlow extends BaseFlowHandler {
 						{ flowId: this.id, state },
 						'[RoleConfigFlow.build] Calling MainMenu.build'
 					);
-					messageOpts = await MainMenu.build(client, state, undefined, state.sessionId);
+					messageOpts = await MainMenu.build(
+						client,
+						state,
+						undefined,
+						state.sessionId,
+						locale
+					);
 					logger.debug(
 						{ flowId: this.id, messageOpts },
 						'[RoleConfigFlow.build] MainMenu.build result'
@@ -108,7 +119,13 @@ export class RoleConfigFlow extends BaseFlowHandler {
 						{ flowId: this.id, state },
 						'[RoleConfigFlow.build] Calling CategorySelect.build'
 					);
-					messageOpts = await CategorySelect.build(client, interaction?.guildId, state);
+					messageOpts = await CategorySelect.build(
+						client,
+						interaction?.guildId,
+						state,
+						state.sessionId,
+						locale
+					);
 					logger.debug(
 						{ flowId: this.id, messageOpts },
 						'[RoleConfigFlow.build] CategorySelect.build result'

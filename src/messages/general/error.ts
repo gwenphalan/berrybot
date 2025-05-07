@@ -1,7 +1,17 @@
+// TODO: Locale Migration
+// keys:
+//   error.title: 'Uh Oh!'
+//   error.occurred: 'An error occurred while processing your request.'
+//   error.support_server: 'Support Server'
+//   error.instructions: 'Please try again later or report this to the developers.'
+//   error.error_id: 'Error ID'
+//   error.time: 'Time'
+
 import { Client, MessageBuilder } from '@/core/interfaces';
 import * as discord from 'discord.js';
 import { config } from '@/core/config/config';
 import { randomUUID } from 'crypto';
+import { t } from '@/core/utils/Locale';
 // import TestButton from '@/components/buttons/test'; // Uncomment if you have a test button component class
 
 // Example message builder demonstrating basic message construction
@@ -13,17 +23,19 @@ import { randomUUID } from 'crypto';
 export const error: MessageBuilder = {
 	embeds: [],
 	components: [],
-	async build(client: Client, error: Error, errorId?: string) {
+	async build(client: Client, error: Error, errorId?: string, locale: string = 'en-US') {
 		const id = errorId || randomUUID();
 		const now = new Date();
 		const generalTimestamp = now.toISOString().slice(0, 13).replace('T', ' '); // e.g., '2024-05-06 18'
 		const container = new discord.ContainerBuilder().setAccentColor(
 			client.utils.Color.hexToNumber('#ff0000')
 		);
-		const uhoh = new discord.TextDisplayBuilder().setContent(`# Uh Oh!`);
+		const uhoh = new discord.TextDisplayBuilder().setContent(
+			`# ${t('error.title', { locale })}`
+		);
 
 		const errorOccured = new discord.TextDisplayBuilder().setContent(
-			`An error occurred while processing your request.`
+			t('error.occurred', { locale })
 		);
 
 		const errorIcon = new discord.ThumbnailBuilder().setURL(
@@ -41,18 +53,17 @@ export const error: MessageBuilder = {
 		);
 
 		const supportServer = new discord.ButtonBuilder()
-			.setLabel('Support Server')
+			.setLabel(t('error.support_server', { locale }))
 			.setStyle(discord.ButtonStyle.Link)
 			.setURL(config.support_server);
 
 		const instructions = new discord.TextDisplayBuilder().setContent(
-			`Please try again later or report this to the developers.`
+			t('error.instructions', { locale })
 		);
 
 		// Developer info section (hidden in UI, but visible in logs or for advanced users)
 		const developerInfo = new discord.TextDisplayBuilder().setContent(
-			`**Error ID:** \`${id}\`
-**Time:** ${generalTimestamp}h UTC`
+			`**${t('error.error_id', { locale })}:** \`${id}\`\n**${t('error.time', { locale })}:** ${generalTimestamp}h UTC`
 		);
 
 		const instructionSection = new discord.SectionBuilder()

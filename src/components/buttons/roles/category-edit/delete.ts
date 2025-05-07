@@ -1,3 +1,7 @@
+// TODO: Locale Migration
+// keys:
+//   button.roles.category_edit.delete.label: 'Delete'
+
 import { ButtonInteraction, PermissionFlagsBits } from 'discord.js';
 import { ButtonComponent } from '@/core/classes/ButtonComponent';
 import type { Client } from '@/core/client/BerryClient';
@@ -14,10 +18,24 @@ export class CategoryEditDeleteButton extends ButtonComponent<{ category: string
 	id = 'delete';
 	group = 'category-edit';
 	parent = 'roles';
-	label = 'Delete';
 	style = 4; // ButtonStyle.Danger
 	emoji = '🗑️';
 	static permissions = [PermissionFlagsBits.ManageRoles];
+
+	async build(
+		client: Client,
+		data?: { category: string },
+		sessionId?: string,
+		locale: string = 'en-US'
+	) {
+		return super.build(
+			client,
+			data,
+			sessionId,
+			'button.roles.category_edit.delete.label',
+			locale
+		);
+	}
 
 	async execute(interaction: ButtonInteraction, client: Client, data: { category: string }) {
 		const flow = client.flowManager.getHandler<RoleConfigFlow>(interaction.message.id);

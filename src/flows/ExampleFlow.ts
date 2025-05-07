@@ -88,7 +88,8 @@ export class ExampleFlow extends BaseFlowHandler {
 		const { interaction } = state || {};
 
 		// Flow Logic
-		const message = await CounterMessage.build(client, state, state.sessionId);
+		const locale = await this.resolveLocale();
+		const message = await CounterMessage.build(client, state, state.sessionId, locale);
 
 		// Handle updating an existing message
 		if (this.messageId && interaction?.channelId) {

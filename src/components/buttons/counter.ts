@@ -1,3 +1,7 @@
+// TODO: Locale Migration
+// keys:
+//   button.counter.label: 'Click Me!'
+
 import { ButtonInteraction } from 'discord.js';
 import { ButtonComponent } from '@/core/classes/ButtonComponent';
 import type { Client } from '@/core/client/BerryClient';
@@ -9,8 +13,17 @@ import { logger } from '@/core/logging/Logger';
  */
 export class CounterButton extends ButtonComponent<{ count: number }> {
 	id = 'counter';
-	label = 'Click Me!';
 	style = 1; // ButtonStyle.Primary
+
+	async build(
+		client: Client,
+		data?: { count: number },
+		sessionId?: string,
+		locale: string = 'en-US'
+	) {
+		// Use the translation key and locale for the label
+		return super.build(client, data, sessionId, 'button.counter.label', locale);
+	}
 
 	async execute(interaction: ButtonInteraction, client: Client, data: { count: number }) {
 		logger.debug(

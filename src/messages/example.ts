@@ -1,6 +1,13 @@
+// TODO: Locale Migration
+// keys:
+//   example.title: 'Example'
+//   example.description: 'This is an example message.'
+//   example.button_label: 'Test Button'
+
 import { Client, MessageBuilder } from '@/core/interfaces';
 import * as discord from 'discord.js';
 import { createCustomId } from '@/core/utils/CustomIdUtils';
+import { t } from '@/core/utils/Locale';
 // import TestButton from '@/components/buttons/test'; // Uncomment if you have a test button component class
 
 // Example message builder demonstrating basic message construction
@@ -11,7 +18,7 @@ export const example: MessageBuilder = {
 			.setDescription('This is an example message.'),
 	],
 	components: [new discord.ActionRowBuilder<discord.ButtonBuilder>()],
-	async build(_client: Client) {
+	async build(_client: Client, _data?: any, _sessionId?: string, locale: string = 'en-US') {
 		// Example data to demonstrate custom ID generation
 		const testJSON = {
 			boolean: true,
@@ -26,11 +33,15 @@ export const example: MessageBuilder = {
 		this.components[0].addComponents(
 			new discord.ButtonBuilder()
 				.setCustomId(createCustomId('test-button', { data: testJSON }))
-				.setLabel('Test Button')
+				.setLabel(t('example.button_label', { locale }))
 				.setStyle(discord.ButtonStyle.Primary)
 		);
 		return {
-			embeds: this.embeds,
+			embeds: [
+				new discord.EmbedBuilder()
+					.setTitle(t('example.title', { locale }))
+					.setDescription(t('example.description', { locale })),
+			],
 			components: this.components,
 		};
 	},

@@ -1,3 +1,7 @@
+// TODO: Locale Migration
+// keys:
+//   select.locale.placeholder: 'Select your language'
+
 import {
 	StringSelectMenuInteraction,
 	StringSelectMenuBuilder,
@@ -20,7 +24,6 @@ export default class LocaleSelectMenu extends StringSelectMenuComponent<{
 	availableLocales: DiscordLocale[];
 }> {
 	id = 'locale-select';
-	placeholder = 'Select your language';
 	min_values = 1;
 	max_values = 1;
 
@@ -32,19 +35,22 @@ export default class LocaleSelectMenu extends StringSelectMenuComponent<{
 	 */
 	async build(
 		client: Client,
-		options: { data: { currentLocale: DiscordLocale; availableLocales: DiscordLocale[] } }
+		options: { data: { currentLocale: DiscordLocale; availableLocales: DiscordLocale[] } },
+		sessionId?: string,
+		locale: string = 'en-US'
 	): Promise<StringSelectMenuBuilder> {
 		const { currentLocale, availableLocales } = options.data;
 		logger.debug(
 			{ currentLocale, availableLocales },
 			'[LocaleSelectMenu.build] Building locale select menu'
 		);
+		const placeholderKey = 'select.locale.placeholder';
+		const placeholder =
+			t('commands.locale.select_placeholder', { locale: currentLocale }) ||
+			t(placeholderKey, { locale: currentLocale });
 		const select = new StringSelectMenuBuilder()
 			.setCustomId(this.id)
-			.setPlaceholder(
-				t('commands.locale.select_placeholder', { locale: currentLocale }) ||
-					this.placeholder
-			);
+			.setPlaceholder(placeholder);
 
 		const optionsArray = availableLocales
 			.map((locale) => {

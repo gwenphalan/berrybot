@@ -1,7 +1,14 @@
+// TODO: Locale Migration
+// keys:
+//   select.category.placeholder: 'Select a category'
+//   select.category.no_categories: 'No categories available'
+//   select.category.create_first: 'Create a category first'
+
 import { StringSelectMenuInteraction, PermissionFlagsBits } from 'discord.js';
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 import { StringSelectMenuComponent } from '@/core/classes/StringSelectMenuComponent';
+import { t } from '@/core/utils/Locale';
 
 /**
  * CategorySelectMenu - Selects a category for the role message, single select
@@ -10,26 +17,42 @@ import { StringSelectMenuComponent } from '@/core/classes/StringSelectMenuCompon
 export class CategorySelectMenu extends StringSelectMenuComponent<{ categories: string[] }> {
 	id = 'category-select';
 	parent = 'roles';
-	placeholder = 'Select a category';
 	min_values = 1;
 	max_values = 1;
 	static permissions = [PermissionFlagsBits.ManageRoles];
 
-	async build(client: Client, options: { data: { categories: string[] } }) {
-		logger.debug({ data: options.data }, 'Building category select menu component with data');
-		const select = await super.build(client, {
-			placeholder: this.placeholder,
-			min_values: this.min_values,
-			max_values: this.max_values,
-			data: options.data,
-		});
+	async build(
+		client: Client,
+		options: { data: { categories: string[] } },
+		sessionId?: string,
+		locale: string = 'en-US'
+	) {
+		const hasCategories = options.data.categories && options.data.categories.length > 0;
+		const placeholderKey = 'select.category.placeholder';
+		const placeholder = t(placeholderKey, { locale });
 
-		if (!options.data.categories || options.data.categories.length === 0) {
-			select.setDisabled(true).setPlaceholder('No categories available').addOptions({
-				label: 'No categories available',
-				value: 'none',
-				description: 'Create a category first',
-			});
+		const select = await super.build(
+			client,
+			{
+				placeholder,
+				min_values: this.min_values,
+				max_values: this.max_values,
+				data: options.data,
+			},
+			sessionId,
+			placeholderKey,
+			locale
+		);
+
+		if (!hasCategories) {
+			select
+				.setDisabled(true)
+				.setPlaceholder(t('select.category.no_categories', { locale }))
+				.addOptions({
+					label: t('select.category.no_categories', { locale }),
+					value: 'none',
+					description: t('select.category.create_first', { locale }),
+				});
 		} else {
 			options.data.categories.forEach((category) => {
 				select.addOptions({

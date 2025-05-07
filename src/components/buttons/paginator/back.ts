@@ -1,3 +1,7 @@
+// TODO: Locale Migration
+// keys:
+//   button.paginator.back.label: '◄'
+
 import { ButtonInteraction, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { ButtonComponent } from '@/core/classes/ButtonComponent';
 import type { Client } from '@/core/client/BerryClient';
@@ -13,12 +17,17 @@ import { books } from '@/messages/paginator';
 export class PaginatorBackButton extends ButtonComponent<{ id: string }> {
 	/** Unique component ID for registration and customId generation */
 	id = 'paginator.back';
-	/** Button label */
-	label = '◄';
-	/** Button style (Primary) */
 	style = 1; // ButtonStyle.Primary
-	/** Required permissions to use this button */
 	static permissions = [PermissionFlagsBits.ManageRoles];
+
+	async build(
+		client: Client,
+		data?: { id: string },
+		sessionId?: string,
+		locale: string = 'en-US'
+	) {
+		return super.build(client, data, sessionId, 'button.paginator.back.label', locale);
+	}
 
 	/**
 	 * Handles the button interaction to go to the previous page.

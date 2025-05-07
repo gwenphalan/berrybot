@@ -1,3 +1,7 @@
+// TODO: Locale Migration
+// keys:
+//   button.roles.category_edit.emoji.label: 'Emoji'
+
 import {
 	ButtonInteraction,
 	EmbedBuilder,
@@ -20,10 +24,24 @@ export class CategoryEditEmojiButton extends ButtonComponent<{ category: string 
 	id = 'emoji';
 	group = 'category-edit';
 	parent = 'roles';
-	label = 'Emoji';
 	style = 2; // ButtonStyle.Secondary
 	emoji = '🎨';
 	static permissions = [PermissionFlagsBits.ManageRoles];
+
+	async build(
+		client: Client,
+		data?: { category: string },
+		sessionId?: string,
+		locale: string = 'en-US'
+	) {
+		return super.build(
+			client,
+			data,
+			sessionId,
+			'button.roles.category_edit.emoji.label',
+			locale
+		);
+	}
 
 	async execute(interaction: ButtonInteraction, client: Client, data: { category: string }) {
 		const flow = client.flowManager.getHandler<RoleConfigFlow>(interaction.message.id);

@@ -1,3 +1,7 @@
+// TODO: Locale Migration
+// keys:
+//   category_select.title: 'What category would you like to edit?'
+
 import { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
 import { Client } from '@/core/client/BerryClient';
@@ -28,7 +32,13 @@ export const CategorySelect: MessageBuilder = {
 	 * @param options - Additional options for building the message
 	 * @param sessionId - Optional sessionId for flow-attached messages
 	 */
-	async build(client: Client, guildId: string, state?: FlowState, sessionId?: string) {
+	async build(
+		client: Client,
+		guildId: string,
+		state?: FlowState,
+		sessionId?: string,
+		locale: string = 'en-US'
+	) {
 		const guildSettings =
 			guildId && guildId !== undefined
 				? await client.database.guildSettings.get(guildId)
@@ -40,20 +50,23 @@ export const CategorySelect: MessageBuilder = {
 		});
 
 		// Determine locale: user DB preference > interaction.locale > 'en-US'
-		let locale = 'en-US';
+		let resolvedLocale = locale;
 		const userId = state?.interaction?.user?.id;
 		if (userId) {
 			const userSettings = await database.userSettings.get(userId);
-			locale = toDiscordLocale(userSettings?.locale || state?.interaction?.locale || 'en-US');
+			resolvedLocale = toDiscordLocale(
+				userSettings?.locale || state?.interaction?.locale || 'en-US'
+			);
 		} else {
-			locale = toDiscordLocale(state?.interaction?.locale || 'en-US');
+			resolvedLocale = toDiscordLocale(state?.interaction?.locale || 'en-US');
 		}
-		const title = t('roles.category_select_title', { locale });
+		const title = t('category_select.title', { locale: resolvedLocale });
 
 		const select = await (new CategorySelectMenu().build as any)(
 			client,
 			{ data: { categories } },
-			sessionId
+			sessionId,
+			resolvedLocale
 		);
 		const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 

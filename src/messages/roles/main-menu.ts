@@ -33,17 +33,27 @@ interface BuildOptions {
 		| ChatInputCommandInteraction;
 }
 
+// TODO: Locale Migration
+// keys:
+//   roles.main_menu_error_title: 'Error'
+//   roles.main_menu_no_guild_settings: 'No guild settings found. Please configure your server.'
+//   roles.main_menu_edit_or_create: 'Edit or create a self-role category below.'
+//   roles.main_menu_create_to_start: 'Create a self-role category to get started.'
+//   roles.main_menu_no_roles: 'No roles'
+
 /**
  * Builds a formatted string representing all self-role categories and their roles for display.
  * Handles fetching roles that may not be cached.
  *
  * @param categories - Array of category objects from guild settings
  * @param interaction - The Discord interaction (for guild/role context)
+ * @param locale - The locale for localization
  * @returns Promise<string> - The formatted category content string
  */
 function buildCategoryContent(
 	categories: any[],
-	interaction: BuildOptions['interaction']
+	interaction: BuildOptions['interaction'],
+	locale: string
 ): Promise<string> {
 	return Promise.all(
 		categories.map(async (category) => {
@@ -58,7 +68,6 @@ function buildCategoryContent(
 				let role: Role | undefined = interaction.guild?.roles.cache.get(roleId);
 				if (!role) {
 					try {
-						// Try to fetch the role if not cached (handles Discord cache misses)
 						const fetchedRole = await interaction.guild?.roles.fetch(roleId);
 						if (fetchedRole) {
 							role = fetchedRole;
@@ -71,7 +80,7 @@ function buildCategoryContent(
 					roles.push(role.toString());
 				}
 			}
-			return `**${category.emoji} ${category.name}**\n${roles.length > 0 ? roles.join(', ') : 'No roles'}\n\n`;
+			return `**${category.emoji} ${category.name}**\n${roles.length > 0 ? roles.join(', ') : t('roles.main_menu_no_roles', { locale })}\n\n`;
 		})
 	).then((results) => results.join(''));
 }
@@ -137,17 +146,22 @@ export const MainMenu: MessageBuilder = {
 	 * @param state - The current flow state (if used in a flow)
 	 * @param options - Additional options for building the message (must include interaction)
 	 * @param sessionId - Optional sessionId for flow-attached messages
+	 * @param locale - The locale for localization
 	 * @returns The message payload for Discord
 	 */
-	async build(client: Client, state?: FlowState, options?: BuildOptions, sessionId?: string) {
+	async build(
+		client: Client,
+		state?: FlowState,
+		options?: BuildOptions,
+		sessionId?: string,
+		locale: string = 'en-US'
+	) {
 		logger.debug({ state, options }, '[MainMenu.build] Building roles main menu message');
 		const interaction = state?.interaction || options?.interaction;
 		if (!interaction || !interaction.guildId) {
 			throw new Error('No interaction found');
 		}
-		// Remove locale variable and use inline for localization
 		const userId = interaction.user?.id;
-		let locale = 'en-US';
 		if (userId) {
 			const userSettings = await database.userSettings.get(userId);
 			locale = toDiscordLocale(userSettings?.locale || interaction.locale || 'en-US');
@@ -181,11 +195,10 @@ export const MainMenu: MessageBuilder = {
 		);
 		let categoryContent = '';
 		try {
-			categoryContent = await buildCategoryContent(categories, interaction);
+			categoryContent = await buildCategoryContent(categories, interaction, locale);
 		} catch (err) {
 			logger.error({ err }, 'Failed to build category content');
 		}
-		// Always use sessionId from argument or from state
 		const effectiveSessionId = sessionId || state?.sessionId;
 		const { buttonRow, messageRow } = await buildButtons(
 			client,

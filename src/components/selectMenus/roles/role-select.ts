@@ -1,7 +1,12 @@
+// TODO: Locale Migration
+// keys:
+//   select.role.placeholder: 'Select roles'
+
 import { StringSelectMenuInteraction, Collection } from 'discord.js';
 import { StringSelectMenuComponent } from '@/core/classes/StringSelectMenuComponent';
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
+import { t } from '@/core/utils/Locale';
 
 /**
  * RoleSelectMenu - Selects a role for the role message, and edit category roles
@@ -13,21 +18,30 @@ export class RoleSelectMenu extends StringSelectMenuComponent<{
 }> {
 	id = 'role-select';
 	parent = 'roles';
-	placeholder = 'Select roles';
 	min_values = 1;
 	max_values = 25;
 
 	async build(
 		client: Client,
-		options: { data: { roles: Collection<string, string>; action: 'select' | 'edit' } }
+		options: { data: { roles: Collection<string, string>; action: 'select' | 'edit' } },
+		sessionId?: string,
+		locale: string = 'en-US'
 	) {
+		const placeholderKey = 'select.role.placeholder';
+		const placeholder = t(placeholderKey, { locale });
 		logger.debug({ data: options.data }, 'Building role select menu component with data');
-		const select = await super.build(client, {
-			placeholder: this.placeholder,
-			min_values: this.min_values,
-			max_values: options.data.roles.size,
-			data: options.data,
-		});
+		const select = await super.build(
+			client,
+			{
+				placeholder,
+				min_values: this.min_values,
+				max_values: options.data.roles.size,
+				data: options.data,
+			},
+			sessionId,
+			placeholderKey,
+			locale
+		);
 
 		options.data.roles.forEach((val, key) => {
 			select.addOptions({

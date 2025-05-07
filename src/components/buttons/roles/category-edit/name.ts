@@ -1,3 +1,7 @@
+// TODO: Locale Migration
+// keys:
+//   button.roles.category_edit.name.label: 'Name'
+
 import { ButtonInteraction, PermissionFlagsBits } from 'discord.js';
 import { ButtonComponent } from '@/core/classes/ButtonComponent';
 import type { Client } from '@/core/client/BerryClient';
@@ -14,10 +18,24 @@ export class CategoryEditNameButton extends ButtonComponent<{ category: string }
 	id = 'name';
 	group = 'category-edit';
 	parent = 'roles';
-	label = 'Name';
 	style = 2; // ButtonStyle.Secondary
 	emoji = '✏️';
 	static permissions = [PermissionFlagsBits.ManageRoles];
+
+	async build(
+		client: Client,
+		data?: { category: string },
+		sessionId?: string,
+		locale: string = 'en-US'
+	) {
+		return super.build(
+			client,
+			data,
+			sessionId,
+			'button.roles.category_edit.name.label',
+			locale
+		);
+	}
 
 	async execute(interaction: ButtonInteraction, client: Client, data: { category: string }) {
 		const flow = client.flowManager.getHandler<RoleConfigFlow>(interaction.message.id);

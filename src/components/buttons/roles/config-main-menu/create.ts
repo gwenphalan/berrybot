@@ -1,3 +1,7 @@
+// TODO: Locale Migration
+// keys:
+//   button.roles.config_main_menu.create.label: 'Create'
+
 import { ButtonInteraction, PermissionFlagsBits } from 'discord.js';
 import { ButtonComponent } from '@/core/classes/ButtonComponent';
 import type { Client } from '@/core/client/BerryClient';
@@ -10,10 +14,19 @@ import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
  */
 export class ConfigMainMenuCreateButton extends ButtonComponent<undefined> {
 	id = 'roles:config-main-menu:create';
-	label = 'Create';
 	style = 3; // ButtonStyle.Success
 	emoji = '➕';
 	static permissions = [PermissionFlagsBits.ManageRoles];
+
+	async build(client: Client, data?: undefined, sessionId?: string, locale: string = 'en-US') {
+		return super.build(
+			client,
+			data,
+			sessionId,
+			'button.roles.config_main_menu.create.label',
+			locale
+		);
+	}
 
 	async execute(interaction: ButtonInteraction, client: Client) {
 		const flow = client.flowManager.getHandler<RoleConfigFlow>(interaction.message.id);

@@ -1,3 +1,7 @@
+// TODO: Locale Migration
+// keys:
+//   button.roles.config_main_menu.message.label: 'Send Role Selection Message'
+
 import { ButtonInteraction, PermissionFlagsBits } from 'discord.js';
 import { ButtonComponent } from '@/core/classes/ButtonComponent';
 import type { Client } from '@/core/client/BerryClient';
@@ -10,10 +14,19 @@ import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
  */
 export class ConfigMainMenuMessageButton extends ButtonComponent<undefined> {
 	id = 'roles:config-main-menu:message';
-	label = 'Send Role Selection Message';
 	style = 1; // ButtonStyle.Primary
 	emoji = '📨';
 	static permissions = [PermissionFlagsBits.ManageRoles];
+
+	async build(client: Client, data?: undefined, sessionId?: string, locale: string = 'en-US') {
+		return super.build(
+			client,
+			data,
+			sessionId,
+			'button.roles.config_main_menu.message.label',
+			locale
+		);
+	}
 
 	async execute(interaction: ButtonInteraction, client: Client) {
 		const flow = client.flowManager.getHandler<RoleConfigFlow>(interaction.message.id);

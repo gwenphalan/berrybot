@@ -1,9 +1,18 @@
+// TODO: Locale Migration
+// keys:
+//   counter.title: 'Simple Counter'
+//   counter.description: 'Click the button below to increment the counter!'
+//   counter.error_description: 'Click the button below to throw an error!'
+//   counter.count_label: 'Count'
+//   counter.error_count_label: 'Error Count'
+
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder } from 'discord.js';
 import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
 import { Client } from '@/core/client/BerryClient';
 import { FlowState } from '@/core/interfaces/Flow';
 import { logger } from '@/core/logging/Logger';
 import CounterButton from '@/components/buttons/counter';
+import { t } from '@/core/utils/Locale';
 
 export const CounterMessage: MessageBuilder = {
 	embeds: [
@@ -21,7 +30,7 @@ export const CounterMessage: MessageBuilder = {
 
 	components: [],
 
-	async build(client: Client, state: FlowState, sessionId?: string) {
+	async build(client: Client, state: FlowState, sessionId?: string, locale: string = 'en-US') {
 		logger.debug({ state }, '[CounterMessage.build] Building counter message');
 
 		// Get current count from state
@@ -30,18 +39,18 @@ export const CounterMessage: MessageBuilder = {
 
 		// Update embed with current count
 		const embed = new EmbedBuilder()
-			.setTitle('Simple Counter')
-			.setDescription('Click the button below to throw an error!')
+			.setTitle(t('counter.title', { locale }))
+			.setDescription(t('counter.error_description', { locale }))
 			.addFields([
 				{
-					name: 'Error Count',
+					name: t('counter.error_count_label', { locale }),
 					value: count.toString(),
 					inline: true,
 				},
 			]);
 
 		// Create button using the new class-based system
-		const button = await new CounterButton().build(client, { count }, sessionId);
+		const button = await new CounterButton().build(client, { count }, sessionId, locale);
 		logger.debug({ button }, '[CounterMessage.build] Built counter button');
 
 		// Create action row with button
