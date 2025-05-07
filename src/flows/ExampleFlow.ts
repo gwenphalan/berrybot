@@ -88,7 +88,7 @@ export class ExampleFlow extends BaseFlowHandler {
 		const { interaction } = state || {};
 
 		// Flow Logic
-		const message = await CounterMessage.build(client, state);
+		const message = await CounterMessage.build(client, state, state.sessionId);
 
 		// Handle updating an existing message
 		if (this.messageId && interaction?.channelId) {
@@ -96,7 +96,8 @@ export class ExampleFlow extends BaseFlowHandler {
 		}
 		// Handle creating a new message via interaction
 		else if (interaction) {
-			return this.createMessage(interaction, message);
+			await this.createMessage(interaction, message);
+			return undefined; // Prevents double update!
 		}
 
 		logger.error({ flowId: this.id }, 'No valid message target found for build');

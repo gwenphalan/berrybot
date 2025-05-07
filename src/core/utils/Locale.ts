@@ -129,6 +129,51 @@ export class LocalizedSlashCommandBuilder extends SlashCommandBuilder {
 		this.setDescriptionLocalizations(localizations);
 		return this;
 	}
+
+	addStringOption(input: Parameters<SlashCommandBuilder['addStringOption']>[0]): this {
+		super.addStringOption(input);
+		return this;
+	}
+	addBooleanOption(input: Parameters<SlashCommandBuilder['addBooleanOption']>[0]): this {
+		super.addBooleanOption(input);
+		return this;
+	}
+	addUserOption(input: Parameters<SlashCommandBuilder['addUserOption']>[0]): this {
+		super.addUserOption(input);
+		return this;
+	}
+	addChannelOption(input: Parameters<SlashCommandBuilder['addChannelOption']>[0]): this {
+		super.addChannelOption(input);
+		return this;
+	}
+	addRoleOption(input: Parameters<SlashCommandBuilder['addRoleOption']>[0]): this {
+		super.addRoleOption(input);
+		return this;
+	}
+	addMentionableOption(input: Parameters<SlashCommandBuilder['addMentionableOption']>[0]): this {
+		super.addMentionableOption(input);
+		return this;
+	}
+	addIntegerOption(input: Parameters<SlashCommandBuilder['addIntegerOption']>[0]): this {
+		super.addIntegerOption(input);
+		return this;
+	}
+	addNumberOption(input: Parameters<SlashCommandBuilder['addNumberOption']>[0]): this {
+		super.addNumberOption(input);
+		return this;
+	}
+	addAttachmentOption(input: Parameters<SlashCommandBuilder['addAttachmentOption']>[0]): this {
+		super.addAttachmentOption(input);
+		return this;
+	}
+	addSubcommand(input: Parameters<SlashCommandBuilder['addSubcommand']>[0]): this {
+		super.addSubcommand(input);
+		return this;
+	}
+	addSubcommandGroup(input: Parameters<SlashCommandBuilder['addSubcommandGroup']>[0]): this {
+		super.addSubcommandGroup(input);
+		return this;
+	}
 }
 
 /**
@@ -174,6 +219,53 @@ export class LocalizedSlashCommandSubcommandBuilder extends SlashCommandSubcomma
 		const defaultDesc = localeManager.getTranslation(key, defaultLocale) || key;
 		this.setDescription(defaultDesc);
 		this.setDescriptionLocalizations(localizations);
+		return this;
+	}
+
+	addStringOption(input: Parameters<SlashCommandSubcommandBuilder['addStringOption']>[0]): this {
+		super.addStringOption(input);
+		return this;
+	}
+	addBooleanOption(
+		input: Parameters<SlashCommandSubcommandBuilder['addBooleanOption']>[0]
+	): this {
+		super.addBooleanOption(input);
+		return this;
+	}
+	addUserOption(input: Parameters<SlashCommandSubcommandBuilder['addUserOption']>[0]): this {
+		super.addUserOption(input);
+		return this;
+	}
+	addChannelOption(
+		input: Parameters<SlashCommandSubcommandBuilder['addChannelOption']>[0]
+	): this {
+		super.addChannelOption(input);
+		return this;
+	}
+	addRoleOption(input: Parameters<SlashCommandSubcommandBuilder['addRoleOption']>[0]): this {
+		super.addRoleOption(input);
+		return this;
+	}
+	addMentionableOption(
+		input: Parameters<SlashCommandSubcommandBuilder['addMentionableOption']>[0]
+	): this {
+		super.addMentionableOption(input);
+		return this;
+	}
+	addIntegerOption(
+		input: Parameters<SlashCommandSubcommandBuilder['addIntegerOption']>[0]
+	): this {
+		super.addIntegerOption(input);
+		return this;
+	}
+	addNumberOption(input: Parameters<SlashCommandSubcommandBuilder['addNumberOption']>[0]): this {
+		super.addNumberOption(input);
+		return this;
+	}
+	addAttachmentOption(
+		input: Parameters<SlashCommandSubcommandBuilder['addAttachmentOption']>[0]
+	): this {
+		super.addAttachmentOption(input);
 		return this;
 	}
 }

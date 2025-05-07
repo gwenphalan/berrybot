@@ -10,6 +10,7 @@ const command: Command = {
 		.setDefaultMemberPermissions(0), // No permissions required
 	developer: true, // Only accessible to developers
 	async execute(interaction: ChatInputCommandInteraction, _client) {
+		throw new Error('Test error');
 		// Send test confirmation
 		await interaction.reply('Test command executed!');
 	},

@@ -16,6 +16,7 @@ import { parseCustomId } from '@/core/utils/CustomIdUtils';
 import { error as errorMessageBuilder } from '@/messages/general/error';
 import { randomUUID } from 'crypto';
 import { database } from '@/core/config/database';
+import { buildErrorLogMessage } from '@/commands/dev/error-log';
 
 /**
  * Parses component customId to extract component ID, parent, group, and any compressed data
@@ -385,6 +386,38 @@ export const event: Event = {
 					{ dbError },
 					'[MessageComponent.execute] Failed to upload error to database'
 				);
+			}
+
+			// Send error log to error log channel if configured
+			if (config.error_log_channel) {
+				try {
+					const channel = await client.channels.fetch(config.error_log_channel);
+					if (channel && 'send' in channel) {
+						const log = {
+							errorId,
+							command: key,
+							subcommand: type,
+							user: messageComponentInteraction.user.id,
+							guild: messageComponentInteraction.guild?.id || null,
+							errorMessage: error instanceof Error ? error.message : String(error),
+							stackTrace:
+								error instanceof Error && error.stack
+									? error.stack.slice(0, 1500)
+									: '',
+							createdAt: new Date(),
+						};
+						const container = buildErrorLogMessage(log as any, client);
+						await channel.send({
+							flags: 1 << 23, // MessageFlags.IsComponentsV2
+							components: [container],
+						});
+					}
+				} catch (sendError) {
+					logger.error(
+						{ sendError },
+						'[MessageComponent.execute] Failed to send error log to channel'
+					);
+				}
 			}
 
 			try {

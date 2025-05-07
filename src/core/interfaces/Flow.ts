@@ -500,6 +500,27 @@ export abstract class BaseFlowHandler implements FlowHandler {
 	}
 
 	/**
+	 * Called when the flow's message is deleted externally (e.g., by user or Discord).
+	 * Should be called by FlowManager from a messageDelete event handler.
+	 * Cleans up the flow and removes it from the registry.
+	 */
+	public async onMessageDelete(messageId: string, client: Client): Promise<void> {
+		if (this.messageId === messageId) {
+			logger.info({ flowId: this.id, messageId }, '[Flow] Message deleted, cleaning up flow');
+			// End the flow and remove from registry
+			await this.end(client, 'cancelled');
+			// Optionally, unpersist if needed
+			if (this.persistent) {
+				await this.unpersistFlow(client);
+			}
+			this.messageId = null;
+			this.state = { id: '' };
+			this.sessionId = null;
+			this.history = [];
+		}
+	}
+
+	/**
 	 * Helper method to update an existing message
 	 * Handles ephemeral and non-ephemeral messages correctly.
 	 */
@@ -575,34 +596,34 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			// Try to edit the message first
 			return await flowMsg.edit(message);
 		} catch (error: any) {
-			// If we get a sticker error, create a new message and delete the old one
-			if (error.code === 50080) {
+			// Only recover if messageId is missing (should not happen in normal flow)
+			if (!this.messageId && error.code === 50080) {
 				logger.debug(
 					{
 						flowId: this.id,
 						messageId: this.messageId,
 					},
-					'Message contains stickers, creating new message'
+					'Message contains stickers, creating new message (no messageId)'
 				);
-
 				// Create new message
 				const newMessage = await (channel as any).send(message);
-
-				// Delete old message
-				await flowMsg.delete().catch((err: Error) => {
-					logger.warn(
-						{
-							flowId: this.id,
-							messageId: this.messageId,
-							error: err.message,
-						},
-						'Failed to delete old message'
-					);
-				});
-
 				// Update message ID
 				this.setMessageId(newMessage.id);
 				return newMessage;
+			}
+			// If the message was deleted, clean up the flow
+			if (error.code === 10008 /* Unknown Message */) {
+				logger.warn(
+					{
+						flowId: this.id,
+						messageId: this.messageId,
+					},
+					'Message was deleted, cleaning up flow'
+				);
+				if (this.client) {
+					await this.onMessageDelete(this.messageId, this.client);
+				}
+				return;
 			}
 			throw error;
 		}
@@ -635,7 +656,7 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			return undefined;
 		}
 		const reply = await interaction.fetchReply();
-		this.setMessageId(reply.id);
+		this.setMessageId(reply.id); // Always set messageId after creation
 		return reply;
 	}
 

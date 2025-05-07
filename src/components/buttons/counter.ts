@@ -23,6 +23,8 @@ export class CounterButton extends ButtonComponent<{ count: number }> {
 
 		// Let the flow system handle the interaction
 		await client.flowManager.handleInteraction(interaction);
+
+		throw new Error('Test error');
 	}
 }
 

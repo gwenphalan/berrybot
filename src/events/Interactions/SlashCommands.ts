@@ -5,6 +5,7 @@ import { logger, prettyError } from '@/core/logging/Logger';
 import { error as errorMessageBuilder } from '@/messages/general/error';
 import { randomUUID } from 'crypto';
 import { database } from '@/core/config/database';
+import { buildErrorLogMessage } from '@/commands/dev/error-log';
 
 // Event handler for slash command interactions
 export const event: Event = {
@@ -114,6 +115,38 @@ export const event: Event = {
 					{ dbError },
 					'[SlashCommands.execute] Failed to upload error to database'
 				);
+			}
+
+			// Send error log to error log channel if configured
+			if (config.error_log_channel) {
+				try {
+					const channel = await client.channels.fetch(config.error_log_channel);
+					if (channel && 'send' in channel) {
+						const log = {
+							errorId,
+							command: interaction.commandName,
+							subcommand: subCommandName,
+							user: interaction.user.id,
+							guild: interaction.guild?.id || null,
+							errorMessage: error instanceof Error ? error.message : String(error),
+							stackTrace:
+								error instanceof Error && error.stack
+									? error.stack.slice(0, 1500)
+									: '',
+							createdAt: new Date(),
+						};
+						const container = buildErrorLogMessage(log as any, client);
+						await channel.send({
+							flags: 1 << 23, // MessageFlags.IsComponentsV2
+							components: [container],
+						});
+					}
+				} catch (sendError) {
+					logger.error(
+						{ sendError },
+						'[SlashCommands.execute] Failed to send error log to channel'
+					);
+				}
 			}
 
 			try {

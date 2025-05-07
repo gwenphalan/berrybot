@@ -31,10 +31,10 @@ export const CounterMessage: MessageBuilder = {
 		// Update embed with current count
 		const embed = new EmbedBuilder()
 			.setTitle('Simple Counter')
-			.setDescription('Click the button below to increment the counter!')
+			.setDescription('Click the button below to throw an error!')
 			.addFields([
 				{
-					name: 'Count',
+					name: 'Error Count',
 					value: count.toString(),
 					inline: true,
 				},

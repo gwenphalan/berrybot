@@ -26,6 +26,8 @@ export interface Config {
 	emojis: Emojis;
 	/** Invite link to the support server */
 	support_server: string;
+	/** Channel ID for error logs */
+	error_log_channel?: string;
 }
 
 interface Emojis {
@@ -100,4 +102,5 @@ export const config: Config = {
 	database_name: process.env.NODE_ENV || 'development',
 	emojis,
 	support_server: `https://discord.gg/${process.env.SUPPORT_SERVER_ID}`,
+	error_log_channel: process.env.ERROR_LOG_CHANNEL,
 };
