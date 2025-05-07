@@ -1,0 +1,48 @@
+{
+	"commands": {
+		"locale": {
+			"name": "langue",
+			"description": "Changez votre préférence de langue/localisation.",
+			"title": "Changez votre langue",
+			"current": "Votre langue actuelle : {{locale}}",
+			"select_placeholder": "Sélectionnez votre langue",
+			"support_server": "Serveur d'assistance",
+			"updated": "Votre langue a été mise à jour en {{locale}}.",
+			"no_other_languages": "Aucune autre langue n'est disponible pour le moment."
+		}
+	},
+	"locales": {
+		"en-US": "Anglais (États-Unis)",
+		"en-GB": "Anglais (Royaume-Uni)",
+		"fr": "Français",
+		"de": "Allemand",
+		"es-ES": "Espagnol (Espagne)",
+		"es-419": "Espagnol (Amérique latine)",
+		"it": "Italien",
+		"pt-BR": "Portugais (Brésil)",
+		"ru": "Russe",
+		"ja": "Japonais",
+		"ko": "Coréen",
+		"zh-CN": "Chinois (simplifié)",
+		"zh-TW": "Chinois (Taïwan)",
+		"tr": "Turc",
+		"pl": "Polonais",
+		"uk": "Ukrainien",
+		"cs": "Tchèque",
+		"fi": "Finnois",
+		"sv-SE": "Suédois",
+		"nl": "Néerlandais",
+		"da": "Danois",
+		"no": "Norvégien",
+		"ro": "Roumain",
+		"hu": "Hongrois",
+		"bg": "Bulgare",
+		"el": "Grec",
+		"hi": "Hindi",
+		"th": "Thaï",
+		"vi": "Vietnamien",
+		"hr": "Croate",
+		"lt": "Lituanien",
+		"id": "Indonésien"
+	}
+}

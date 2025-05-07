@@ -1,7 +1,10 @@
 import { ChatInputCommandInteraction, Events } from 'discord.js';
 import { config } from '@/core/config/config';
 import type { Client, Event } from '@/core/interfaces';
-import { logger } from '@/core/logging/Logger';
+import { logger, prettyError } from '@/core/logging/Logger';
+import { error as errorMessageBuilder } from '@/messages/general/error';
+import { randomUUID } from 'crypto';
+import { database } from '@/core/config/database';
 
 // Event handler for slash command interactions
 export const event: Event = {
@@ -10,7 +13,7 @@ export const event: Event = {
 	 * Handles slash command execution, including subcommands and permission checks
 	 * @param {ChatInputCommandInteraction} interaction - The interaction object from Discord
 	 */
-	execute(interaction: ChatInputCommandInteraction, client: Client) {
+	execute: async (interaction: ChatInputCommandInteraction, client: Client) => {
 		// Only handle chat input commands
 		if (!interaction.isChatInputCommand()) return;
 
@@ -72,27 +75,72 @@ export const event: Event = {
 				logger.debug(
 					`[SlashCommands.execute] Found subcommand handler for: ${interaction.commandName}.${subCommand}`
 				);
-				subCommandFile.execute(interaction, client);
+				await subCommandFile.execute(interaction, client);
 			} else {
 				// Execute main command if no subcommand
 				logger.debug(
 					`[SlashCommands.execute] Executing main command: ${interaction.commandName}`
 				);
-				command.execute(interaction, client);
+				await command.execute(interaction, client);
 			}
 		} catch (error) {
+			const errorId = randomUUID();
 			// Get subcommand name if it exists
 			const subCommandName = interaction.options.getSubcommand(false);
-			logger.error(
-				{
-					error,
+			// Use prettyError for both console and file logging
+			prettyError(logger, {
+				errorId,
+				command: interaction.commandName,
+				subcommand: subCommandName,
+				user: interaction.user.id,
+				guild: interaction.guild?.id || null,
+				message: error instanceof Error ? error.message : String(error),
+				error: error instanceof Error ? error : String(error),
+			});
+
+			// Upload error to database
+			try {
+				await database.errorLogs.create({
+					errorId,
 					command: interaction.commandName,
 					subcommand: subCommandName,
 					user: interaction.user.id,
-					guild: interaction.guild?.id,
-				},
-				'Error executing command'
-			);
+					guild: interaction.guild?.id || null,
+					errorMessage: error instanceof Error ? error.message : String(error),
+					stackTrace: error instanceof Error && error.stack ? error.stack : '',
+				});
+			} catch (dbError) {
+				logger.error(
+					{ dbError },
+					'[SlashCommands.execute] Failed to upload error to database'
+				);
+			}
+
+			try {
+				if (interaction.replied || interaction.deferred) {
+					const errorMsg = await errorMessageBuilder.build(
+						client,
+						error instanceof Error ? error : new Error(String(error)),
+						errorId
+					);
+					await interaction.followUp({
+						...errorMsg,
+						ephemeral: true,
+					});
+				} else {
+					const errorMsg = await errorMessageBuilder.build(
+						client,
+						error instanceof Error ? error : new Error(String(error)),
+						errorId
+					);
+					await interaction.reply({
+						...errorMsg,
+						ephemeral: true,
+					});
+				}
+			} catch (err) {
+				logger.error({ err }, '[SlashCommands.execute] Failed to send error reply');
+			}
 		}
 		return;
 	},

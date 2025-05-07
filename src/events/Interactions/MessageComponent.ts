@@ -10,9 +10,12 @@ import {
 import { config } from '@/core/config/config';
 import type { Client, Event } from '@/core/interfaces';
 import { decompressFromUTF16 } from 'lz-string';
-import { logger } from '@/core/logging/Logger';
+import { logger, prettyError } from '@/core/logging/Logger';
 import { ComponentManager } from '@/core/managers/ComponentManager';
 import { parseCustomId } from '@/core/utils/CustomIdUtils';
+import { error as errorMessageBuilder } from '@/messages/general/error';
+import { randomUUID } from 'crypto';
+import { database } from '@/core/config/database';
 
 /**
  * Parses component customId to extract component ID, parent, group, and any compressed data
@@ -355,16 +358,67 @@ export const event: Event = {
 				);
 			}
 		} catch (error) {
-			logger.error(
-				{
-					error,
-					component: `${key}:${type}`,
-					type,
+			const errorId = randomUUID();
+			prettyError(logger, {
+				errorId,
+				command: key,
+				subcommand: type,
+				user: messageComponentInteraction.user.id,
+				guild: messageComponentInteraction.guild?.id || null,
+				message: error instanceof Error ? error.message : String(error),
+				error: error instanceof Error ? error : String(error),
+			});
+
+			// Upload error to database
+			try {
+				await database.errorLogs.create({
+					errorId,
+					command: key,
+					subcommand: type,
 					user: messageComponentInteraction.user.id,
-					guild: messageComponentInteraction.guild?.id,
-				},
-				'Error executing message component'
-			);
+					guild: messageComponentInteraction.guild?.id || null,
+					errorMessage: error instanceof Error ? error.message : String(error),
+					stackTrace: error instanceof Error && error.stack ? error.stack : '',
+				});
+			} catch (dbError) {
+				logger.error(
+					{ dbError },
+					'[MessageComponent.execute] Failed to upload error to database'
+				);
+			}
+
+			try {
+				const errorMsg = await errorMessageBuilder.build(
+					client,
+					error instanceof Error ? error : new Error(String(error)),
+					errorId
+				);
+				// Only use editReply if isFromMessage exists and returns true
+				if (
+					'message' in messageComponentInteraction &&
+					typeof (messageComponentInteraction as any).isFromMessage === 'function' &&
+					(messageComponentInteraction as any).isFromMessage()
+				) {
+					await messageComponentInteraction.editReply({
+						...errorMsg,
+					});
+				} else if (
+					messageComponentInteraction.replied ||
+					messageComponentInteraction.deferred
+				) {
+					await messageComponentInteraction.followUp({
+						...errorMsg,
+						ephemeral: true,
+					});
+				} else {
+					await messageComponentInteraction.reply({
+						...errorMsg,
+						ephemeral: true,
+					});
+				}
+			} catch (err) {
+				logger.error({ err }, '[MessageComponent.execute] Failed to send error reply');
+			}
 		}
 		return;
 	},

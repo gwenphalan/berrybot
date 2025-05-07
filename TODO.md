@@ -18,6 +18,7 @@
 - [Core Road Map](#core-road-map)
     - [1. Command System Improvements](#1-command-system-improvements)
         - [1.1 Add Command Localization Support](#11-add-command-localization-support)
+        - [1.2 Global Localization Support](#12-global-localization-support)
     - [2. Enhance Option Validation](#2-enhance-option-validation)
     - [3. Implement Autocomplete Support](#3-implement-autocomplete-support)
     - [4. Update Component Implementation](#4-update-component-implementation)
@@ -46,14 +47,6 @@
     - [Flow System](#flow-system)
         - [LightFlow and Flow Simplification](#lightflow-and-flow-simplification)
         - [Flow Architecture Improvements](#flow-architecture-improvements)
-    - [Message Template System](#message-template-system)
-        - [Message Builder Interface](#message-builder-interface)
-        - [Template Management](#template-management)
-        - [Template Utilities](#template-utilities)
-        - [Template Factory](#template-factory)
-    - [Flow System Improvements](#flow-system-improvements)
-        - [Session ID-Based Flow Tracking](#session-id-based-flow-tracking)
-        - [Automated Flow Handling for Components](#automated-flow-handling-for-components)
 
 This document outlines key improvements to bring BerryBot up to date with the latest Discord.js best practices and features.
 
@@ -256,8 +249,10 @@ This document outlines key improvements to bring BerryBot up to date with the la
 
 ## 1. Command System Improvements
 
-- [ ] Enforce strict, consistent command interface signatures (always require both interaction and client)
-- [ ] Implement a global error handler for commands, with user-facing error replies and detailed logging
+- [x] Enforce strict, consistent command interface signatures (always require both interaction and client)
+- [x] Implement a global error handler for commands, with user-facing error replies and detailed logging
+- [x] Use a robust, pretty error block for console and log file output, with error IDs for correlation
+- [x] Error messages use a v2 component template and are user-friendly
 - [ ] Add a Validators.ts utility and use Discord.js option validation features (setMinLength, setMaxLength, etc.) [See details: [Validation](#validation)]
 - [ ] Implement localization for commands (names, descriptions, options) [See details: [Localization](#localization)]
 - [ ] Add support for autocomplete handlers for relevant options [See details: [Autocomplete](#autocomplete)]
@@ -273,6 +268,17 @@ This document outlines key improvements to bring BerryBot up to date with the la
 Discord.js now supports command and option name/description localization, making your bot more accessible to international users.
 
 - [ ] See [1. Command System Improvements](#1-command-system-improvements) and [Localization](#localization) in the Reference & Implementation Details section.
+
+### 1.2 Global Localization Support
+
+- [ ] Implement global localization for commands, message templates, and components
+    - [ ] Extend localization system to cover all user-facing text, including message templates and component labels/descriptions
+    - [ ] Refactor message template and component builders to accept locale and use localized strings
+    - [ ] Create or update `src/locales/` with translations for all templates and components
+    - [ ] Add a `/lang` command to allow users to set their preferred language (per-user and/or per-guild)
+    - [ ] Store language preferences in the database and apply them to all bot responses
+    - [ ] Ensure fallback logic for missing translations (user → guild → default)
+    - [ ] Update documentation to cover global localization and the `/lang` command
 
 ## 2. Enhance Option Validation
 
@@ -1271,94 +1277,3 @@ export class AccountDeletionFlow extends LightFlow<{ userId: string }> {
 	}
 }
 ```
-
-## Message Template System
-
-### Message Builder Interface
-
-- [ ] Update message builder interfaces to support Discord.js v14+ components
-    - [ ] Add generic type support for message data parsing
-    - [ ] Update method signatures for better type safety
-    - [ ] Create specialized interfaces for new message types
-- [ ] Enhance message event handling with proper typing
-    - [ ] Add support for all interaction types
-    - [ ] Implement typed data extraction from custom IDs
-    - [ ] Create proper error handling for message interactions
-- [ ] Implement better builder patterns for messages
-    - [ ] Add fluent interface for message creation
-    - [ ] Create standardized message styling
-    - [ ] Support disabled states, emoji, and other visual options
-
-### Template Management
-
-- [ ] Create a TemplateManager class with helper methods
-    - [ ] Add `createMessageTemplate()` utility
-    - [ ] Implement `createMessageTemplate()` for dynamic message creation
-    - [ ] Create `buildMessageTemplateOptions()` for dynamic message customization
-- [ ] Implement reusable message patterns
-    - [ ] Add message template components
-    - [ ] Create message template factories
-    - [ ] Implement message template validation
-- [ ] Create templates for common interaction patterns
-    - [ ] Add message template components
-    - [ ] Implement message template builders
-    - [ ] Create message template utilities
-
-### Template Utilities
-
-- [ ] Create a TemplateUtils class with helper methods
-    - [ ] Add `createMessageTemplate()` utility
-    - [ ] Implement `createMessageTemplate()` for dynamic message creation
-    - [ ] Create `buildMessageTemplateOptions()` for dynamic message customization
-- [ ] Implement reusable message patterns
-    - [ ] Add message template components
-    - [ ] Create message template factories
-    - [ ] Implement message template validation
-- [ ] Create templates for common interaction patterns
-    - [ ] Add message template components
-    - [ ] Implement message template builders
-    - [ ] Create message template utilities
-
-### Template Factory
-
-- [ ] Create a TemplateFactory class with helper methods
-    - [ ] Add `createMessageTemplate()` utility
-    - [ ] Implement `createMessageTemplate()` for dynamic message creation
-    - [ ] Create `buildMessageTemplateOptions()` for dynamic message customization
-- [ ] Implement reusable message patterns
-    - [ ] Add message template components
-    - [ ] Create message template factories
-    - [ ] Implement message template validation
-- [ ] Create templates for common interaction patterns
-    - [ ] Add message template components
-    - [ ] Implement message template builders
-    - [ ] Create message template utilities
-
-## Flow System Improvements
-
-### Session ID-Based Flow Tracking
-
-- [x] Implement a session ID system for all flows (ephemeral and persistent):
-    - [x] Generate a unique session ID (e.g., nanoid/uuid) when a flow starts.
-    - [x] Store the session ID in the flow state and in the FlowManager.
-    - [x] Include the session ID in the customId data for all components (buttons, select menus, modals) built by the flow.
-    - [x] On interaction, extract the session ID from the customId and use it to look up the flow handler in FlowManager.
-    - [x] Remove reliance on messageId for ephemeral flows; use sessionId for all flows.
-    - [x] Update FlowManager and BaseFlowHandler to support sessionId registration and lookup.
-    - [x] Update all flows and message/component builders to include sessionId in customId data.
-    - [ ] Add migration/compatibility logic for existing flows that use messageId.
-    - [ ] Add tests for multiple concurrent flows per user/channel.
-    - [ ] Document the session ID flow tracking system in developer docs.
-
-### Automated Flow Handling for Components
-
-- [x] Automate component-to-flow wiring:
-    - [x] Create a decorator or utility to automatically attach flow context/sessionId to all components built by a flow.
-    - [x] Update component builder utilities to always include sessionId in customId data if a flow is active.
-    - [x] In the component interaction handler, automatically extract sessionId and route the interaction to the correct flow handler.
-    - [x] Remove the need for manual component registration or handler wiring in each flow.
-    - [ ] Add a base pattern or helper for flows to register all their components in one place.
-    - [ ] Add tests to ensure all components in a flow are correctly routed to the flow handler.
-    - [ ] Document the automated flow-component handling system for contributors.
-
-> **Note:** Implementation in progress. Updating MessageComponent.ts and CustomIdUtils.ts for sessionId support and automatic routing of component interactions to flows.

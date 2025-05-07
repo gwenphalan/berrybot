@@ -2,6 +2,7 @@ import pino from 'pino';
 import { join } from 'path';
 import { execSync } from 'child_process';
 import { existsSync, renameSync, mkdirSync } from 'fs';
+import type { Logger } from 'pino';
 
 // Force UTF-8 encoding for Windows to ensure proper emoji and special character display
 if (process.platform === 'win32') {
@@ -137,5 +138,50 @@ export const color = {
 	italic: '#I',
 	obfuscated: '#O',
 };
+
+// Type for prettyError details
+export interface PrettyErrorDetails {
+	errorId: string;
+	command: string;
+	subcommand?: string | null;
+	user: string;
+	guild?: string | null;
+	message: string;
+	error: Error | string;
+}
+
+/**
+ * Prints a visually separated, colored error block to the console and logs the error to the log file.
+ * Use for command/interaction errors where you want both pretty console output and persistent logging.
+ * @param logger The logger instance to use for file logging
+ * @param details Object with errorId, command, subcommand, user, guild, message, error (Error or string)
+ */
+export function prettyError(logger: Logger, details: PrettyErrorDetails) {
+	const { errorId, command, subcommand, user, guild, message, error } = details;
+	const red = '\x1b[31m';
+	const yellow = '\x1b[33m';
+	const cyan = '\x1b[36m';
+	const reset = '\x1b[0m';
+	console.error(`\n${red}================= COMMAND ERROR =================${reset}`);
+	console.error(`${yellow}Error ID:${reset}     ${cyan}${errorId}${reset}`);
+	console.error(
+		`${yellow}Command:${reset}      ${cyan}${command}${subcommand ? `.${subcommand}` : ''}${reset}`
+	);
+	console.error(`${yellow}User:${reset}         ${cyan}${user}${reset}`);
+	console.error(`${yellow}Guild:${reset}        ${cyan}${guild || 'DM'}${reset}`);
+	console.error(`${yellow}Message:${reset}      ${red}${message}${reset}`);
+	console.error(`${red}-----------------------------------------------${reset}`);
+	if (error instanceof Error && error.stack) {
+		console.error(error.stack);
+	} else if (typeof error === 'string') {
+		console.error(error);
+	}
+	console.error(`${red}===============================================${reset}\n`);
+	// Log to file as well
+	logger.error(
+		{ errorId, command, subcommand, user, guild, message, error },
+		'Error executing command'
+	);
+}
 
 export { logger, stream };

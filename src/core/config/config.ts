@@ -24,6 +24,8 @@ export interface Config {
 	mongo_string: string;
 	/** Emojis registry */
 	emojis: Emojis;
+	/** Invite link to the support server */
+	support_server: string;
 }
 
 interface Emojis {
@@ -97,4 +99,5 @@ export const config: Config = {
 	developer: process.env.DEVELOPER_ID,
 	database_name: process.env.NODE_ENV || 'development',
 	emojis,
+	support_server: `https://discord.gg/${process.env.SUPPORT_SERVER_ID}`,
 };

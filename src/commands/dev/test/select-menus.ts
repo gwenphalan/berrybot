@@ -1,16 +1,11 @@
-import {
-	ActionRowBuilder,
-	ChatInputCommandInteraction,
-	SlashCommandSubcommandBuilder,
-	StringSelectMenuBuilder,
-} from 'discord.js';
+import { ActionRowBuilder, ChatInputCommandInteraction, StringSelectMenuBuilder } from 'discord.js';
 import { Test_Select, Test_MultiSelect } from '@/components';
-import { Command } from '@/core/interfaces/Command';
-
+import { SubCommand } from '@/core/interfaces/Command';
+import { LocalizedSlashCommandSubcommandBuilder } from '@/core/utils/Locale';
 // Test command for demonstrating select menu component functionality
-const command: Command = {
+const command: SubCommand = {
 	parent: 'test',
-	data: new SlashCommandSubcommandBuilder()
+	data: new LocalizedSlashCommandSubcommandBuilder()
 		.setName('select-menu')
 		.setDescription('Test select menu')
 		.addStringOption((option) =>
@@ -23,10 +18,11 @@ const command: Command = {
 	async execute(interaction: ChatInputCommandInteraction, _client) {
 		// Validate guild context
 		if (!interaction.guild) {
-			return interaction.reply({
+			await interaction.reply({
 				content: 'This command can only be used in a server.',
 				ephemeral: true,
 			});
+			return;
 		}
 
 		// Get selected menu type from options
@@ -48,7 +44,7 @@ const command: Command = {
 		}
 
 		// Send message with select menu
-		return await interaction.reply({ content: 'Test Select Menu', components: [row] });
+		await interaction.reply({ content: 'Test Select Menu', components: [row] });
 	},
 };
 

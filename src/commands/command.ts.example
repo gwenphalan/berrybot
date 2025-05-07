@@ -28,7 +28,7 @@ const command: Command = {
 		.setDefaultMemberPermissions(PermissionFlagsBits.SendMessages),
 
 	// Command execution handler
-	async execute(interaction: ChatInputCommandInteraction) {
+	async execute(interaction: ChatInputCommandInteraction, client) {
 		// Get command options
 		const message = interaction.options.getString('message');
 		const ephemeral = interaction.options.getBoolean('ephemeral') ?? false;

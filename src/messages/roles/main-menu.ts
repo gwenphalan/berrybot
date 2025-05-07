@@ -173,7 +173,13 @@ export const MainMenu: MessageBuilder = {
 		} catch (err) {
 			logger.error({ err }, 'Failed to build category content');
 		}
-		const { buttonRow, messageRow } = await buildButtons(client, categories.length, sessionId);
+		// Always use sessionId from argument or from state
+		const effectiveSessionId = sessionId || state?.sessionId;
+		const { buttonRow, messageRow } = await buildButtons(
+			client,
+			categories.length,
+			effectiveSessionId
+		);
 		const container = new ContainerBuilder().setAccentColor(
 			client.utils.Color.hexToNumber(ACCENT_COLOR)
 		);

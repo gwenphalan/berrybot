@@ -5,10 +5,14 @@ import { BaseCommand } from '@/core/interfaces/Command';
 import { load } from '@/core/utils/Files';
 import { logger } from '@/core/logging/Logger';
 import AsciiTable from 'ascii-table';
+import { localeManager } from '@/core/managers/LocaleManager';
 
 // Main function to load and register all commands with Discord
 export async function loadCommands(client: Client) {
 	const table = new AsciiTable().setHeading('Commands', 'Status');
+
+	// Ensure locales are loaded before loading commands
+	await localeManager.loadLocales();
 
 	// Clear existing commands before loading new ones in case of command reload
 	logger.debug('Clearing existing commands and subcommands...');

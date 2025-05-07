@@ -97,7 +97,7 @@ export class RoleConfigFlow extends BaseFlowHandler {
 						{ flowId: this.id, state },
 						'[RoleConfigFlow.build] Calling MainMenu.build'
 					);
-					messageOpts = await MainMenu.build(client, state);
+					messageOpts = await MainMenu.build(client, state, undefined, state.sessionId);
 					logger.debug(
 						{ flowId: this.id, messageOpts },
 						'[RoleConfigFlow.build] MainMenu.build result'

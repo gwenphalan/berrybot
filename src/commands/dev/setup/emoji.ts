@@ -1,11 +1,6 @@
 import type { Command } from '@/core/interfaces/Command';
-import {
-	Colors,
-	EmbedBuilder,
-	GuildMember,
-	SlashCommandBuilder,
-	type CommandInteraction,
-} from 'discord.js';
+import { Colors, EmbedBuilder, GuildMember, type CommandInteraction } from 'discord.js';
+import { LocalizedSlashCommandBuilder } from '@/core/utils/Locale';
 import { logger } from '@/core/logging/Logger';
 import { load } from '@/core/utils/Files';
 import * as fs from 'fs';
@@ -109,7 +104,7 @@ function formatEmojiList(
 const command: Command = {
 	developer: true,
 	// Command data used for registration and display
-	data: new SlashCommandBuilder()
+	data: new LocalizedSlashCommandBuilder()
 		.setName('emoji') // Command name (lowercase, no spaces)
 		.setDescription('Upload required emojis to the guild'), // User-facing command description
 
@@ -125,7 +120,8 @@ const command: Command = {
 				.setTitle('Error')
 				.setDescription('No emojis found in this guild.')
 				.setColor(Colors.Red);
-			return interaction.editReply({ embeds: [errorEmbed] });
+			await interaction.editReply({ embeds: [errorEmbed] });
+			return;
 		}
 
 		// Check if the bot has permission to manage emojis
@@ -139,11 +135,12 @@ const command: Command = {
 					value: '`Manage Emojis and Stickers`',
 				})
 				.setColor(Colors.Red);
-			return interaction.editReply({ embeds: [permissionErrorEmbed] });
+			await interaction.editReply({ embeds: [permissionErrorEmbed] });
+			return;
 		}
 
 		// By default, upload all emojis
-		return await uploadAllEmojis(interaction, client, emojis);
+		await uploadAllEmojis(interaction, client, emojis);
 	},
 };
 

@@ -1,6 +1,6 @@
-import { SlashCommandBuilder } from 'discord.js';
 import type { Command } from '@/core/interfaces/Command';
 import { paginator } from '@/messages';
+import { LocalizedSlashCommandBuilder } from '@/core/utils/Locale';
 
 /**
  * Discord slash command implementation
@@ -8,7 +8,7 @@ import { paginator } from '@/messages';
  */
 const command: Command = {
 	// Command data used for registration and display
-	data: new SlashCommandBuilder()
+	data: new LocalizedSlashCommandBuilder()
 		.setName('paginator') // Command name (lowercase, no spaces)
 		.setDescription('Test the paginator'), // User-facing command description
 

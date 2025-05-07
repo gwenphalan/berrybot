@@ -1,0 +1,47 @@
+{
+	"commands": {
+		"locale": {
+			"name": "locale",
+			"description": "Change your language/locale preference.",
+			"title": "Change Your Language",
+			"current": "Your current locale: {{locale}}",
+			"select_placeholder": "Select your language",
+			"support_server": "Support Server",
+			"updated": "Your locale has been updated to {{locale}}."
+		}
+	},
+	"locales": {
+		"en-US": "English (US)",
+		"en-GB": "English (UK)",
+		"fr": "French",
+		"de": "German",
+		"es-ES": "Spanish (Spain)",
+		"es-419": "Spanish (LATAM)",
+		"it": "Italian",
+		"pt-BR": "Portuguese (Brazil)",
+		"ru": "Russian",
+		"ja": "Japanese",
+		"ko": "Korean",
+		"zh-CN": "Chinese (Simplified)",
+		"zh-TW": "Chinese (Taiwan)",
+		"tr": "Turkish",
+		"pl": "Polish",
+		"uk": "Ukrainian",
+		"cs": "Czech",
+		"fi": "Finnish",
+		"sv-SE": "Swedish",
+		"nl": "Dutch",
+		"da": "Danish",
+		"no": "Norwegian",
+		"ro": "Romanian",
+		"hu": "Hungarian",
+		"bg": "Bulgarian",
+		"el": "Greek",
+		"hi": "Hindi",
+		"th": "Thai",
+		"vi": "Vietnamese",
+		"hr": "Croatian",
+		"lt": "Lithuanian",
+		"id": "Indonesian"
+	}
+}

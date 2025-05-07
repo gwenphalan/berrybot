@@ -2,7 +2,9 @@ import mongoose from 'mongoose';
 import { config } from '@/core/config/config';
 import { GuildSettings } from '@/database/GuildSettings';
 import { Flows } from '@/database/Flows';
+import { UserSettings } from '@/database/UserSettings';
 import { logger } from '@/core/logging/Logger';
+import { ErrorLog } from '@/database/ErrorLog';
 
 /**
  * Database connection and model management
@@ -149,10 +151,67 @@ export const flows = {
 };
 
 /**
+ * User Settings management
+ * Provides methods to get and update user-specific settings (locale)
+ */
+export const userSettings = {
+	/**
+	 * Get user settings, creating default if none exist
+	 * @param userId - The ID of the user to get settings for
+	 * @returns Promise resolving to the user settings
+	 */
+	get: async (userId: string): Promise<UserSettings> => {
+		logger.debug(`Fetching settings for user: ${userId}`);
+		const settings = await UserSettings.findOne({ userId });
+		if (settings) {
+			logger.debug(`Found existing settings for user: ${userId}`);
+			return settings;
+		}
+		logger.debug(`Creating default settings for user: ${userId}`);
+		return await UserSettings.create({ userId, locale: 'en' });
+	},
+
+	/**
+	 * Update user settings
+	 * @param userId - The ID of the user to update settings for
+	 * @param locale - The new locale to set
+	 */
+	async setLocale(userId: string, locale: string) {
+		logger.debug(`Updating locale for user: ${userId} to ${locale}`);
+		await UserSettings.updateOne({ userId }, { locale }, { upsert: true });
+		logger.debug(`Locale updated for user: ${userId}`);
+	},
+
+	/** Mongoose model for user settings */
+	model: UserSettings,
+};
+
+/**
+ * Error Logs management
+ * Provides methods to log command errors
+ */
+export const errorLogs = {
+	/**
+	 * Log a new error
+	 * @param errorData - The error log data to create
+	 * @returns Promise resolving to the created error log
+	 */
+	create: async (errorData: Partial<ErrorLog>): Promise<ErrorLog> => {
+		logger.debug(`[database.errorLogs.create] Logging error: ${errorData.errorId}`);
+		return await ErrorLog.create(errorData);
+	},
+
+	/** Mongoose model for error logs */
+	model: ErrorLog,
+};
+
+/**
  * Database interface
  * Exports all database models and their management functions
  */
 export const database = {
 	guildSettings,
 	flows,
+	userSettings,
+	errorLogs,
 };

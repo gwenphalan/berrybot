@@ -1,9 +1,10 @@
-import type {
-	SlashCommandBuilder,
-	ChatInputCommandInteraction,
-	SlashCommandSubcommandBuilder,
-} from 'discord.js';
+import type { ChatInputCommandInteraction } from 'discord.js';
 import type { Client } from '@/core/client/BerryClient';
+import {
+	LocalizedSlashCommandBuilder,
+	LocalizedSlashCommandSubcommandBuilder,
+} from '@/core/utils/Locale';
+import { SlashCommandBuilder, SlashCommandSubcommandBuilder } from 'discord.js';
 
 /**
  * Base command interface for slash commands
@@ -17,13 +18,14 @@ export type BaseCommand = {
 	/** Whether this command can only be used in guilds (not DMs) */
 	guildOnly?: boolean;
 	/** The slash command data including name, description, and options */
-	data: SlashCommandBuilder;
+	data: SlashCommandBuilder | LocalizedSlashCommandBuilder;
 	/**
 	 * Command execution handler
 	 * @param interaction - The interaction object from Discord
 	 * @param client - The bot client instance
+	 * @returns Promise<void>
 	 */
-	execute(interaction: ChatInputCommandInteraction, client: Client): void;
+	execute(interaction: ChatInputCommandInteraction, client: Client): Promise<void>;
 };
 
 /**
@@ -34,13 +36,14 @@ export type SubCommand = {
 	/** The name of the parent command this subcommand belongs to */
 	parent: string;
 	/** The subcommand data including name, description, and options */
-	data: SlashCommandSubcommandBuilder;
+	data: SlashCommandSubcommandBuilder | LocalizedSlashCommandSubcommandBuilder;
 	/**
 	 * Subcommand execution handler
 	 * @param interaction - The interaction object from Discord
 	 * @param client - The bot client instance
+	 * @returns Promise<void>
 	 */
-	execute(interaction: ChatInputCommandInteraction, client: Client): void;
+	execute(interaction: ChatInputCommandInteraction, client: Client): Promise<void>;
 };
 
 /**

@@ -1,11 +1,11 @@
 import * as discord from 'discord.js';
 import { Command } from '@/core/interfaces';
 import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
-
+import { LocalizedSlashCommandBuilder } from '@/core/utils/Locale';
 // Self-roles management command for server administrators
 const command: Command = {
 	guildOnly: true,
-	data: new discord.SlashCommandBuilder()
+	data: new LocalizedSlashCommandBuilder()
 		.setName('role-config')
 		.setDescription('View or manage self-assignable roles.')
 		.setDefaultMemberPermissions(discord.PermissionFlagsBits.ManageRoles),

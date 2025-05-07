@@ -1,0 +1,48 @@
+{
+	"commands": {
+		"locale": {
+			"name": "idioma",
+			"description": "Cambia tu preferencia de idioma/localización.",
+			"title": "Cambia tu idioma",
+			"current": "Tu idioma actual: {{locale}}",
+			"select_placeholder": "Selecciona tu idioma",
+			"support_server": "Servidor de Soporte",
+			"updated": "Tu idioma ha sido actualizado a {{locale}}.",
+			"no_other_languages": "No hay otros idiomas disponibles en este momento."
+		}
+	},
+	"locales": {
+		"en-US": "Inglés (EE.UU.)",
+		"en-GB": "Inglés (Reino Unido)",
+		"fr": "Francés",
+		"de": "Alemán",
+		"es-ES": "Español (España)",
+		"es-419": "Español (Latinoamérica)",
+		"it": "Italiano",
+		"pt-BR": "Portugués (Brasil)",
+		"ru": "Ruso",
+		"ja": "Japonés",
+		"ko": "Coreano",
+		"zh-CN": "Chino (Simplificado)",
+		"zh-TW": "Chino (Taiwán)",
+		"tr": "Turco",
+		"pl": "Polaco",
+		"uk": "Ucraniano",
+		"cs": "Checo",
+		"fi": "Finlandés",
+		"sv-SE": "Sueco",
+		"nl": "Neerlandés",
+		"da": "Danés",
+		"no": "Noruego",
+		"ro": "Rumano",
+		"hu": "Húngaro",
+		"bg": "Búlgaro",
+		"el": "Griego",
+		"hi": "Hindi",
+		"th": "Tailandés",
+		"vi": "Vietnamita",
+		"hr": "Croata",
+		"lt": "Lituano",
+		"id": "Indonesio"
+	}
+}

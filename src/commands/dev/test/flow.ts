@@ -1,22 +1,22 @@
-import { SlashCommandSubcommandBuilder } from 'discord.js';
 import { Command } from '@/core/interfaces/Command';
 import { ExampleFlow } from '@/flows/ExampleFlow';
 import { logger } from '@/core/logging/Logger';
-
+import { LocalizedSlashCommandSubcommandBuilder } from '@/core/utils/Locale';
 // Description of what this subcommand does
 const command: Command = {
 	parent: 'test',
-	data: new SlashCommandSubcommandBuilder().setName('flow').setDescription('Flow test'),
+	data: new LocalizedSlashCommandSubcommandBuilder().setName('flow').setDescription('Flow test'),
 
 	async execute(interaction, client) {
 		logger.debug('Initializing flow test command');
 		// Validate guild context
 		if (!interaction.guild) {
 			logger.debug('Command used outside of guild context');
-			return interaction.reply({
+			await interaction.reply({
 				content: 'This command can only be used in a server.',
 				ephemeral: true,
 			});
+			return;
 		}
 
 		try {
@@ -44,10 +44,11 @@ const command: Command = {
 				'Error initializing flow'
 			);
 
-			return interaction.reply({
+			await interaction.reply({
 				content: 'An error occurred while initializing the flow.',
 				ephemeral: true,
 			});
+			return;
 		}
 	},
 };
