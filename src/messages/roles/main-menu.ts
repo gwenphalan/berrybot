@@ -18,13 +18,12 @@ import { logger } from '@/core/logging/Logger';
 import ConfigMainMenuCreateButton from '@/components/buttons/roles/config-main-menu/create';
 import ConfigMainMenuEditButton from '@/components/buttons/roles/config-main-menu/edit';
 import ConfigMainMenuMessageButton from '@/components/buttons/roles/config-main-menu/message';
+import { database } from '@/core/config/database';
+import { toDiscordLocale, t } from '@/core/utils/Locale';
 
 // Constants for UI and error messages
 const ERROR_COLOR = '#FF0000';
 const ACCENT_COLOR = '#00BFFF';
-const MSG_NO_GUILD_SETTINGS = 'No guild settings found';
-const MSG_EDIT_OR_CREATE = '## Would you like to edit or create a category?';
-const MSG_CREATE_TO_START = '## Click create to get started!';
 
 interface BuildOptions {
 	interaction:
@@ -146,6 +145,15 @@ export const MainMenu: MessageBuilder = {
 		if (!interaction || !interaction.guildId) {
 			throw new Error('No interaction found');
 		}
+		// Remove locale variable and use inline for localization
+		const userId = interaction.user?.id;
+		let locale = 'en-US';
+		if (userId) {
+			const userSettings = await database.userSettings.get(userId);
+			locale = toDiscordLocale(userSettings?.locale || interaction.locale || 'en-US');
+		} else {
+			locale = toDiscordLocale(interaction.locale || 'en-US');
+		}
 		let guildSettings: any;
 		try {
 			guildSettings = await client.database.guildSettings.get(interaction.guildId);
@@ -155,8 +163,8 @@ export const MainMenu: MessageBuilder = {
 		}
 		if (!guildSettings) {
 			const errorEmbed = new EmbedBuilder()
-				.setTitle('Error')
-				.setDescription(MSG_NO_GUILD_SETTINGS)
+				.setTitle(t('roles.main_menu_error_title', { locale }))
+				.setDescription(t('roles.main_menu_no_guild_settings', { locale }))
 				.setColor(ERROR_COLOR);
 			return {
 				embeds: [errorEmbed],
@@ -166,7 +174,11 @@ export const MainMenu: MessageBuilder = {
 		const categories = guildSettings.selfRoles.categories;
 		logger.debug({ categories }, '[MainMenu.build] Categories array from guild settings');
 		const titleComponent = new TextDisplayBuilder();
-		titleComponent.setContent(categories.length > 0 ? MSG_EDIT_OR_CREATE : MSG_CREATE_TO_START);
+		titleComponent.setContent(
+			categories.length > 0
+				? t('roles.main_menu_edit_or_create', { locale })
+				: t('roles.main_menu_create_to_start', { locale })
+		);
 		let categoryContent = '';
 		try {
 			categoryContent = await buildCategoryContent(categories, interaction);

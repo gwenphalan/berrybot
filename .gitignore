@@ -10,6 +10,8 @@ node_modules/
 .pnp.cjs
 .pnp.loader.mjs
 
+assets/images/git_ignored/locale_flags/
+
 # Yarn state and cache
 .yarn/*
 !.yarn/sdks/

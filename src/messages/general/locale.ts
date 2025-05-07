@@ -8,52 +8,50 @@ import {
 	StringSelectMenuBuilder,
 	ActionRowBuilder,
 	Locale as DiscordLocale,
+	SeparatorBuilder,
 } from 'discord.js';
 import type { Client } from '@/core/client/BerryClient';
-import { t } from '@/core/utils/Locale';
+import { t, getRegionNameAndEmoji } from '@/core/utils/Locale';
 import { config } from '@/core/config/config';
 import { localeManager } from '@/core/managers/LocaleManager';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
-/**
- * Helper to map locale to country code for flag images
- */
-function getCountryCodeForLocale(locale: string): string | null {
-	const map: Record<string, string> = {
-		'en-US': 'us',
-		'en-GB': 'gb',
-		fr: 'fr',
-		de: 'de',
-		'es-ES': 'es',
-		'es-419': 'mx', // Use Mexico for LATAM Spanish as a fallback
-		it: 'it',
-		'pt-BR': 'br',
-		ru: 'ru',
-		ja: 'jp',
-		ko: 'kr',
-		'zh-CN': 'cn',
-		'zh-TW': 'tw',
-		tr: 'tr',
-		pl: 'pl',
-		uk: 'ua',
-		cs: 'cz',
-		fi: 'fi',
-		'sv-SE': 'se',
-		nl: 'nl',
-		da: 'dk',
-		no: 'no',
-		ro: 'ro',
-		hu: 'hu',
-		bg: 'bg',
-		el: 'gr',
-		hi: 'in',
-		th: 'th',
-		vi: 'vn',
-		hr: 'hr',
-		lt: 'lt',
-		id: 'id',
-	};
-	return map[locale] || null;
-}
+// Add localeToCountryCode map at the top
+const localeToCountryCode: Record<string, string> = {
+	'en-US': 'US',
+	'en-GB': 'GB',
+	fr: 'FR',
+	de: 'DE',
+	'es-ES': 'ES',
+	'es-419': 'MX', // Spanish (LATAM) → Mexico as best fit
+	it: 'IT',
+	'pt-BR': 'BR',
+	ru: 'RU',
+	ja: 'JP',
+	ko: 'KR',
+	'zh-CN': 'CN',
+	'zh-TW': 'TW',
+	tr: 'TR',
+	pl: 'PL',
+	uk: 'UA',
+	cs: 'CZ',
+	fi: 'FI',
+	'sv-SE': 'SE',
+	nl: 'NL',
+	da: 'DK',
+	no: 'NO',
+	ro: 'RO',
+	hu: 'HU',
+	bg: 'BG',
+	el: 'GR',
+	hi: 'IN',
+	th: 'TH',
+	vi: 'VN',
+	hr: 'HR',
+	lt: 'LT',
+	id: 'ID',
+};
 
 /**
  * Builds the locale selection message for both the /locale command and select menu updates.
@@ -75,11 +73,11 @@ export async function buildLocaleMessage(
 		)
 		.addOptions(
 			availableLocales.map((locale) => {
-				const region = locale;
-				const emoji = '';
+				const { region, emoji } = getRegionNameAndEmoji(locale as DiscordLocale);
 				return {
-					label: `${region}`,
+					label: region,
 					value: locale,
+					emoji,
 					description:
 						localeManager.getTranslation(`locales.${locale}`, locale) || locale,
 					default: locale === currentLocale,
@@ -96,10 +94,10 @@ export async function buildLocaleMessage(
 		.setURL(config.support_server);
 
 	// Build the flag thumbnail for the current locale
-	const countryCode = getCountryCodeForLocale(currentLocale);
+	const countryCode = localeToCountryCode[currentLocale] || null;
 	const flagUrl = countryCode
-		? `https://flagcdn.com/w80/${countryCode}.png`
-		: 'https://flagcdn.com/w80/un.png';
+		? `https://cdn.unimatrix-01.dev/images/berrybot/flag/${countryCode}.png`
+		: 'https://cdn.unimatrix-01.dev/images/berrybot/flag/US.png';
 	const flagThumbnail = new ThumbnailBuilder().setURL(flagUrl);
 
 	const container = new ContainerBuilder().setAccentColor(
@@ -122,6 +120,10 @@ export async function buildLocaleMessage(
 	container.addSectionComponents(section);
 	container.addActionRowComponents(selectRow);
 
+	// Add a separator before the support server section
+	const separator = new SeparatorBuilder().setDivider(true);
+	container.addSeparatorComponents(separator);
+
 	const supportText = new TextDisplayBuilder().setContent(
 		t('commands.locale.support_server', { locale: currentLocale })
 	);
@@ -130,8 +132,9 @@ export async function buildLocaleMessage(
 		.setButtonAccessory(supportServerButton);
 	container.addSectionComponents(supportSection);
 
-	return {
+	const result: any = {
 		flags: MessageFlags.IsComponentsV2,
 		components: [container],
 	};
+	return result;
 }

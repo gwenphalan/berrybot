@@ -80,6 +80,7 @@ export interface BaseMessageComponent<TData = any> {
 	 * Builds the component for Discord (fluent builder pattern recommended in implementation).
 	 * @param client - The bot client instance.
 	 * @param args - Additional arguments for component construction.
+	 * @param locale - Optional locale string for localization.
 	 * @returns Promise resolving to the built component.
 	 */
 	build(client: Client, ...args: any[]): Promise<ComponentBuilder>;

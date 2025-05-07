@@ -23,9 +23,14 @@ export type BaseCommand = {
 	 * Command execution handler
 	 * @param interaction - The interaction object from Discord
 	 * @param client - The bot client instance
+	 * @param locale - The resolved locale string
 	 * @returns Promise<void>
 	 */
-	execute(interaction: ChatInputCommandInteraction, client: Client): Promise<void>;
+	execute(
+		interaction: ChatInputCommandInteraction,
+		client: Client,
+		locale?: string
+	): Promise<void>;
 };
 
 /**
@@ -41,9 +46,14 @@ export type SubCommand = {
 	 * Subcommand execution handler
 	 * @param interaction - The interaction object from Discord
 	 * @param client - The bot client instance
+	 * @param locale - The resolved locale string
 	 * @returns Promise<void>
 	 */
-	execute(interaction: ChatInputCommandInteraction, client: Client): Promise<void>;
+	execute(
+		interaction: ChatInputCommandInteraction,
+		client: Client,
+		locale?: string
+	): Promise<void>;
 };
 
 /**

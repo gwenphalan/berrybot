@@ -9,6 +9,8 @@ import { ButtonComponent } from '@/core/classes/ButtonComponent';
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 import { RoleConfigFlow } from '@/flows/roles/RoleConfigFlow';
+import { database } from '@/core/config/database';
+import { toDiscordLocale, t } from '@/core/utils/Locale';
 
 /**
  * Emoji Select - Triggers emoji select menu
@@ -26,18 +28,34 @@ export class CategoryEditEmojiButton extends ButtonComponent<{ category: string 
 	async execute(interaction: ButtonInteraction, client: Client, data: { category: string }) {
 		const flow = client.flowManager.getHandler<RoleConfigFlow>(interaction.message.id);
 		logger.debug({ data }, this.id + ' button clicked with data');
+		const userId = interaction.user?.id;
+		let locale = 'en-US';
+		if (userId) {
+			const userSettings = await database.userSettings.get(userId);
+			locale = toDiscordLocale(userSettings?.locale || interaction.locale || 'en-US');
+		} else {
+			locale = toDiscordLocale(interaction.locale || 'en-US');
+		}
 		if (!interaction.guildId) {
 			logger.error('No guild id found for interaction');
+			await interaction.reply({
+				content: t('roles.category_edit_emoji_button_error_no_guild', { locale }),
+				ephemeral: true,
+			});
 			return;
 		}
 
 		if (!flow) {
 			logger.error('No flow found for message id', { messageId: interaction.message.id });
+			await interaction.reply({
+				content: t('roles.category_edit_emoji_button_error_no_flow', { locale }),
+				ephemeral: true,
+			});
 			return;
 		}
 
 		const embed = new EmbedBuilder()
-			.setTitle('React to this message with the emoji you want to use.')
+			.setTitle(t('roles.category_edit_emoji_button_title', { locale }))
 			.setColor('#00BFFF'); // BerryBot Aqua
 
 		const message = await interaction.editReply({ embeds: [embed] });

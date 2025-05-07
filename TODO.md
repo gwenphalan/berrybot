@@ -47,6 +47,7 @@
     - [Flow System](#flow-system)
         - [LightFlow and Flow Simplification](#lightflow-and-flow-simplification)
         - [Flow Architecture Improvements](#flow-architecture-improvements)
+- [TODO: Locale System Migration Checklist](#todo-locale-system-migration-checklist)
 
 This document outlines key improvements to bring BerryBot up to date with the latest Discord.js best practices and features.
 
@@ -1277,3 +1278,65 @@ export class AccountDeletionFlow extends LightFlow<{ userId: string }> {
 	}
 }
 ```
+
+# TODO: Locale System Migration Checklist
+
+- [ ] **Update all message builders**
+
+    - Refactor every message builder in `src/messages/` to accept and use a `locale` parameter.
+    - Replace all user-facing strings with calls to `t(key, { locale })`.
+    - Pass the correct locale from command/flow context.
+
+- [ ] **Update all flows**
+
+    - Ensure all flows in `src/flows/` accept and propagate the `locale` parameter to message builders and components.
+    - Use the resolved locale from the command handler or flow manager.
+
+- [ ] **Update all component usages**
+
+    - Refactor all usages of component builders (buttons, select menus, modals, etc.) to pass the appropriate translation key and locale.
+    - Remove hardcoded labels/placeholders/titles in favor of translation keys.
+
+- [ ] **Audit and update all user-facing strings**
+
+    - Search for any remaining hardcoded user-facing strings in the codebase and replace them with `t()` calls.
+    - Ensure all translation keys are descriptive and consistent.
+
+- [ ] **Update `en-US.json` and other locale files**
+
+    - Add all new translation keys to `src/locales/en-US.json`.
+    - Ensure there are no missing keys for any user-facing text.
+
+- [ ] **Add/Update tests**
+
+    - Add or update tests to verify that the correct locale is propagated and used in commands, flows, and components.
+    - Mock different locales and ensure the correct translations are rendered.
+
+- [ ] **Documentation**
+
+    - Update project documentation to describe the new locale system, usage patterns, and best practices for adding new translations.
+
+- [ ] **Final review**
+    - Do a final audit to ensure all user-facing text is localized and the locale system is used consistently throughout the codebase.
+
+---
+
+# TODO: Command Localization Checklist
+
+- [ ] **Update all commands and subcommands**
+
+    - Refactor all commands and subcommands to use LocalizedSlashCommandBuilder or LocalizedSlashCommandSubcommandBuilder for names and descriptions.
+    - Use setLocalizedName and setLocalizedDescription with translation keys for all commands and subcommands.
+
+- [ ] **Localize all option names and descriptions**
+
+    - Ensure all option names and descriptions use translation keys and are localized using the appropriate methods.
+    - Remove any hardcoded option names/descriptions.
+
+- [ ] **Update `en-US.json` and other locale files**
+
+    - Add all command and option translation keys to `src/locales/en-US.json`.
+    - Ensure all keys are present for every supported language.
+
+- [ ] **Test command localization**
+    - Test all commands and options in multiple languages to verify correct localization and fallback behavior.

@@ -50,8 +50,9 @@ export default class LocaleSelectMenu extends StringSelectMenuComponent<{
 			.map((locale) => {
 				const { region, emoji } = getRegionNameAndEmoji(locale as DiscordLocale);
 				return {
-					label: `${emoji} ${region}`,
+					label: region,
 					value: locale,
+					emoji,
 					description:
 						localeManager.getTranslation(`locales.${locale}`, locale) || locale,
 					default: locale === currentLocale,
@@ -102,6 +103,9 @@ export default class LocaleSelectMenu extends StringSelectMenuComponent<{
 			currentLocale: newLocale,
 			availableLocales,
 		});
+
+		// Defer the update before editing the ephemeral message
+		await interaction.deferUpdate();
 		await interaction.editReply({
 			...message,
 			flags: Number(message.flags),

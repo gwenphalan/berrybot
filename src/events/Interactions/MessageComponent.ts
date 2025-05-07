@@ -17,6 +17,7 @@ import { error as errorMessageBuilder } from '@/messages/general/error';
 import { randomUUID } from 'crypto';
 import { database } from '@/core/config/database';
 import { buildErrorLogMessage } from '@/commands/dev/error-log';
+import { errorLog } from '@/messages/general/error-log';
 
 /**
  * Parses component customId to extract component ID, parent, group, and any compressed data
@@ -393,30 +394,38 @@ export const event: Event = {
 				try {
 					const channel = await client.channels.fetch(config.error_log_channel);
 					if (channel && 'send' in channel) {
-						const log = {
+						const errorLogMsg = await errorLog.build(
+							client,
+							error instanceof Error ? error : new Error(String(error)),
 							errorId,
-							command: key,
-							subcommand: type,
-							user: messageComponentInteraction.user.id,
-							guild: messageComponentInteraction.guild?.id || null,
-							errorMessage: error instanceof Error ? error.message : String(error),
-							stackTrace:
-								error instanceof Error && error.stack
-									? error.stack.slice(0, 1500)
-									: '',
-							createdAt: new Date(),
-						};
-						const container = buildErrorLogMessage(log as any, client);
-						await channel.send({
-							flags: 1 << 23, // MessageFlags.IsComponentsV2
-							components: [container],
-						});
+							{
+								command: key,
+								subcommand: type,
+								user: messageComponentInteraction.user.id,
+								guild: messageComponentInteraction.guild?.id || null,
+								createdAt: new Date(),
+							}
+						);
+						await channel.send(errorLogMsg);
+					} else {
+						logger.error(
+							'[MessageComponent.errorLog] The error log channel was not found or is not a text-based channel.',
+							{ channel }
+						);
 					}
-				} catch (sendError) {
-					logger.error(
-						{ sendError },
-						'[MessageComponent.execute] Failed to send error log to channel'
-					);
+				} catch (sendError: any) {
+					let reason =
+						'[MessageComponent.errorLog] Failed to send error log to channel: ';
+					if (sendError.code === 50001) {
+						reason += 'Missing access to channel (bot may lack permissions).';
+					} else if (sendError.code === 10003) {
+						reason += 'Channel not found.';
+					} else if (sendError.message && sendError.message.includes('not a function')) {
+						reason += 'Channel does not support sending messages.';
+					} else {
+						reason += sendError.message || 'Unknown error.';
+					}
+					logger.error({ sendError }, reason);
 				}
 			}
 

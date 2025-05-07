@@ -2,6 +2,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /**
+ * Main entry point: copy src/locales to dist/locales
+ */
+async function main() {
+	const srcDir = path.resolve(__dirname, '../src/locales');
+	const destDir = path.resolve(__dirname, '../dist/locales');
+	console.log(`[copy-locales] Copying locales from ${srcDir} to ${destDir}`);
+	copyRecursiveSync(srcDir, destDir);
+	console.log('[copy-locales] Done copying locales.');
+}
+
+/**
  * Recursively copy a directory from src to dest.
  * @param src - Source directory
  * @param dest - Destination directory
@@ -19,17 +30,6 @@ function copyRecursiveSync(src: string, dest: string): void {
 			console.log(`[copy-locales] Copied: ${srcPath} -> ${destPath}`);
 		}
 	}
-}
-
-/**
- * Main entry point: copy src/locales to dist/locales
- */
-function main() {
-	const srcDir = path.resolve(__dirname, '../src/locales');
-	const destDir = path.resolve(__dirname, '../dist/locales');
-	console.log(`[copy-locales] Copying locales from ${srcDir} to ${destDir}`);
-	copyRecursiveSync(srcDir, destDir);
-	console.log('[copy-locales] Done.');
 }
 
 main();

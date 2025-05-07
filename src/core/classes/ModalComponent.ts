@@ -1,5 +1,6 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
+import { t } from '@/core/utils/Locale';
 
 export interface TextInputOptions {
 	label: string;
@@ -30,12 +31,26 @@ export abstract class ModalComponent<TData = unknown> {
 		this.fields = fields;
 	}
 
+	/**
+	 * Build the ModalBuilder with the properties of this instance.
+	 * @param client - The bot client instance.
+	 * @param options - Optional build options.
+	 * @param sessionId - Optional session ID for the modal.
+	 * @param titleKey - Optional translation key for the modal title.
+	 * @param locale - Optional locale string for localization.
+	 */
 	async build(
 		client: Client,
 		options?: ModalBuildOptions<TData>,
-		sessionId?: string
+		sessionId?: string,
+		titleKey?: string,
+		locale?: string
 	): Promise<discord.ModalBuilder> {
-		const builder = new discord.ModalBuilder().setTitle(options?.title ?? this.title);
+		let title = options?.title ?? this.title;
+		if (titleKey && locale) {
+			title = t(titleKey, { locale });
+		}
+		const builder = new discord.ModalBuilder().setTitle(title);
 
 		let idString: string;
 		if (this.parent && this.group) {

@@ -11,7 +11,8 @@ export const ChannelSelect: MessageBuilder = {
 	embeds: [],
 	components: [],
 
-	async build(client: Client, guildId: string, sessionId?: string) {
+	async build(client: Client, guildId: string, state?: any, sessionId?: string) {
+		// Locale logic removed as it is not used yet
 		const guild = await client.guilds.fetch(guildId);
 		const channels = guild
 			? (guild.channels.cache as import('discord.js').Collection<

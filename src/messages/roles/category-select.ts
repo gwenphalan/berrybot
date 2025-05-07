@@ -4,6 +4,9 @@ import { Client } from '@/core/client/BerryClient';
 import { FlowState } from '@/core/interfaces/Flow';
 import { logger } from '@/core/logging/Logger';
 import CategorySelectMenu from '@/components/selectMenus/roles/category-select';
+import { t } from '@/core/utils/Locale';
+import { database } from '@/core/config/database';
+import { toDiscordLocale } from '@/core/utils/Locale';
 
 /**
  * CategorySelect - Message Description
@@ -25,7 +28,7 @@ export const CategorySelect: MessageBuilder = {
 	 * @param options - Additional options for building the message
 	 * @param sessionId - Optional sessionId for flow-attached messages
 	 */
-	async build(client: Client, guildId: string, _state?: FlowState, sessionId?: string) {
+	async build(client: Client, guildId: string, state?: FlowState, sessionId?: string) {
 		const guildSettings =
 			guildId && guildId !== undefined
 				? await client.database.guildSettings.get(guildId)
@@ -36,6 +39,17 @@ export const CategorySelect: MessageBuilder = {
 			categories.push(category.name);
 		});
 
+		// Determine locale: user DB preference > interaction.locale > 'en-US'
+		let locale = 'en-US';
+		const userId = state?.interaction?.user?.id;
+		if (userId) {
+			const userSettings = await database.userSettings.get(userId);
+			locale = toDiscordLocale(userSettings?.locale || state?.interaction?.locale || 'en-US');
+		} else {
+			locale = toDiscordLocale(state?.interaction?.locale || 'en-US');
+		}
+		const title = t('roles.category_select_title', { locale });
+
 		const select = await (new CategorySelectMenu().build as any)(
 			client,
 			{ data: { categories } },
@@ -45,7 +59,7 @@ export const CategorySelect: MessageBuilder = {
 
 		// Return updated message
 		const message = {
-			embeds: this.embeds,
+			embeds: [new EmbedBuilder().setTitle(title).setColor('#00BFFF')],
 			components: [row],
 		};
 		logger.debug({ message }, '[CategorySelect.build] Built category select message');

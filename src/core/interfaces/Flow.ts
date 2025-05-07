@@ -8,6 +8,8 @@ import {
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 import { parseData } from '@/events/interactions/MessageComponent';
+import { database } from '@/core/config/database';
+import { toDiscordLocale } from '@/core/utils/Locale';
 
 export interface FlowState {
 	/** Unique identifier for this state (e.g., 'main-menu', 'settings') */
@@ -165,7 +167,7 @@ export interface FlowHandler {
 	 */
 	onTimeout?(client: Client, state: FlowState): Promise<void>;
 
-	build(client: Client, state: FlowState): Promise<any>;
+	build(client: Client, state: FlowState, locale?: string): Promise<any>;
 	handle(
 		interaction:
 			| ButtonInteraction
@@ -310,7 +312,7 @@ export abstract class BaseFlowHandler implements FlowHandler {
 		}, this.TIMEOUT_DURATION);
 	}
 
-	abstract build(client: Client, state: FlowState): Promise<any>;
+	abstract build(client: Client, state: FlowState, locale?: string): Promise<any>;
 
 	/**
 	 * Creates a flow error with a code and details
@@ -1073,5 +1075,18 @@ export abstract class BaseFlowHandler implements FlowHandler {
 				'Failed to remove flow state from database'
 			);
 		}
+	}
+
+	/**
+	 * Helper to resolve the locale for the current flow state/interaction
+	 */
+	protected async resolveLocale(): Promise<string> {
+		const interaction = this.state?.interaction;
+		const userId = interaction?.user?.id;
+		if (userId) {
+			const userSettings = await database.userSettings.get(userId);
+			return toDiscordLocale(userSettings?.locale || interaction.locale || 'en-US');
+		}
+		return toDiscordLocale(interaction?.locale || 'en-US');
 	}
 }

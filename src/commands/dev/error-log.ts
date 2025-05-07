@@ -11,6 +11,7 @@ import { LocalizedSlashCommandBuilder } from '@/core/utils/Locale';
 import { ErrorLog as ErrorLogModel, type ErrorLog } from '@/database/ErrorLog';
 import { logger } from '@/core/logging/Logger';
 import { z } from 'zod';
+import { errorLog } from '@/messages/general/error-log';
 
 // Zod schema for UUID validation
 const uuidSchema = z.string().uuid();
@@ -94,12 +95,17 @@ const command: Command = {
 		}
 		logger.debug({ uuid, log }, '[ErrorLogCommand] Found error log');
 
-		// --- Build Discord components v2 message using builders ---
-		const container = buildErrorLogMessage(log, client);
-		await interaction.editReply({
-			flags: MessageFlags.IsComponentsV2,
-			components: [container],
+		// --- Build Discord components v2 message using the shared errorLog builder ---
+		const errorObj = new Error(log.errorMessage);
+		errorObj.stack = log.stackTrace;
+		const errorLogMsg = await errorLog.build(client, errorObj, log.errorId, {
+			command: log.command,
+			subcommand: log.subcommand,
+			user: log.user,
+			guild: log.guild,
+			createdAt: log.createdAt,
 		});
+		await interaction.editReply(errorLogMsg);
 	},
 };
 

@@ -8,6 +8,8 @@ import {
 import { FlowHandler, FlowState } from '@/core/interfaces/Flow';
 import { logger } from '@/core/logging/Logger';
 import type { Client } from '@/core/client/BerryClient';
+import { database } from '@/core/config/database';
+import { toDiscordLocale } from '@/core/utils/Locale';
 
 export interface FlowManagerInt {
 	/**
@@ -138,7 +140,17 @@ export class FlowManager implements FlowManagerInt {
 		const stateWithSession = handler.getState();
 		let message;
 		try {
-			message = await handler.build(this.client, stateWithSession);
+			// Resolve locale for the flow
+			const interaction = stateWithSession.interaction;
+			let locale = 'en-US';
+			const userId = interaction?.user?.id;
+			if (userId) {
+				const userSettings = await database.userSettings.get(userId);
+				locale = toDiscordLocale(userSettings?.locale || interaction.locale || 'en-US');
+			} else if (interaction) {
+				locale = toDiscordLocale(interaction.locale || 'en-US');
+			}
+			message = await handler.build(this.client, stateWithSession, locale);
 		} catch (err) {
 			logger.error(
 				{

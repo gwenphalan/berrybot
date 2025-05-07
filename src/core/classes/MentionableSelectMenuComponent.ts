@@ -1,5 +1,6 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
+import { t } from '@/core/utils/Locale';
 
 export interface MentionableSelectMenuBuildOptions<TData = unknown> {
 	placeholder?: string;
@@ -18,16 +19,29 @@ export abstract class MentionableSelectMenuComponent<TData = unknown> {
 	parent?: string;
 	group?: string;
 
+	/**
+	 * Build the MentionableSelectMenuBuilder with the properties of this instance.
+	 * @param client - The bot client instance.
+	 * @param options - Optional build options.
+	 * @param sessionId - Optional session ID for the component.
+	 * @param placeholderKey - Optional translation key for the placeholder.
+	 * @param locale - Optional locale string for localization.
+	 */
 	async build(
 		client: Client,
 		options?: MentionableSelectMenuBuildOptions<TData>,
-		sessionId?: string
+		sessionId?: string,
+		placeholderKey?: string,
+		locale?: string
 	): Promise<discord.MentionableSelectMenuBuilder> {
-		const builder = new discord.MentionableSelectMenuBuilder();
-		const placeholder = options?.placeholder ?? this.placeholder;
+		let placeholder = options?.placeholder ?? this.placeholder;
+		if (placeholderKey && locale) {
+			placeholder = t(placeholderKey, { locale });
+		}
 		const min_values = options?.min_values ?? this.min_values;
 		const max_values = options?.max_values ?? this.max_values;
 
+		const builder = new discord.MentionableSelectMenuBuilder();
 		if (placeholder) builder.setPlaceholder(placeholder);
 		if (min_values !== undefined) builder.setMinValues(min_values);
 		if (max_values !== undefined) builder.setMaxValues(max_values);

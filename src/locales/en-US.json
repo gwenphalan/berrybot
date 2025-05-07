@@ -43,5 +43,21 @@
 		"hr": "Croatian",
 		"lt": "Lithuanian",
 		"id": "Indonesian"
+	},
+	"roles": {
+		"category_select_title": "What category would you like to edit?",
+		"main_menu_no_guild_settings": "No guild settings found",
+		"main_menu_edit_or_create": "## Would you like to edit or create a category?",
+		"main_menu_create_to_start": "## Click create to get started!",
+		"main_menu_error_title": "Error",
+		"category_edit_delete_button_error_no_flow": "No flow found for this message. Please try again.",
+		"category_edit_emoji_button_title": "React to this message with the emoji you want to use.",
+		"category_edit_emoji_button_error_no_guild": "No guild ID found for this interaction.",
+		"category_edit_emoji_button_error_no_flow": "No flow found for this message. Please try again.",
+		"category_edit_name_button_error_no_flow": "No flow found for this message. Please try again.",
+		"category_edit_roles_button_error_no_flow": "No flow found for this message. Please try again.",
+		"config_main_menu_create_button_error_no_flow": "No flow found for this message. Please try again.",
+		"config_main_menu_edit_button_error_no_flow": "No flow found for this message. Please try again.",
+		"config_main_menu_message_button_error_no_flow": "No flow found for this message. Please try again."
 	}
 }

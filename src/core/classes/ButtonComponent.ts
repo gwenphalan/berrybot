@@ -1,6 +1,7 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
 import { logger } from '@/core/logging/Logger';
+import { t } from '@/core/utils/Locale';
 
 export abstract class ButtonComponent<TData = unknown> {
 	abstract id: string;
@@ -15,11 +16,26 @@ export abstract class ButtonComponent<TData = unknown> {
 
 	/**
 	 * Build the ButtonBuilder with the properties of this instance.
+	 * @param client - The bot client instance.
+	 * @param data - Optional data for the button.
+	 * @param sessionId - Optional session ID for the button.
+	 * @param labelKey - Optional translation key for the label.
+	 * @param locale - Optional locale string for localization.
 	 */
-	async build(client: Client, data?: TData, sessionId?: string): Promise<discord.ButtonBuilder> {
+	async build(
+		client: Client,
+		data?: TData,
+		sessionId?: string,
+		labelKey?: string,
+		locale?: string
+	): Promise<discord.ButtonBuilder> {
+		let label = this.label ?? '';
+		if (labelKey && locale) {
+			label = t(labelKey, { locale });
+		}
 		const builder = new discord.ButtonBuilder()
 			.setStyle(this.style ?? discord.ButtonStyle.Primary)
-			.setLabel(this.label ?? '');
+			.setLabel(label);
 
 		if (this.disabled !== undefined) builder.setDisabled(this.disabled);
 		if (this.emoji) builder.setEmoji(this.emoji as discord.ComponentEmojiResolvable);
