@@ -14,7 +14,7 @@ export const event: Event = {
 		// Only handle chat input commands
 		if (!interaction.isChatInputCommand()) return;
 
-		logger.debug(`Received slash command: ${interaction.commandName}`);
+		logger.debug(`[SlashCommands.execute] Received slash command: ${interaction.commandName}`);
 
 		// Get the command from our collection
 		const command = client.commands.get(interaction.commandName);
@@ -26,7 +26,9 @@ export const event: Event = {
 			});
 		}
 
-		logger.debug(`Found command handler for: ${interaction.commandName}`);
+		logger.debug(
+			`[SlashCommands.execute] Found command handler for: ${interaction.commandName}`
+		);
 
 		// Check if command is developer-only
 		if (config.developer && command.developer && interaction.user.id !== config.developer) {
@@ -55,7 +57,7 @@ export const event: Event = {
 			const subCommand = interaction.options.getSubcommand(false);
 			if (subCommand) {
 				logger.debug(
-					`Executing subcommand: ${subCommand} for command: ${interaction.commandName}`
+					`[SlashCommands.execute] Executing subcommand: ${subCommand} for command: ${interaction.commandName}`
 				);
 				const subCommandFile = client.subCommands.get(
 					`${interaction.commandName}.${subCommand}`
@@ -68,12 +70,14 @@ export const event: Event = {
 					});
 				}
 				logger.debug(
-					`Found subcommand handler for: ${interaction.commandName}.${subCommand}`
+					`[SlashCommands.execute] Found subcommand handler for: ${interaction.commandName}.${subCommand}`
 				);
 				subCommandFile.execute(interaction, client);
 			} else {
 				// Execute main command if no subcommand
-				logger.debug(`Executing main command: ${interaction.commandName}`);
+				logger.debug(
+					`[SlashCommands.execute] Executing main command: ${interaction.commandName}`
+				);
 				command.execute(interaction, client);
 			}
 		} catch (error) {

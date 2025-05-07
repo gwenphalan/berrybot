@@ -23,8 +23,9 @@ export const CategorySelect: MessageBuilder = {
 	 * @param client - The Discord client instance
 	 * @param state - The current flow state (if used in a flow)
 	 * @param options - Additional options for building the message
+	 * @param sessionId - Optional sessionId for flow-attached messages
 	 */
-	async build(client: Client, guildId: string, _state?: FlowState) {
+	async build(client: Client, guildId: string, _state?: FlowState, sessionId?: string) {
 		const guildSettings =
 			guildId && guildId !== undefined
 				? await client.database.guildSettings.get(guildId)
@@ -35,7 +36,11 @@ export const CategorySelect: MessageBuilder = {
 			categories.push(category.name);
 		});
 
-		const select = await new CategorySelectMenu().build(client, { data: { categories } });
+		const select = await (new CategorySelectMenu().build as any)(
+			client,
+			{ data: { categories } },
+			sessionId
+		);
 		const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 
 		// Return updated message
@@ -43,7 +48,7 @@ export const CategorySelect: MessageBuilder = {
 			embeds: this.embeds,
 			components: [row],
 		};
-		logger.debug({ message }, 'Built messageName message');
+		logger.debug({ message }, '[CategorySelect.build] Built category select message');
 		return message;
 	},
 };

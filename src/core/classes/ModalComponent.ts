@@ -30,7 +30,11 @@ export abstract class ModalComponent<TData = unknown> {
 		this.fields = fields;
 	}
 
-	async build(client: Client, options?: ModalBuildOptions<TData>): Promise<discord.ModalBuilder> {
+	async build(
+		client: Client,
+		options?: ModalBuildOptions<TData>,
+		sessionId?: string
+	): Promise<discord.ModalBuilder> {
 		const builder = new discord.ModalBuilder().setTitle(options?.title ?? this.title);
 
 		let idString: string;
@@ -43,6 +47,7 @@ export abstract class ModalComponent<TData = unknown> {
 		}
 		const customId = client.utils.CustomId.createCustomId(idString, {
 			data: options?.data as Record<string, any>,
+			sessionId,
 		});
 		builder.setCustomId(customId);
 

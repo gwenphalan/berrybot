@@ -21,12 +21,12 @@ export const CounterMessage: MessageBuilder = {
 
 	components: [],
 
-	async build(client: Client, state: FlowState) {
-		logger.debug({ state }, 'Building counter message');
+	async build(client: Client, state: FlowState, sessionId?: string) {
+		logger.debug({ state }, '[CounterMessage.build] Building counter message');
 
 		// Get current count from state
 		const count = state.data?.count || 0;
-		logger.debug({ count }, 'Current count');
+		logger.debug({ count }, '[CounterMessage.build] Current count');
 
 		// Update embed with current count
 		const embed = new EmbedBuilder()
@@ -41,19 +41,19 @@ export const CounterMessage: MessageBuilder = {
 			]);
 
 		// Create button using the new class-based system
-		const button = await new CounterButton().build(client, { count });
-		logger.debug({ button }, 'Built counter button');
+		const button = await new CounterButton().build(client, { count }, sessionId);
+		logger.debug({ button }, '[CounterMessage.build] Built counter button');
 
 		// Create action row with button
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
-		logger.debug({ row }, 'Created action row');
+		logger.debug({ row }, '[CounterMessage.build] Created action row');
 
 		// Return updated message
 		const message = {
 			embeds: [embed],
 			components: [row],
 		};
-		logger.debug({ message }, 'Built counter message');
+		logger.debug({ message }, '[CounterMessage.build] Built counter message');
 		return message;
 	},
 };

@@ -14,10 +14,11 @@ export interface MessageBuilder {
 	 * Builds the final message options
 	 * @param client - The bot client instance
 	 * @param args - Additional arguments needed for message construction
+	 * @param sessionId - Optional sessionId for flow-attached messages
 	 * @returns Promise resolving to the final message options
 	 * @example
 	 * // Building a message with embeds and buttons:
-	 * const message = await builder.build(client, { title: "Welcome", description: "Hello!" });
+	 * const message = await builder.build(client, { title: "Welcome", description: "Hello!" }, sessionId);
 	 */
-	build(client: Client, ...args: any): Promise<discord.BaseMessageOptions>;
+	build(client: Client, ...args: any[]): Promise<discord.BaseMessageOptions>;
 }

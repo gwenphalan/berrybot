@@ -11,7 +11,7 @@ import { BaseFlowHandler, FlowState, FlowTransition } from '@/core/interfaces/Fl
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
 import { MainMenu, CategorySelect } from '@/messages/roles';
-import { MessageComponent as CategoryDeleteConfirmation } from '@/components/modals/roles/category-delete-confirmation';
+import CategoryDeleteConfirmation from '@/components/modals/roles/category-delete-confirmation';
 
 /**
  * FlowName - Flow Description
@@ -26,6 +26,8 @@ export class RoleConfigFlow extends BaseFlowHandler {
 		id: 'main-menu',
 		data: {},
 	};
+
+	ephemeral = true;
 
 	// Define the state schema
 	stateSchema = {
@@ -62,7 +64,7 @@ export class RoleConfigFlow extends BaseFlowHandler {
 
 	constructor(client: Client) {
 		super(client);
-		logger.debug({ flowId: this.id }, 'FlowName instance created');
+		logger.debug({ flowId: this.id }, '[RoleConfigFlow.constructor] FlowName instance created');
 	}
 
 	/**
@@ -72,9 +74,17 @@ export class RoleConfigFlow extends BaseFlowHandler {
 	 * 2. The message needs to be updated (existing message)
 	 */
 	async build(client: Client, state: FlowState): Promise<Message | void | BaseMessageOptions> {
+		logger.debug({ flowId: this.id, state }, '[RoleConfigFlow.build] START');
 		try {
-			logger.debug({ flowId: this.id, state }, 'Building FlowName');
+			logger.debug(
+				{ flowId: this.id, stateId: state.id, state },
+				'[RoleConfigFlow.build] Building for state.id'
+			);
 			const { interaction } = state || {};
+			logger.debug(
+				{ flowId: this.id, interactionType: interaction?.constructor?.name, interaction },
+				'[RoleConfigFlow.build] Interaction extracted'
+			);
 			let messageOpts: BaseMessageOptions = {
 				embeds: [],
 				components: [],
@@ -83,48 +93,132 @@ export class RoleConfigFlow extends BaseFlowHandler {
 			// Build your message here
 			switch (state.id) {
 				case 'main-menu':
+					logger.debug(
+						{ flowId: this.id, state },
+						'[RoleConfigFlow.build] Calling MainMenu.build'
+					);
 					messageOpts = await MainMenu.build(client, state);
+					logger.debug(
+						{ flowId: this.id, messageOpts },
+						'[RoleConfigFlow.build] MainMenu.build result'
+					);
 					break;
 				case 'category-select':
-					// Category select message builder
+					logger.debug(
+						{ flowId: this.id, state },
+						'[RoleConfigFlow.build] Calling CategorySelect.build'
+					);
 					messageOpts = await CategorySelect.build(client, interaction?.guildId, state);
+					logger.debug(
+						{ flowId: this.id, messageOpts },
+						'[RoleConfigFlow.build] CategorySelect.build result'
+					);
 					break;
 				case 'category-name-input':
-					// Category name input modal builder
+					logger.debug(
+						{ flowId: this.id, state },
+						'[RoleConfigFlow.build] category-name-input state - no builder'
+					);
 					break;
 				case 'channel-select':
-					// Channel select message builder
+					logger.debug(
+						{ flowId: this.id, state },
+						'[RoleConfigFlow.build] channel-select state - no builder'
+					);
 					break;
 				case 'role-select':
-					// Role select message builder
+					logger.debug(
+						{ flowId: this.id, state },
+						'[RoleConfigFlow.build] role-select state - no builder'
+					);
 					break;
 				case 'category-edit':
-					// Category edit message builder
+					logger.debug(
+						{ flowId: this.id, state },
+						'[RoleConfigFlow.build] category-edit state - no builder'
+					);
 					break;
 				case 'category-delete-confirmation':
-					// Category delete confirmation modal builder
+					logger.debug(
+						{ flowId: this.id, state },
+						'[RoleConfigFlow.build] category-delete-confirmation state'
+					);
 					if (
 						state.interaction instanceof ButtonInteraction ||
 						state.interaction instanceof StringSelectMenuInteraction ||
 						state.interaction instanceof ChatInputCommandInteraction
 					) {
+						const category =
+							state.data && state.data.category ? state.data.category : '';
+						logger.debug(
+							{ flowId: this.id, category },
+							'[RoleConfigFlow.build] category-delete-confirmation: category value'
+						);
+						if (!category || typeof category !== 'string' || category.length < 1) {
+							logger.error(
+								{ flowId: this.id, state },
+								'Cannot show delete confirmation: category is missing or empty'
+							);
+							if (state.interaction && 'reply' in state.interaction) {
+								await state.interaction.reply({
+									content: 'No category selected for deletion.',
+									ephemeral: true,
+								});
+								logger.debug(
+									{ flowId: this.id },
+									'[RoleConfigFlow.build] Sent missing category reply'
+								);
+							}
+							logger.debug(
+								{ flowId: this.id },
+								'[RoleConfigFlow.build] Returning early due to missing category'
+							);
+							return;
+						}
+						logger.debug(
+							{ flowId: this.id },
+							'[RoleConfigFlow.build] Showing category delete confirmation modal'
+						);
 						state.interaction.showModal(
-							await CategoryDeleteConfirmation.build(client, state.data)
+							await new CategoryDeleteConfirmation().build(client, {
+								data: { category },
+							})
+						);
+						logger.debug(
+							{ flowId: this.id },
+							'[RoleConfigFlow.build] Modal shown, returning'
 						);
 						return;
 					}
 					break;
 			}
 
-			// Only create a new message if needed (no existing messageId)
 			if (!this.messageId && interaction) {
-				return this.createMessage(interaction, messageOpts);
+				logger.debug(
+					{ flowId: this.id, interaction, messageOpts },
+					'[RoleConfigFlow.build] Creating new message'
+				);
+				const result = await this.createMessage(interaction, messageOpts);
+				logger.debug(
+					{ flowId: this.id, result },
+					'[RoleConfigFlow.build] Created new message'
+				);
+				return result;
 			}
 
-			// Otherwise just return the message options for BaseFlowHandler to update
+			logger.debug(
+				{ flowId: this.id, messageOpts },
+				'[RoleConfigFlow.build] Returning messageOpts for update'
+			);
 			return messageOpts;
 		} catch (error) {
-			logger.error({ flowId: this.id, error }, 'Error building flow');
+			logger.error(
+				{ flowId: this.id, error, state },
+				'[RoleConfigFlow.build] Error building flow'
+			);
+			throw error;
+		} finally {
+			logger.debug({ flowId: this.id, state }, '[RoleConfigFlow.build] END');
 		}
 	}
 
@@ -264,7 +358,7 @@ export class RoleConfigFlow extends BaseFlowHandler {
 	 * Called when the flow is first initialized
 	 */
 	public async onStart(client: Client, state: FlowState): Promise<void> {
-		logger.debug({ flowId: this.id, state }, 'Flow started');
+		logger.debug({ flowId: this.id, state }, '[RoleConfigFlow.onStart] Flow started');
 	}
 
 	/**
@@ -275,7 +369,7 @@ export class RoleConfigFlow extends BaseFlowHandler {
 		state: FlowState,
 		reason: 'completed' | 'cancelled' | 'timeout' | 'error'
 	): Promise<void> {
-		logger.debug({ flowId: this.id, state, reason }, 'Flow ended');
+		logger.debug({ flowId: this.id, state, reason }, '[RoleConfigFlow.onEnd] Flow ended');
 	}
 
 	/**

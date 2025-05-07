@@ -128,24 +128,62 @@ export class FlowManager implements FlowManagerInt {
 			'Starting new flow'
 		);
 
-		// Build initial message
-		const message = await handler.build(this.client, {
-			...initialState,
-			interaction,
-		});
-
-		if (!message) {
-			throw new Error('Failed to build initial flow message');
-		}
-
-		// Register handler with the message ID
-		this.registerHandler(message.id, handler);
-
-		// Start the flow with the initial state
+		// Start the flow first, which generates sessionId
 		await (handler as any).start(this.client, {
 			...initialState,
 			interaction,
 		});
+
+		// Now build the initial message with the updated state (with sessionId)
+		const stateWithSession = handler.getState();
+		let message;
+		try {
+			message = await handler.build(this.client, stateWithSession);
+		} catch (err) {
+			logger.error(
+				{
+					flowId: handler.id,
+					state: stateWithSession,
+					error: err instanceof Error ? err.message : err,
+					stack: err instanceof Error ? err.stack : undefined,
+				},
+				'Error building flow message'
+			);
+			throw new Error(
+				'Failed to build initial flow message: ' +
+					(err instanceof Error ? err.message : err)
+			);
+		}
+
+		const isEphemeral = stateWithSession.ephemeral || handler.ephemeral;
+		if (!message && !isEphemeral) {
+			logger.error(
+				{
+					flowId: handler.id,
+					state: stateWithSession,
+					message,
+					isEphemeral,
+				},
+				'Failed to build initial flow message (non-ephemeral)'
+			);
+			throw new Error('Failed to build initial flow message');
+		} else if (!message && isEphemeral) {
+			logger.debug(
+				{
+					flowId: handler.id,
+					state: stateWithSession,
+					message,
+					isEphemeral,
+				},
+				'No message object returned for ephemeral flow, this is expected.'
+			);
+		}
+
+		// Register handler with the sessionId
+		if (!stateWithSession.sessionId) {
+			throw new Error('Flow state missing sessionId after start');
+		}
+		this.registerHandler(stateWithSession.sessionId, handler);
 	}
 
 	async endFlow(

@@ -13,6 +13,10 @@ export interface FlowState {
 	/** Unique identifier for this state (e.g., 'main-menu', 'settings') */
 	id: string;
 	/**
+	 * The session ID for this flow instance (used for component routing)
+	 */
+	sessionId?: string;
+	/**
 	 * Optional data associated with this state
 	 * Can include things like:
 	 * - Selected options
@@ -42,6 +46,10 @@ export interface FlowState {
 		| StringSelectMenuInteraction
 		| ModalSubmitInteraction
 		| ChatInputCommandInteraction;
+	/**
+	 * Whether this flow's messages should be ephemeral
+	 */
+	ephemeral?: boolean;
 }
 
 export interface FlowStateSchema {
@@ -109,6 +117,11 @@ export interface FlowHandler {
 	persistent?: boolean;
 
 	/**
+	 * Whether this flow's messages should be ephemeral
+	 */
+	ephemeral?: boolean;
+
+	/**
 	 * Schema defining the required state structure
 	 */
 	stateSchema?: FlowStateSchema;
@@ -173,6 +186,7 @@ export abstract class BaseFlowHandler implements FlowHandler {
 	abstract id: string;
 	protected state: FlowState;
 	protected messageId: string | null = null;
+	protected sessionId: string | null = null;
 	protected history: FlowState[] = [];
 	protected client?: Client;
 	protected timeoutId?: NodeJS.Timeout;
@@ -183,6 +197,7 @@ export abstract class BaseFlowHandler implements FlowHandler {
 	protected updateTimeout?: NodeJS.Timeout; // Add debounce timeout
 	protected updateInProgress: boolean = false; // Flag to prevent multiple concurrent updates
 	public persistent?: boolean = false; // Whether this flow should be persisted
+	public ephemeral?: boolean = false; // Whether this flow's messages should be ephemeral
 
 	// Lifecycle hooks
 	public onStart?(client: Client, state: FlowState): Promise<void>;
@@ -214,6 +229,27 @@ export abstract class BaseFlowHandler implements FlowHandler {
 	 * Start the flow lifecycle
 	 */
 	async start(client: Client, state: FlowState): Promise<void> {
+		logger.debug({ state }, '[BaseFlowHandler.start] state at start');
+		if (!state.interaction) {
+			if (this.state?.interaction) {
+				logger.warn(
+					'[BaseFlowHandler.start] No interaction in state, using previous interaction'
+				);
+				state.interaction = this.state.interaction;
+			} else {
+				logger.error(
+					{ state },
+					'[BaseFlowHandler.start] No interaction provided to flow start'
+				);
+				throw new Error('No interaction provided to flow start');
+			}
+		}
+		// Generate a sessionId if not present
+		if (!state.sessionId) {
+			// Use nanoid or uuid here; for now, use a simple random string
+			state.sessionId = Math.random().toString(36).slice(2, 10) + Date.now();
+		}
+		this.sessionId = state.sessionId;
 		// Add initial state to history
 		this.history.push({ ...state });
 		this.setState(state);
@@ -446,6 +482,7 @@ export abstract class BaseFlowHandler implements FlowHandler {
 							stack: error.stack,
 							interactionId: interaction.id,
 							stateId: this.state.id,
+							originalStack: (error as any).stack,
 						})
 					: this.createError('UNKNOWN_ERROR', 'An unknown error occurred', {
 							error,
@@ -453,6 +490,10 @@ export abstract class BaseFlowHandler implements FlowHandler {
 							stateId: this.state.id,
 						});
 
+			logger.error(
+				{ flowId: this.id, error: flowError, stack: flowError.stack },
+				'Flow error occurred (with stack)'
+			);
 			await this.handleError(client, flowError);
 			throw flowError;
 		}
@@ -460,6 +501,7 @@ export abstract class BaseFlowHandler implements FlowHandler {
 
 	/**
 	 * Helper method to update an existing message
+	 * Handles ephemeral and non-ephemeral messages correctly.
 	 */
 	protected async updateMessage(client: Client, message: any): Promise<Message | void> {
 		logger.debug(
@@ -471,6 +513,28 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			'updateMessage() called'
 		);
 
+		// If the message is ephemeral, use interaction.editReply()
+		const isEphemeral = this.ephemeral || this.state?.ephemeral;
+		const interaction = this.state?.interaction;
+		if (isEphemeral && interaction && 'editReply' in interaction) {
+			try {
+				// Only possible within the interaction token window (15 min)
+				await interaction.editReply(message);
+				return undefined; // Ephemeral replies are not Message objects
+			} catch (error) {
+				logger.warn(
+					{
+						flowId: this.id,
+						messageId: this.messageId,
+						error: error instanceof Error ? error.message : error,
+					},
+					'Failed to edit ephemeral reply (possibly expired token)'
+				);
+				return undefined;
+			}
+		}
+
+		// Non-ephemeral: edit the message in the channel
 		if (!this.messageId || !this.state?.interaction?.channelId) {
 			logger.warn(
 				{
@@ -546,6 +610,7 @@ export abstract class BaseFlowHandler implements FlowHandler {
 
 	/**
 	 * Helper method to create a new message via interaction
+	 * Handles ephemeral and non-ephemeral messages correctly.
 	 */
 	protected async createMessage(
 		interaction:
@@ -563,7 +628,12 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			'Creating new message via interaction'
 		);
 
-		await interaction.reply(message);
+		const ephemeral = this.ephemeral || this.state.ephemeral;
+		await interaction.reply({ ...message, ephemeral });
+		if (ephemeral) {
+			// For ephemeral, fetchReply returns an APIMessage, not a Message, and cannot be edited by ID later
+			return undefined;
+		}
 		const reply = await interaction.fetchReply();
 		this.setMessageId(reply.id);
 		return reply;
@@ -589,19 +659,36 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			logger.error({ flowId: this.id }, 'Attempted to get state before it was set');
 			throw new Error('State not set');
 		}
-		logger.debug({ flowId: this.id, state: this.state }, 'Retrieved flow state');
+		logger.debug(
+			{
+				flowId: this.id,
+				stateId: this.state.id,
+				hasInteraction: !!this.state.interaction,
+				interactionType: this.state.interaction?.constructor?.name,
+			},
+			'[getState] Retrieved flow state'
+		);
 		return this.state;
 	}
 
 	setState(state: FlowState): void {
 		logger.debug(
 			{
+				stateId: state.id,
+				hasInteraction: !!state.interaction,
+				interactionType: state.interaction?.constructor?.name,
+			},
+			'[setState] state at setState'
+		);
+		logger.debug(
+			{
 				flowId: this.id,
 				currentState: this.state?.id,
 				newState: state.id,
-				caller: new Error().stack?.split('\n')[2], // Log the caller of setState
+				currentHasInteraction: !!this.state?.interaction,
+				newHasInteraction: !!state.interaction,
 			},
-			'setState() called'
+			'[setState] setState() called'
 		);
 
 		this.validateState(state);
@@ -623,6 +710,7 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			this.history.push({ ...this.state });
 		}
 		this.state = state;
+		this.sessionId = state.sessionId || this.sessionId;
 
 		// Only update message if we have a messageId and the state changed
 		if (this.messageId && this.client) {
@@ -655,7 +743,8 @@ export abstract class BaseFlowHandler implements FlowHandler {
 					'About to call build() from setState()'
 				);
 
-				this.build(client, { ...state })
+				// Pass sessionId to message builder
+				this.build(client, { ...state, sessionId: this.sessionId ?? undefined })
 					.then((content) => {
 						if (content) {
 							return this.updateMessage(client, content);
@@ -695,6 +784,12 @@ export abstract class BaseFlowHandler implements FlowHandler {
 		// Compare basic properties
 		if (state1.id !== state2.id) return false;
 		if (state1.previous !== state2.previous) return false;
+
+		// Compare interaction presence and ID
+		const i1 = state1.interaction as any;
+		const i2 = state2.interaction as any;
+		if (!!i1 !== !!i2) return false;
+		if (i1 && i2 && i1.id !== i2.id) return false;
 
 		// Compare data objects
 		const data1 = state1.data || {};

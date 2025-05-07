@@ -51,6 +51,9 @@
         - [Template Management](#template-management)
         - [Template Utilities](#template-utilities)
         - [Template Factory](#template-factory)
+    - [Flow System Improvements](#flow-system-improvements)
+        - [Session ID-Based Flow Tracking](#session-id-based-flow-tracking)
+        - [Automated Flow Handling for Components](#automated-flow-handling-for-components)
 
 This document outlines key improvements to bring BerryBot up to date with the latest Discord.js best practices and features.
 
@@ -757,7 +760,6 @@ Update component interfaces to support Discord.js v14+ components and improve ty
         	.setId('action:delete')
         	.setStyle(ButtonStyle.Danger)
         	.setLabel('Delete')
-        	.setEmoji('🗑️')
         	.setDisabled(false)
         	.withData({ itemId: '123' });
         ```
@@ -1331,3 +1333,32 @@ export class AccountDeletionFlow extends LightFlow<{ userId: string }> {
     - [ ] Add message template components
     - [ ] Implement message template builders
     - [ ] Create message template utilities
+
+## Flow System Improvements
+
+### Session ID-Based Flow Tracking
+
+- [x] Implement a session ID system for all flows (ephemeral and persistent):
+    - [x] Generate a unique session ID (e.g., nanoid/uuid) when a flow starts.
+    - [x] Store the session ID in the flow state and in the FlowManager.
+    - [x] Include the session ID in the customId data for all components (buttons, select menus, modals) built by the flow.
+    - [x] On interaction, extract the session ID from the customId and use it to look up the flow handler in FlowManager.
+    - [x] Remove reliance on messageId for ephemeral flows; use sessionId for all flows.
+    - [x] Update FlowManager and BaseFlowHandler to support sessionId registration and lookup.
+    - [x] Update all flows and message/component builders to include sessionId in customId data.
+    - [ ] Add migration/compatibility logic for existing flows that use messageId.
+    - [ ] Add tests for multiple concurrent flows per user/channel.
+    - [ ] Document the session ID flow tracking system in developer docs.
+
+### Automated Flow Handling for Components
+
+- [x] Automate component-to-flow wiring:
+    - [x] Create a decorator or utility to automatically attach flow context/sessionId to all components built by a flow.
+    - [x] Update component builder utilities to always include sessionId in customId data if a flow is active.
+    - [x] In the component interaction handler, automatically extract sessionId and route the interaction to the correct flow handler.
+    - [x] Remove the need for manual component registration or handler wiring in each flow.
+    - [ ] Add a base pattern or helper for flows to register all their components in one place.
+    - [ ] Add tests to ensure all components in a flow are correctly routed to the flow handler.
+    - [ ] Document the automated flow-component handling system for contributors.
+
+> **Note:** Implementation in progress. Updating MessageComponent.ts and CustomIdUtils.ts for sessionId support and automatic routing of component interactions to flows.

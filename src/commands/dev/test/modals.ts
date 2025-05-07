@@ -16,7 +16,7 @@ const command: Command = {
 		}
 
 		// Build and show test modal
-		const modal = await Test_Modal.build(_client);
+		const modal = await new Test_Modal().build(_client, { data: {} });
 		return await interaction.showModal(modal);
 	},
 };

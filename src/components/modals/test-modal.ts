@@ -13,6 +13,10 @@ export class TestModal extends ModalComponent<unknown> {
 	title = 'Test Modal';
 	fields = [];
 
+	constructor() {
+		super('Test Modal', []);
+	}
+
 	async build(client: Client, _options: ModalBuildOptions<unknown>) {
 		const field: TextInputOptions = {
 			custom_id: 'test-modal-input',

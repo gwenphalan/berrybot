@@ -40,10 +40,10 @@ const command: Command = {
 		// Add appropriate select menu based on type
 		switch (type) {
 			case 'single':
-				row.addComponents(await Test_Select.build(_client));
+				row.addComponents(await new Test_Select().build(_client, { data: {} }));
 				break;
 			case 'multi':
-				row.addComponents(await Test_MultiSelect.build(_client));
+				row.addComponents(await new Test_MultiSelect().build(_client, { data: {} }));
 				break;
 		}
 

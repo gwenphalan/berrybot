@@ -7,6 +7,9 @@ import {
 	ModalSubmitInteraction,
 	ChatInputCommandInteraction,
 	Role,
+	ContainerBuilder,
+	TextDisplayBuilder,
+	MessageFlags,
 } from 'discord.js';
 import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
 import { Client } from '@/core/client/BerryClient';
@@ -16,71 +19,47 @@ import ConfigMainMenuCreateButton from '@/components/buttons/roles/config-main-m
 import ConfigMainMenuEditButton from '@/components/buttons/roles/config-main-menu/edit';
 import ConfigMainMenuMessageButton from '@/components/buttons/roles/config-main-menu/message';
 
+// Constants for UI and error messages
+const ERROR_COLOR = '#FF0000';
+const ACCENT_COLOR = '#00BFFF';
+const MSG_NO_GUILD_SETTINGS = 'No guild settings found';
+const MSG_EDIT_OR_CREATE = '## Would you like to edit or create a category?';
+const MSG_CREATE_TO_START = '## Click create to get started!';
+
+interface BuildOptions {
+	interaction:
+		| ButtonInteraction
+		| StringSelectMenuInteraction
+		| ModalSubmitInteraction
+		| ChatInputCommandInteraction;
+}
+
 /**
- * Main Menu - Main menu for self roles configuration
- * Builds a message with main menu functionality
+ * Builds a formatted string representing all self-role categories and their roles for display.
+ * Handles fetching roles that may not be cached.
+ *
+ * @param categories - Array of category objects from guild settings
+ * @param interaction - The Discord interaction (for guild/role context)
+ * @returns Promise<string> - The formatted category content string
  */
-export const MainMenu: MessageBuilder = {
-	// Default embeds for the message
-	embeds: [],
-
-	// Default components for the message
-	components: [],
-
-	/**
-	 * Builds or updates the message content
-	 * @param client - The Discord client instance
-	 * @param state - The current flow state (if used in a flow)
-	 * @param options - Additional options for building the message
-	 */
-	async build(
-		client: Client,
-		state?: FlowState,
-		options?: {
-			interaction:
-				| ButtonInteraction
-				| StringSelectMenuInteraction
-				| ModalSubmitInteraction
-				| ChatInputCommandInteraction;
-		}
-	) {
-		logger.debug({ state, options }, 'Building messageName message');
-
-		// Get data from state or options
-		const interaction = state?.interaction || options?.interaction;
-
-		if (!interaction || !interaction.guildId) {
-			throw new Error('No interaction found');
-		}
-
-		const guildSettings = await client.database.guildSettings.get(interaction.guildId);
-
-		if (!guildSettings) {
-			const errorEmbed = new EmbedBuilder()
-				.setTitle('Error')
-				.setDescription('No guild settings found')
-				.setColor('#FF0000');
-			return {
-				embeds: [errorEmbed],
-				components: [],
-			};
-		}
-
-		// Update embed with current data
-		const embed = new EmbedBuilder()
-			.setTitle('Would you like to edit or create a category?')
-			.setColor('#00BFFF');
-
-		const categories = guildSettings.selfRoles.categories;
-
-		// Add categories to embed, each category is a field with a list of the roles in the category
-		for (const category of categories) {
-			const roleIds = category.roles;
+function buildCategoryContent(
+	categories: any[],
+	interaction: BuildOptions['interaction']
+): Promise<string> {
+	return Promise.all(
+		categories.map(async (category) => {
+			logger.debug({ category }, '[buildCategoryContent] Processing category');
+			if (!category.name || typeof category.name !== 'string' || category.name.length < 1) {
+				logger.warn({ category }, 'Category with empty or invalid name detected');
+				return '';
+			}
+			const roleIds: string[] = category.roles;
 			const roles: string[] = [];
 			for (const roleId of roleIds) {
 				let role: Role | undefined = interaction.guild?.roles.cache.get(roleId);
 				if (!role) {
 					try {
+						// Try to fetch the role if not cached (handles Discord cache misses)
 						const fetchedRole = await interaction.guild?.roles.fetch(roleId);
 						if (fetchedRole) {
 							role = fetchedRole;
@@ -93,27 +72,131 @@ export const MainMenu: MessageBuilder = {
 					roles.push(role.toString());
 				}
 			}
-			embed.addFields({
-				name: category.name,
-				value: roles.length > 0 ? roles.join('\n') : 'No roles',
-			});
+			return `**${category.emoji} ${category.name}**\n${roles.length > 0 ? roles.join(', ') : 'No roles'}\n\n`;
+		})
+	).then((results) => results.join(''));
+}
+
+/**
+ * Builds the action buttons for the main menu, handling conditional logic for when to show edit/create/message buttons.
+ *
+ * @param client - The Discord client instance
+ * @param categoriesLength - Number of categories (affects which buttons are shown)
+ * @param sessionId - Optional sessionId for flow-attached messages
+ * @returns Promise<{ buttonRow: ActionRowBuilder<ButtonBuilder>, messageRow: ActionRowBuilder<ButtonBuilder> }>
+ */
+async function buildButtons(client: Client, categoriesLength: number, sessionId?: string) {
+	let createBtn: ButtonBuilder | undefined;
+	let editBtn: ButtonBuilder | undefined;
+	let messageBtn: ButtonBuilder | undefined;
+	const buttonRow = new ActionRowBuilder<ButtonBuilder>();
+	const messageRow = new ActionRowBuilder<ButtonBuilder>();
+	try {
+		createBtn = await new ConfigMainMenuCreateButton().build(client, undefined, sessionId);
+		editBtn = await new ConfigMainMenuEditButton().build(client, undefined, sessionId);
+		messageBtn = await new ConfigMainMenuMessageButton().build(client, undefined, sessionId);
+		logger.debug(
+			{
+				createBtn: createBtn instanceof ButtonBuilder,
+				editBtn: editBtn instanceof ButtonBuilder,
+				messageBtn: messageBtn instanceof ButtonBuilder,
+			},
+			'[buildButtons] Button instances type checks'
+		);
+		// Only show edit if there are categories; always show create
+		if (categoriesLength > 0) {
+			if (editBtn) buttonRow.addComponents(editBtn);
+			if (createBtn) buttonRow.addComponents(createBtn);
+		} else {
+			if (createBtn) buttonRow.addComponents(createBtn);
 		}
+		if (messageBtn) messageRow.addComponents(messageBtn);
+	} catch (error) {
+		logger.error({ error }, 'Error creating buttons');
+	}
+	return { buttonRow, messageRow };
+}
 
-		const createBtn = await new ConfigMainMenuCreateButton().build(client, undefined);
-		const editBtn = await new ConfigMainMenuEditButton().build(client, undefined);
-		const messageBtn = await new ConfigMainMenuMessageButton().build(client, undefined);
+/**
+ * Main Menu - Main menu for self roles configuration
+ * Builds a message with main menu functionality for the roles system.
+ *
+ * - Shows categories and their roles if present, or a prompt to create a category.
+ * - Handles error states (e.g., missing guild settings).
+ * - Uses Discord UI components for a modern, interactive experience.
+ *
+ * @implements MessageBuilder
+ */
+export const MainMenu: MessageBuilder = {
+	embeds: [],
+	components: [],
 
-		// Create action row with components
-		const rows = [
-			new ActionRowBuilder<ButtonBuilder>().addComponents(editBtn, createBtn),
-			new ActionRowBuilder<ButtonBuilder>().addComponents(messageBtn),
-		];
-		logger.debug({ rows }, 'Created action row');
-
-		// Return updated message
+	/**
+	 * Builds or updates the message content for the main menu.
+	 *
+	 * @param client - The Discord client instance
+	 * @param state - The current flow state (if used in a flow)
+	 * @param options - Additional options for building the message (must include interaction)
+	 * @param sessionId - Optional sessionId for flow-attached messages
+	 * @returns The message payload for Discord
+	 */
+	async build(client: Client, state?: FlowState, options?: BuildOptions, sessionId?: string) {
+		logger.debug({ state, options }, '[MainMenu.build] Building roles main menu message');
+		const interaction = state?.interaction || options?.interaction;
+		if (!interaction || !interaction.guildId) {
+			throw new Error('No interaction found');
+		}
+		let guildSettings: any;
+		try {
+			guildSettings = await client.database.guildSettings.get(interaction.guildId);
+		} catch (err) {
+			logger.error({ err }, 'Failed to fetch guild settings');
+			guildSettings = undefined;
+		}
+		if (!guildSettings) {
+			const errorEmbed = new EmbedBuilder()
+				.setTitle('Error')
+				.setDescription(MSG_NO_GUILD_SETTINGS)
+				.setColor(ERROR_COLOR);
+			return {
+				embeds: [errorEmbed],
+				components: [],
+			};
+		}
+		const categories = guildSettings.selfRoles.categories;
+		logger.debug({ categories }, '[MainMenu.build] Categories array from guild settings');
+		const titleComponent = new TextDisplayBuilder();
+		titleComponent.setContent(categories.length > 0 ? MSG_EDIT_OR_CREATE : MSG_CREATE_TO_START);
+		let categoryContent = '';
+		try {
+			categoryContent = await buildCategoryContent(categories, interaction);
+		} catch (err) {
+			logger.error({ err }, 'Failed to build category content');
+		}
+		const { buttonRow, messageRow } = await buildButtons(client, categories.length, sessionId);
+		const container = new ContainerBuilder().setAccentColor(
+			client.utils.Color.hexToNumber(ACCENT_COLOR)
+		);
+		container.addTextDisplayComponents(titleComponent);
+		if (categories.length === 0) {
+			if (buttonRow.components.length > 0) {
+				container.addActionRowComponents(buttonRow);
+			}
+		} else {
+			if (categoryContent) {
+				const categoryComponent = new TextDisplayBuilder().setContent(categoryContent);
+				container.addTextDisplayComponents(categoryComponent);
+			}
+			if (buttonRow.components.length > 0) {
+				container.addActionRowComponents(buttonRow);
+			}
+			if (messageRow.components.length > 0) {
+				container.addActionRowComponents(messageRow);
+			}
+		}
 		return {
-			embeds: [embed],
-			components: rows,
+			flags: MessageFlags.IsComponentsV2,
+			components: [container],
 		};
 	},
 };

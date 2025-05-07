@@ -22,7 +22,7 @@ const command: Command = {
 
 		// Create action row with test button component
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-			await Test_Button.build(client)
+			await new Test_Button().build(client)
 		);
 
 		// Send message with button

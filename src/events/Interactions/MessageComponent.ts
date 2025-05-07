@@ -11,7 +11,7 @@ import { config } from '@/core/config/config';
 import type { Client, Event } from '@/core/interfaces';
 import { decompressFromUTF16 } from 'lz-string';
 import { logger } from '@/core/logging/Logger';
-import { ComponentManager } from '@/core/managers/MessageComponentHandler';
+import { ComponentManager } from '@/core/managers/ComponentManager';
 import { parseCustomId } from '@/core/utils/CustomIdUtils';
 
 /**
@@ -40,7 +40,9 @@ export function parseData(customId: string): {
 	const match = regex.exec(customId);
 
 	if (!match) {
-		logger.debug(`Parsed component data - ID: ${customId}, No data`);
+		logger.debug(
+			`[MessageComponent.parseData] Parsed component data - ID: ${customId}, No data`
+		);
 		return { id: customId, data: undefined };
 	}
 
@@ -60,7 +62,7 @@ export function parseData(customId: string): {
 	}
 
 	logger.debug(
-		`Parsed component data - ID: ${id}, Parent: ${parent || 'none'}, Group: ${group || 'none'}, Has data: ${!!data}`
+		`[MessageComponent.parseData] Parsed component data - ID: ${id}, Parent: ${parent || 'none'}, Group: ${group || 'none'}, Has data: ${!!data}`
 	);
 
 	return { id, parent, group, data };
@@ -74,7 +76,7 @@ export const event: Event = {
 	 * @param {MessageComponentInteraction} interaction - The interaction object from Discord
 	 */
 	execute: async function (interaction: BaseInteraction, client: Client) {
-		logger.debug({ interaction }, 'Received interaction');
+		logger.debug({ interaction }, '[MessageComponent.execute] Received interaction');
 
 		// Only handle message component and modal submit interactions
 		if (
@@ -87,7 +89,11 @@ export const event: Event = {
 			| ModalSubmitInteraction;
 
 		logger.debug(
-			`Received message component interaction: ${'customId' in messageComponentInteraction ? messageComponentInteraction.customId : 'N/A'}`
+			`[MessageComponent.execute] Received message component interaction: ${'customId' in messageComponentInteraction ? messageComponentInteraction.customId : 'N/A'}`
+		);
+
+		logger.debug(
+			`[MessageComponent.execute] Custom ID: ${messageComponentInteraction.customId}`
 		);
 
 		// Parse the component's customId to get its ID and any stored data
@@ -95,6 +101,23 @@ export const event: Event = {
 			'customId' in messageComponentInteraction
 				? parseCustomId(messageComponentInteraction.customId)
 				: { id: '', data: undefined };
+
+		logger.debug({ data }, '[MessageComponent.execute] Parsed data');
+
+		// FLOW ROUTING: If sessionId is present, route to the flow handler
+		if (data.sessionId) {
+			const flowHandler = client.flowManager.getHandler(data.sessionId);
+			if (flowHandler) {
+				await flowHandler.handle(
+					messageComponentInteraction as any, // Cast to any to satisfy all interaction types
+					client,
+					data.data
+				);
+				return;
+			} else {
+				logger.warn(`No flow handler found for sessionId: ${data.sessionId}`);
+			}
+		}
 
 		// Determine the type of component being interacted with
 		let type: 'button' | 'selectMenu' | 'modal';
@@ -114,7 +137,7 @@ export const event: Event = {
 			logger.warn('Unknown component interaction type');
 			return;
 		}
-		logger.debug(`Component type: ${type}`);
+		logger.debug(`[MessageComponent.execute] Component type: ${type}`);
 
 		// Build the hierarchical key for lookup
 		let key: string;
@@ -125,17 +148,15 @@ export const event: Event = {
 		} else {
 			key = data.id;
 		}
-		key += `:${type}`;
 
 		// Use ComponentManager for lookup
-		/** @ts-expect-error: componentManager is a runtime extension of Client for component management */
 		const manager: ComponentManager = client.componentManager;
 		const component = manager.get(key, type);
 		if (!component) {
 			logger.warn(`Component handler not found: ${key}:${type}`);
 			return;
 		}
-		logger.debug(`Found component handler: ${key}:${type}`);
+		logger.debug(`[MessageComponent.execute] Found component handler: ${key}:${type}`);
 
 		// Check if component is developer-only
 		if (component.developer && config.developer !== messageComponentInteraction.user.id) {
@@ -169,7 +190,7 @@ export const event: Event = {
 				});
 			}
 			logger.debug(
-				`User ${messageComponentInteraction.user.id} has required permissions for component: ${key}:${type}`
+				`[MessageComponent.execute] User ${messageComponentInteraction.user.id} has required permissions for component: ${key}:${type}`
 			);
 		}
 
@@ -180,7 +201,9 @@ export const event: Event = {
 				messageComponentInteraction.isButton()
 			) {
 				// Handle button interactions
-				logger.debug(`Executing button component: ${key}:${type}`);
+				logger.debug(
+					`[MessageComponent.execute] Executing button component: ${key}:${type}`
+				);
 				await component.execute(
 					messageComponentInteraction,
 					client,
@@ -192,7 +215,9 @@ export const event: Event = {
 				messageComponentInteraction.isStringSelectMenu()
 			) {
 				// Handle select menu interactions
-				logger.debug(`Executing select menu component: ${key}:${type}`);
+				logger.debug(
+					`[MessageComponent.execute] Executing select menu component: ${key}:${type}`
+				);
 				const stringInteraction =
 					messageComponentInteraction as StringSelectMenuInteraction;
 				const options = stringInteraction.component.options;
@@ -244,7 +269,9 @@ export const event: Event = {
 				messageComponentInteraction.isModalSubmit()
 			) {
 				// Handle modal submissions
-				logger.debug(`Executing modal component: ${key}:${type}`);
+				logger.debug(
+					`[MessageComponent.execute] Executing modal component: ${key}:${type}`
+				);
 				const modalInteraction = messageComponentInteraction as ModalSubmitInteraction;
 				const fields = modalInteraction.fields.fields;
 				await component.execute(
@@ -261,7 +288,9 @@ export const event: Event = {
 			) {
 				const userSelect =
 					messageComponentInteraction as import('discord.js').UserSelectMenuInteraction;
-				logger.debug(`Executing user select menu component: ${key}:${type}`);
+				logger.debug(
+					`[MessageComponent.execute] Executing user select menu component: ${key}:${type}`
+				);
 				await component.execute(
 					userSelect,
 					client,
@@ -277,7 +306,9 @@ export const event: Event = {
 			) {
 				const roleSelect =
 					messageComponentInteraction as import('discord.js').RoleSelectMenuInteraction;
-				logger.debug(`Executing role select menu component: ${key}:${type}`);
+				logger.debug(
+					`[MessageComponent.execute] Executing role select menu component: ${key}:${type}`
+				);
 				await component.execute(
 					roleSelect,
 					client,
@@ -293,7 +324,9 @@ export const event: Event = {
 			) {
 				const channelSelect =
 					messageComponentInteraction as import('discord.js').ChannelSelectMenuInteraction;
-				logger.debug(`Executing channel select menu component: ${key}:${type}`);
+				logger.debug(
+					`[MessageComponent.execute] Executing channel select menu component: ${key}:${type}`
+				);
 				await component.execute(
 					channelSelect,
 					client,
@@ -309,7 +342,9 @@ export const event: Event = {
 			) {
 				const mentionableSelect =
 					messageComponentInteraction as import('discord.js').MentionableSelectMenuInteraction;
-				logger.debug(`Executing mentionable select menu component: ${key}:${type}`);
+				logger.debug(
+					`[MessageComponent.execute] Executing mentionable select menu component: ${key}:${type}`
+				);
 				await component.execute(
 					mentionableSelect,
 					client,

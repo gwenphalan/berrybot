@@ -23,7 +23,8 @@ export abstract class UserSelectMenuComponent<TData = unknown> {
 
 	async build(
 		client: Client,
-		options?: UserSelectMenuBuildOptions<TData>
+		options?: UserSelectMenuBuildOptions<TData>,
+		sessionId?: string
 	): Promise<discord.UserSelectMenuBuilder> {
 		const builder = new discord.UserSelectMenuBuilder();
 		const placeholder = options?.placeholder ?? this.placeholder;
@@ -44,7 +45,10 @@ export abstract class UserSelectMenuComponent<TData = unknown> {
 		} else {
 			idString = this.id;
 		}
-		const customId = createCustomId(idString, { data: options?.data as Record<string, any> });
+		const customId = createCustomId(idString, {
+			data: options?.data as Record<string, any>,
+			sessionId,
+		});
 		builder.setCustomId(customId);
 		return builder;
 	}

@@ -18,7 +18,7 @@ process.on('message', (message: { type: string; data?: { shardId: number } }) =>
 	// Store shard ID when received from sharding manager
 	if (message.type === 'shardId') {
 		shardId = message.data?.shardId ?? null;
-		logger.debug(`Received shard ID: ${shardId}`);
+		logger.debug(`[bot.process] Received shard ID: ${shardId}`);
 		return true;
 	}
 

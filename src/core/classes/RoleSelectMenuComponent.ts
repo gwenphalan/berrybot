@@ -23,7 +23,8 @@ export abstract class RoleSelectMenuComponent<TData = unknown> {
 
 	async build(
 		client: Client,
-		options?: RoleSelectMenuBuildOptions<TData>
+		options?: RoleSelectMenuBuildOptions<TData>,
+		sessionId?: string
 	): Promise<discord.RoleSelectMenuBuilder> {
 		const builder = new discord.RoleSelectMenuBuilder();
 		const placeholder = options?.placeholder ?? this.placeholder;
@@ -44,7 +45,10 @@ export abstract class RoleSelectMenuComponent<TData = unknown> {
 		} else {
 			idString = this.id;
 		}
-		const customId = createCustomId(idString, { data: options?.data as Record<string, any> });
+		const customId = createCustomId(idString, {
+			data: options?.data as Record<string, any>,
+			sessionId,
+		});
 		builder.setCustomId(customId);
 		return builder;
 	}

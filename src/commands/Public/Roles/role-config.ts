@@ -15,6 +15,7 @@ const command: Command = {
 		// Build and send the self-role settings message
 		client.flowManager.startFlow(interaction, new RoleConfigFlow(client), {
 			id: 'main-menu',
+			interaction,
 		});
 	},
 };

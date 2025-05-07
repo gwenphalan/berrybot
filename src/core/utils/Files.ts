@@ -15,23 +15,23 @@ export async function load(
 	inDist = true,
 	fileType: string = 'js'
 ): Promise<string[]> {
-	logger.debug(`Loading files from directory: ${dirName}`);
+	logger.debug(`[Files.load] Loading files from directory: ${dirName}`);
 
 	// Construct glob pattern for JavaScript files in the specified directory
 	// Replace Windows backslashes with forward slashes for cross-platform compatibility
 
 	// if inDist is true, use the dist folder, otherwise use the root folder
 	const pattern = `${process.cwd().replace(/\\/g, '/')}/${inDist ? 'dist/' : ''}${dirName}/**/*.${fileType}`;
-	logger.debug(`Using glob pattern: ${pattern}`);
+	logger.debug(`[Files.load] Using glob pattern: ${pattern}`);
 
 	try {
 		// Find all matching files using glob
 		const files = await glob(pattern);
-		logger.debug(`Found ${files.length} files in ${dirName}`);
+		logger.debug(`[Files.load] Found ${files.length} files in ${dirName}`);
 
 		// Normalize all file paths to use forward slashes
 		const normalizedFiles = files.map((file) => file.replace(/\\/g, '/'));
-		logger.debug(`Normalized ${normalizedFiles.length} file paths`);
+		logger.debug(`[Files.load] Normalized ${normalizedFiles.length} file paths`);
 
 		return normalizedFiles;
 	} catch (error) {

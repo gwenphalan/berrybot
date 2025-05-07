@@ -30,23 +30,29 @@ export const paginator: MessageBuilder = {
 			ephemeral: boolean;
 		}
 	) {
-		logger.debug({ id, pageCount: pages.length, title, options }, 'Building paginator message');
+		logger.debug(
+			{ id, pageCount: pages.length, title, options },
+			'[paginator.build] Building paginator message'
+		);
 
 		// Register paginator in collection
 		books.set(id, pages);
-		logger.debug({ id, pageCount: pages.length }, 'Registered paginator in books collection');
+		logger.debug(
+			{ id, pageCount: pages.length },
+			'[paginator.build] Registered paginator in books collection'
+		);
 
 		// Component data
 		const backButtonData = { id };
 		const nextButtonData = { id };
-		logger.debug({ backButtonData, nextButtonData }, 'Prepared button data');
+		logger.debug({ backButtonData, nextButtonData }, '[paginator.build] Prepared button data');
 
 		// Build components using the new class-based system
 		const backButton = await new PaginatorBackButton().build(client, backButtonData);
 		const nextButton = await new PaginatorNextButton().build(client, nextButtonData);
 		const closeButton = await new PaginatorCloseButton().build(client, undefined);
 
-		logger.debug('Built all paginator buttons');
+		logger.debug('[paginator.build] Built all paginator buttons');
 
 		// Add components to action row
 		const actionRow = new discord.ActionRowBuilder<discord.ButtonBuilder>().addComponents(
@@ -68,7 +74,7 @@ export const paginator: MessageBuilder = {
 				color: options.color,
 				ephemeral: options.ephemeral,
 			},
-			'Updated paginator embed'
+			'[paginator.build] Updated paginator embed'
 		);
 
 		return {

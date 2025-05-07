@@ -70,7 +70,7 @@ export class ExampleFlow extends BaseFlowHandler {
 
 	constructor(client: Client) {
 		super(client);
-		logger.debug({ flowId: this.id }, 'ExampleFlow instance created');
+		logger.debug({ flowId: this.id }, '[ExampleFlow.constructor] ExampleFlow instance created');
 	}
 
 	/**
@@ -84,7 +84,7 @@ export class ExampleFlow extends BaseFlowHandler {
 	 * @returns Promise resolving to the message or void if build fails
 	 */
 	async build(client: Client, state: FlowState): Promise<Message | void> {
-		logger.debug({ flowId: this.id, state }, 'Building ExampleFlow');
+		logger.debug({ flowId: this.id, state }, '[ExampleFlow.build] Building ExampleFlow');
 		const { interaction } = state || {};
 
 		// Flow Logic
@@ -142,7 +142,7 @@ export class ExampleFlow extends BaseFlowHandler {
 	 * Called when the flow is first initialized
 	 */
 	public async onStart(client: Client, state: FlowState): Promise<void> {
-		logger.debug({ flowId: this.id, state }, 'Flow started');
+		logger.debug({ flowId: this.id, state }, '[ExampleFlow.onStart] Flow started');
 	}
 
 	/**
@@ -153,7 +153,7 @@ export class ExampleFlow extends BaseFlowHandler {
 		state: FlowState,
 		reason: 'completed' | 'cancelled' | 'timeout' | 'error'
 	): Promise<void> {
-		logger.debug({ flowId: this.id, state, reason }, 'Flow ended');
+		logger.debug({ flowId: this.id, state, reason }, '[ExampleFlow.onEnd] Flow ended');
 	}
 
 	/**

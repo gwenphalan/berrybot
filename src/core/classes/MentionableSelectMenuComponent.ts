@@ -20,7 +20,8 @@ export abstract class MentionableSelectMenuComponent<TData = unknown> {
 
 	async build(
 		client: Client,
-		options?: MentionableSelectMenuBuildOptions<TData>
+		options?: MentionableSelectMenuBuildOptions<TData>,
+		sessionId?: string
 	): Promise<discord.MentionableSelectMenuBuilder> {
 		const builder = new discord.MentionableSelectMenuBuilder();
 		const placeholder = options?.placeholder ?? this.placeholder;
@@ -41,6 +42,7 @@ export abstract class MentionableSelectMenuComponent<TData = unknown> {
 		}
 		const customId = client.utils.CustomId.createCustomId(idString, {
 			data: options?.data as Record<string, any>,
+			sessionId,
 		});
 		builder.setCustomId(customId);
 		return builder;

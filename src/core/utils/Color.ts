@@ -205,3 +205,33 @@ export async function getGuildDominantColor(
 	const hex = iconURL != null ? await getDominantColor(iconURL) : colorToHex('Aqua');
 	return rgb ? hexToRGB(hex) : hex;
 }
+
+/**
+ * Convert HEX string to Discord color number
+ * @param {string} hex The hex color string to convert to a number.
+ * @returns The color as a number. (eg 0x02f2f2)
+ * @example
+ * hexToNumber('#02f2f2'); // returns 310258
+ */
+export function hexToNumber(hex: HexColorString): number {
+	return parseInt(hex.replace('#', ''), 16);
+}
+
+/**
+ * Convert RGBtuple to Discord color number
+ * @param {number[]} rgb The RGB tuple to convert to a number.
+ * @returns The color as a number. (eg 0x02f2f2)
+ * @example
+ * rgbToNumber([2, 242, 242]); // returns 310258
+ */
+export function rgbToNumber(rgb: RGBTuple): number {
+	const [r, g, b] = rgb;
+	return (r << 16) + (g << 8) + b;
+}
+
+/**
+ * Alias for tuple identity (for clarity)
+ */
+export function rgbToTuple(r: number, g: number, b: number): RGBTuple {
+	return [r, g, b];
+}

@@ -11,7 +11,7 @@ export const ChannelSelect: MessageBuilder = {
 	embeds: [],
 	components: [],
 
-	async build(client: Client, guildId: string) {
+	async build(client: Client, guildId: string, sessionId?: string) {
 		const guild = await client.guilds.fetch(guildId);
 		const channels = guild
 			? (guild.channels.cache as import('discord.js').Collection<
@@ -25,14 +25,18 @@ export const ChannelSelect: MessageBuilder = {
 		}
 
 		// You may want to filter channels by type here if needed
-		const select = await new ChannelSelectMenu().build(client, { data: { channels } });
+		const select = await (new ChannelSelectMenu().build as any)(
+			client,
+			{ data: { channels } },
+			sessionId
+		);
 		const row = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(select);
 
 		const message = {
 			embeds: this.embeds,
 			components: [row],
 		};
-		logger.debug({ message }, 'Built channel select message');
+		logger.debug({ message }, '[ChannelSelect.build] Built channel select message');
 		return message;
 	},
 };

@@ -22,7 +22,8 @@ export abstract class ChannelSelectMenuComponent<TData = unknown> {
 
 	async build(
 		client: Client,
-		options?: ChannelSelectMenuBuildOptions<TData>
+		options?: ChannelSelectMenuBuildOptions<TData>,
+		sessionId?: string
 	): Promise<discord.ChannelSelectMenuBuilder> {
 		const builder = new discord.ChannelSelectMenuBuilder();
 		const placeholder = options?.placeholder ?? this.placeholder;
@@ -45,6 +46,7 @@ export abstract class ChannelSelectMenuComponent<TData = unknown> {
 		}
 		const customId = client.utils.CustomId.createCustomId(idString, {
 			data: options?.data as Record<string, any>,
+			sessionId,
 		});
 		builder.setCustomId(customId);
 		return builder;

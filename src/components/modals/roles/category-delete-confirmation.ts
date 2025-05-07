@@ -12,6 +12,10 @@ export class CategoryDeleteConfirmationModal extends ModalComponent<{ category: 
 	title = 'Delete Confirmation';
 	fields = [];
 
+	constructor() {
+		super('Delete Confirmation', []);
+	}
+
 	async build(client: Client, options: ModalBuildOptions<{ category: string }>) {
 		logger.debug('Building category delete confirmation modal component');
 		const field: TextInputOptions = {

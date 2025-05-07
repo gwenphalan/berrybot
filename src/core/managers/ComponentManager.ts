@@ -82,12 +82,12 @@ export const loadComponents = async (client: Client) => {
 			try {
 				// Load and validate component
 				const imported = await import(c);
-				const component: BaseMessageComponent =
-					imported.default || imported.MessageComponent;
-				if (!component)
+				const ImportedClass = imported.default || imported.MessageComponent;
+				if (!ImportedClass)
 					throw new Error(
 						'No component export found (expected default or MessageComponent)'
 					);
+				const component = new ImportedClass();
 				logger.debug(`Successfully loaded component: ${componentName}`);
 
 				const name = component.id;
