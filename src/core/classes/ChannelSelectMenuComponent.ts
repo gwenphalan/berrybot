@@ -1,6 +1,7 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
 import { t } from '@/core/utils/Locale';
+import { ChannelSelectMenuComponent as IChannelSelectMenuComponent } from '@/core/interfaces/components/ChannelSelectMenu';
 
 export interface ChannelSelectMenuBuildOptions<TData = unknown> {
 	placeholder?: string;
@@ -10,7 +11,9 @@ export interface ChannelSelectMenuBuildOptions<TData = unknown> {
 	data: TData;
 }
 
-export abstract class ChannelSelectMenuComponent<TData = unknown> {
+export abstract class ChannelSelectMenuComponent<TData = unknown>
+	implements IChannelSelectMenuComponent<TData>
+{
 	abstract id: string;
 	style?: never;
 	placeholder?: string;

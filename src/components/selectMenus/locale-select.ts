@@ -37,7 +37,7 @@ export default class LocaleSelectMenu extends StringSelectMenuComponent<{
 		client: Client,
 		options: { data: { currentLocale: DiscordLocale; availableLocales: DiscordLocale[] } },
 		sessionId?: string,
-		locale: string = 'en-US'
+		_locale: string = 'en-US'
 	): Promise<StringSelectMenuBuilder> {
 		const { currentLocale, availableLocales } = options.data;
 		logger.debug(

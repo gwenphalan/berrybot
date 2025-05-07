@@ -2,6 +2,7 @@ import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
 import { createCustomId } from '@/core/utils/CustomIdUtils';
 import { t } from '@/core/utils/Locale';
+import { UserSelectMenuComponent as IUserSelectMenuComponent } from '@/core/interfaces/components/UserSelectMenu';
 
 export interface UserSelectMenuBuildOptions<TData = unknown> {
 	placeholder?: string;
@@ -11,7 +12,9 @@ export interface UserSelectMenuBuildOptions<TData = unknown> {
 	data: TData;
 }
 
-export abstract class UserSelectMenuComponent<TData = unknown> {
+export abstract class UserSelectMenuComponent<TData = unknown>
+	implements IUserSelectMenuComponent<TData>
+{
 	abstract id: string;
 	style?: never;
 	placeholder?: string;

@@ -1,16 +1,18 @@
-// TODO: Locale Migration
+// TODO: Locale Migration Complete
 // keys:
 //   category_select.title: 'What category would you like to edit?'
 
-import { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
+import {
+	ActionRowBuilder,
+	StringSelectMenuBuilder,
+	ContainerBuilder,
+	TextDisplayBuilder,
+} from 'discord.js';
 import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
 import { Client } from '@/core/client/BerryClient';
 import { FlowState } from '@/core/interfaces/Flow';
 import { logger } from '@/core/logging/Logger';
 import CategorySelectMenu from '@/components/selectMenus/roles/category-select';
-import { t } from '@/core/utils/Locale';
-import { database } from '@/core/config/database';
-import { toDiscordLocale } from '@/core/utils/Locale';
 
 /**
  * CategorySelect - Message Description
@@ -18,9 +20,7 @@ import { toDiscordLocale } from '@/core/utils/Locale';
  */
 export const CategorySelect: MessageBuilder = {
 	// Default embeds for the message
-	embeds: [
-		new EmbedBuilder().setTitle('What category would you like to edit?').setColor('#00BFFF'),
-	],
+	embeds: [],
 
 	// Default components for the message
 	components: [],
@@ -49,31 +49,28 @@ export const CategorySelect: MessageBuilder = {
 			categories.push(category.name);
 		});
 
-		// Determine locale: user DB preference > interaction.locale > 'en-US'
-		let resolvedLocale = locale;
-		const userId = state?.interaction?.user?.id;
-		if (userId) {
-			const userSettings = await database.userSettings.get(userId);
-			resolvedLocale = toDiscordLocale(
-				userSettings?.locale || state?.interaction?.locale || 'en-US'
-			);
-		} else {
-			resolvedLocale = toDiscordLocale(state?.interaction?.locale || 'en-US');
-		}
-		const title = t('category_select.title', { locale: resolvedLocale });
+		const container = new ContainerBuilder().setAccentColor(
+			client.utils.Color.hexToNumber('#00BFFF')
+		);
+
+		const title = new TextDisplayBuilder().setContent(
+			client.getTranslation('category_select.title', locale)
+		);
+		container.addTextDisplayComponents(title);
 
 		const select = await (new CategorySelectMenu().build as any)(
 			client,
 			{ data: { categories } },
 			sessionId,
-			resolvedLocale
+			locale
 		);
 		const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select);
 
+		container.addActionRowComponents(row);
+
 		// Return updated message
 		const message = {
-			embeds: [new EmbedBuilder().setTitle(title).setColor('#00BFFF')],
-			components: [row],
+			components: [container],
 		};
 		logger.debug({ message }, '[CategorySelect.build] Built category select message');
 		return message;

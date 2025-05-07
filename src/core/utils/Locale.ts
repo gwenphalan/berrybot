@@ -89,21 +89,31 @@ export function getRegionNameAndEmoji(locale: Locale): {
  */
 export class LocalizedSlashCommandBuilder extends SlashCommandBuilder {
 	/**
-	 * Set the name and its localizations from the locale files.
-	 * @param key The key in the locale file (e.g., 'commands.ping.name')
-	 * @param defaultLocale The default locale to use (default: 'en')
+	 * Sets the command or option name and its localizations from the locale files.
+	 *
+	 * @param key The translation key in the locale file (e.g., 'commands.ping.name').
+	 * @param defaultLocale The default locale to use for the base name (default: 'en').
+	 * @returns This builder instance for chaining.
 	 */
 	setLocalizedName(key: string, defaultLocale = 'en'): this {
+		// Prepare an object to hold all localizations for Discord-supported locales
 		const localizations: Partial<Record<Locale, string>> = {};
+		// Get all Discord-supported locale values
 		const supportedDiscordLocales = Object.values(Locale) as Locale[];
+		// Iterate through all loaded locale files in the localeManager
 		for (const locale of Object.keys(localeManager['locales'])) {
 			const discordLocale = toDiscordLocale(locale);
+			// Only add if this locale is supported by Discord
 			if (!supportedDiscordLocales.includes(discordLocale as Locale)) continue;
 			if (!(discordLocale in Locale)) continue;
+			// Get the translation for this key and locale
 			const value = localeManager.getTranslation(key, locale);
+			// If a translation exists, add it to the localizations object
 			if (value) localizations[discordLocale as Locale] = value;
 		}
+		// Get the default name for the command/option (fallback to key if missing)
 		const defaultName = localeManager.getTranslation(key, defaultLocale) || key;
+		// Set the base name and all localizations on the builder
 		this.setName(defaultName);
 		this.setNameLocalizations(localizations);
 		return this;

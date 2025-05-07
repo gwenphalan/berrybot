@@ -6,5 +6,5 @@ import * as discord from 'discord.js';
  */
 export interface ModalComponent<TData = any> extends BaseMessageComponent<TData> {
 	title: string;
-	fields: discord.APITextInputComponent[];
+	fields: discord.APITextInputComponent[] | discord.TextInputBuilder[];
 }

@@ -2,6 +2,7 @@ import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
 import { createCustomId } from '@/core/utils/CustomIdUtils';
 import { t } from '@/core/utils/Locale';
+import { RoleSelectMenuComponent as IRoleSelectMenuComponent } from '@/core/interfaces/components/RoleSelectMenu';
 
 export interface RoleSelectMenuBuildOptions<TData = unknown> {
 	placeholder?: string;
@@ -11,7 +12,9 @@ export interface RoleSelectMenuBuildOptions<TData = unknown> {
 	data: TData;
 }
 
-export abstract class RoleSelectMenuComponent<TData = unknown> {
+export abstract class RoleSelectMenuComponent<TData = unknown>
+	implements IRoleSelectMenuComponent<TData>
+{
 	abstract id: string;
 	style?: never;
 	placeholder?: string;

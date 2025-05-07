@@ -1,6 +1,7 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
 import { t } from '@/core/utils/Locale';
+import { MentionableSelectMenuComponent as IMentionableSelectMenuComponent } from '@/core/interfaces/components/MentionableSelectMenu';
 
 export interface MentionableSelectMenuBuildOptions<TData = unknown> {
 	placeholder?: string;
@@ -9,7 +10,9 @@ export interface MentionableSelectMenuBuildOptions<TData = unknown> {
 	data: TData;
 }
 
-export abstract class MentionableSelectMenuComponent<TData = unknown> {
+export abstract class MentionableSelectMenuComponent<TData = unknown>
+	implements IMentionableSelectMenuComponent<TData>
+{
 	abstract id: string;
 	style?: never;
 	placeholder?: string;

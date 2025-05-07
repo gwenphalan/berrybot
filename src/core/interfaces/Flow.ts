@@ -754,7 +754,7 @@ export abstract class BaseFlowHandler implements FlowHandler {
 			}
 
 			// Debounce the update to prevent multiple rapid updates
-			this.updateTimeout = setTimeout(() => {
+			this.updateTimeout = setTimeout(async () => {
 				// Set flag to prevent concurrent updates
 				this.updateInProgress = true;
 
@@ -767,7 +767,13 @@ export abstract class BaseFlowHandler implements FlowHandler {
 				);
 
 				// Pass sessionId to message builder
-				this.build(client, { ...state, sessionId: this.sessionId ?? undefined })
+				// Automatically resolve the locale and pass it to build()
+				const resolvedLocale = await this.resolveLocale();
+				this.build(
+					client,
+					{ ...state, sessionId: this.sessionId ?? undefined },
+					resolvedLocale
+				)
 					.then((content) => {
 						if (content) {
 							return this.updateMessage(client, content);

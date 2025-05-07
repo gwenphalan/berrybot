@@ -17,6 +17,7 @@ import { UserSelectMenuComponent } from '@/core/classes/UserSelectMenuComponent'
 import { RoleSelectMenuComponent } from '@/core/classes/RoleSelectMenuComponent';
 import { MentionableSelectMenuComponent } from '@/core/classes/MentionableSelectMenuComponent';
 import * as utils from '@/core/utils';
+import { t } from '@/core/utils/Locale';
 /**
  * Extended Discord.js Client class that adds custom functionality
  * for command handling, event management, and component interactions
@@ -96,5 +97,31 @@ export class Client extends BaseClient {
 	 */
 	getEmoji(name: keyof typeof config.emojis) {
 		return this.emojis.cache.get(config.emojis[name]);
+	}
+
+	/**
+	 * Gets a translation from the locale files using the provided key and locale.
+	 * Supports variable interpolation using {{placeholder}} syntax.
+	 *
+	 * @param key - The translation key to look up (e.g., 'commands.ping.description')
+	 * @param locale - The locale to use (e.g., 'en-US')
+	 * @param variables - Optional variables to interpolate into the translation
+	 * @param fallbackLocale - Optional fallback locale if translation is missing
+	 * @returns The translated string, or the key if no translation found
+	 *
+	 * @example
+	 * // Get a simple translation
+	 * client.getTranslation('commands.ping.name', 'en-US');
+	 *
+	 * // Get a translation with variables
+	 * client.getTranslation('messages.welcome', 'en-US', { username: 'John' });
+	 */
+	getTranslation(
+		key: string,
+		locale: string,
+		variables?: Record<string, string>,
+		fallbackLocale?: string
+	): string {
+		return t(key, { locale, variables, fallbackLocale });
 	}
 }

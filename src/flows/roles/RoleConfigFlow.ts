@@ -75,8 +75,15 @@ export class RoleConfigFlow extends BaseFlowHandler {
 	 * This method is called when:
 	 * 1. The flow is first created (new message)
 	 * 2. The message needs to be updated (existing message)
+	 * @param client The Discord client
+	 * @param state The current flow state
+	 * @param locale The resolved locale (always provided by BaseFlowHandler)
 	 */
-	async build(client: Client, state: FlowState): Promise<Message | void | BaseMessageOptions> {
+	async build(
+		client: Client,
+		state: FlowState,
+		locale?: string
+	): Promise<Message | void | BaseMessageOptions> {
 		logger.debug({ flowId: this.id, state }, '[RoleConfigFlow.build] START');
 		try {
 			logger.debug(
@@ -93,7 +100,7 @@ export class RoleConfigFlow extends BaseFlowHandler {
 				components: [],
 			};
 
-			const locale = await this.resolveLocale();
+			// Locale is now always provided by the base class
 
 			// Build your message here
 			switch (state.id) {

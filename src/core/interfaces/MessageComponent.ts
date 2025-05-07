@@ -68,7 +68,7 @@ export interface BaseMessageComponent<TData = any> {
 	 * @param response - Optional modal response data.
 	 * @param selected - Optional selected options for select menus.
 	 */
-	execute(
+	execute?(
 		interaction: ComponentInteraction,
 		client: Client,
 		data?: TData,

@@ -18,8 +18,6 @@ import { logger } from '@/core/logging/Logger';
 import ConfigMainMenuCreateButton from '@/components/buttons/roles/config-main-menu/create';
 import ConfigMainMenuEditButton from '@/components/buttons/roles/config-main-menu/edit';
 import ConfigMainMenuMessageButton from '@/components/buttons/roles/config-main-menu/message';
-import { database } from '@/core/config/database';
-import { toDiscordLocale, t } from '@/core/utils/Locale';
 
 // Constants for UI and error messages
 const ERROR_COLOR = '#FF0000';
@@ -53,6 +51,7 @@ interface BuildOptions {
 function buildCategoryContent(
 	categories: any[],
 	interaction: BuildOptions['interaction'],
+	client: Client,
 	locale: string
 ): Promise<string> {
 	return Promise.all(
@@ -80,7 +79,8 @@ function buildCategoryContent(
 					roles.push(role.toString());
 				}
 			}
-			return `**${category.emoji} ${category.name}**\n${roles.length > 0 ? roles.join(', ') : t('roles.main_menu_no_roles', { locale })}\n\n`;
+			const emoji = client.emojis.cache.get(category.emoji);
+			return `**${emoji ? emoji.toString() : category.emoji} ${category.name}**\n${roles.length > 0 ? roles.join(', ') : client.getTranslation('roles.main_menu_no_roles', locale)}\n\n`;
 		})
 	).then((results) => results.join(''));
 }
@@ -161,13 +161,6 @@ export const MainMenu: MessageBuilder = {
 		if (!interaction || !interaction.guildId) {
 			throw new Error('No interaction found');
 		}
-		const userId = interaction.user?.id;
-		if (userId) {
-			const userSettings = await database.userSettings.get(userId);
-			locale = toDiscordLocale(userSettings?.locale || interaction.locale || 'en-US');
-		} else {
-			locale = toDiscordLocale(interaction.locale || 'en-US');
-		}
 		let guildSettings: any;
 		try {
 			guildSettings = await client.database.guildSettings.get(interaction.guildId);
@@ -177,8 +170,8 @@ export const MainMenu: MessageBuilder = {
 		}
 		if (!guildSettings) {
 			const errorEmbed = new EmbedBuilder()
-				.setTitle(t('roles.main_menu_error_title', { locale }))
-				.setDescription(t('roles.main_menu_no_guild_settings', { locale }))
+				.setTitle(client.getTranslation('roles.main_menu_error_title', locale))
+				.setDescription(client.getTranslation('roles.main_menu_no_guild_settings', locale))
 				.setColor(ERROR_COLOR);
 			return {
 				embeds: [errorEmbed],
@@ -190,12 +183,12 @@ export const MainMenu: MessageBuilder = {
 		const titleComponent = new TextDisplayBuilder();
 		titleComponent.setContent(
 			categories.length > 0
-				? t('roles.main_menu_edit_or_create', { locale })
-				: t('roles.main_menu_create_to_start', { locale })
+				? client.getTranslation('roles.main_menu_edit_or_create', locale)
+				: client.getTranslation('roles.main_menu_create_to_start', locale)
 		);
 		let categoryContent = '';
 		try {
-			categoryContent = await buildCategoryContent(categories, interaction, locale);
+			categoryContent = await buildCategoryContent(categories, interaction, client, locale);
 		} catch (err) {
 			logger.error({ err }, 'Failed to build category content');
 		}

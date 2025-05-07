@@ -14,8 +14,6 @@ import type { Client } from '@/core/client/BerryClient';
 import { t, getRegionNameAndEmoji } from '@/core/utils/Locale';
 import { config } from '@/core/config/config';
 import { localeManager } from '@/core/managers/LocaleManager';
-import * as fs from 'fs/promises';
-import * as path from 'path';
 
 // Add localeToCountryCode map at the top
 const localeToCountryCode: Record<string, string> = {

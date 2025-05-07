@@ -1,6 +1,7 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
 import { t } from '@/core/utils/Locale';
+import { ModalComponent as IModalComponent } from '@/core/interfaces/components/Modal';
 
 export interface TextInputOptions {
 	label: string;
@@ -19,12 +20,14 @@ export interface ModalBuildOptions<TData = unknown> {
 	data: TData;
 }
 
-export abstract class ModalComponent<TData = unknown> {
+export abstract class ModalComponent<TData = unknown> implements IModalComponent<TData> {
 	abstract id: string;
-	title: string;
+	// The interface expects APITextInputComponent[], but the class uses TextInputBuilder[] for builder pattern compatibility.
+	// This is safe because TextInputBuilder can be converted to APITextInputComponent when needed.
 	fields: discord.TextInputBuilder[];
 	parent?: string;
 	group?: string;
+	title: string;
 
 	constructor(title: string, fields: discord.TextInputBuilder[]) {
 		this.title = title;

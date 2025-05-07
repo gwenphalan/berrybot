@@ -2,8 +2,9 @@ import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
 import { logger } from '@/core/logging/Logger';
 import { t } from '@/core/utils/Locale';
+import { ButtonComponent as IButtonComponent } from '@/core/interfaces/components/Button';
 
-export abstract class ButtonComponent<TData = unknown> {
+export abstract class ButtonComponent<TData = unknown> implements IButtonComponent<TData> {
 	abstract id: string;
 	style?: discord.ButtonStyle;
 	label?: string;
