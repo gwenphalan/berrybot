@@ -1,16 +1,7 @@
-// TODO: Locale Migration
-// keys:
-//   select.test.placeholder: 'Test Select'
-//   select.test.option1: 'Test Option 1'
-//   select.test.option2: 'Test Option 2'
-//   select.test.option3: 'Test Option 3'
-//   select.test.reply: 'You selected {{label}}'
-
 // Example single-select menu component for testing purposes
 import { StringSelectMenuInteraction, APISelectMenuOption } from 'discord.js';
 import { StringSelectMenuComponent } from '@/core/classes/StringSelectMenuComponent';
 import type { Client } from '@/core/client/BerryClient';
-import { t } from '@/core/utils/Locale';
 
 class TestSelectMenu extends StringSelectMenuComponent<object> {
 	id = 'test-select';
@@ -24,7 +15,7 @@ class TestSelectMenu extends StringSelectMenuComponent<object> {
 		locale: string = 'en-US'
 	) {
 		const placeholderKey = 'select.test.placeholder';
-		const placeholder = t(placeholderKey, { locale });
+		const placeholder = client.getTranslation(placeholderKey, locale);
 		const select = await super.build(
 			client,
 			{
@@ -32,9 +23,18 @@ class TestSelectMenu extends StringSelectMenuComponent<object> {
 				min_values: this.min_values,
 				max_values: this.max_values,
 				options: [
-					{ label: t('select.test.option1', { locale }), value: 'test-option-1' },
-					{ label: t('select.test.option2', { locale }), value: 'test-option-2' },
-					{ label: t('select.test.option3', { locale }), value: 'test-option-3' },
+					{
+						label: client.getTranslation('select.test.option1', locale),
+						value: 'test-option-1',
+					},
+					{
+						label: client.getTranslation('select.test.option2', locale),
+						value: 'test-option-2',
+					},
+					{
+						label: client.getTranslation('select.test.option3', locale),
+						value: 'test-option-3',
+					},
 				],
 				data: options.data,
 			},
@@ -53,7 +53,7 @@ class TestSelectMenu extends StringSelectMenuComponent<object> {
 		locale: string = 'en-US'
 	) {
 		await interaction.reply({
-			content: t('select.test.reply', { locale, variables: { label: selected.label } }),
+			content: client.getTranslation('select.test.reply', locale, { label: selected.label }),
 			ephemeral: true,
 		});
 	}

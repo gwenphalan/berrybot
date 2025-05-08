@@ -1,7 +1,3 @@
-// TODO: Locale Migration
-// keys:
-//   channel_select.title: 'Please select a channel'
-
 import {
 	ActionRowBuilder,
 	ChannelSelectMenuBuilder,

@@ -11,7 +11,7 @@ import {
 	SeparatorBuilder,
 } from 'discord.js';
 import type { Client } from '@/core/client/BerryClient';
-import { t, getRegionNameAndEmoji } from '@/core/utils/Locale';
+import { getRegionNameAndEmoji } from '@/core/utils/Locale';
 import { config } from '@/core/config/config';
 import { localeManager } from '@/core/managers/LocaleManager';
 
@@ -66,7 +66,7 @@ export async function buildLocaleMessage(
 	const selectMenu = new StringSelectMenuBuilder()
 		.setCustomId('locale-select')
 		.setPlaceholder(
-			t('commands.locale.select_placeholder', { locale: currentLocale }) ||
+			client.getTranslation('commands.locale.select_placeholder', currentLocale) ||
 				'Select your language'
 		)
 		.addOptions(
@@ -87,7 +87,7 @@ export async function buildLocaleMessage(
 
 	// Build the support server button
 	const supportServerButton = new ButtonBuilder()
-		.setLabel(t('commands.locale.support_server', { locale: currentLocale }))
+		.setLabel(client.getTranslation('commands.locale.support_server', currentLocale))
 		.setStyle(5)
 		.setURL(config.support_server);
 
@@ -103,13 +103,10 @@ export async function buildLocaleMessage(
 	);
 
 	const title = new TextDisplayBuilder().setContent(
-		`# ${t('commands.locale.title', { locale: currentLocale })}`
+		`# ${client.getTranslation('commands.locale.title', currentLocale)}`
 	);
 	const info = new TextDisplayBuilder().setContent(
-		t('commands.locale.current', {
-			locale: currentLocale,
-			variables: { locale: currentLocale },
-		})
+		client.getTranslation('commands.locale.current', currentLocale, { locale: currentLocale })
 	);
 
 	const section = new SectionBuilder()
@@ -123,7 +120,7 @@ export async function buildLocaleMessage(
 	container.addSeparatorComponents(separator);
 
 	const supportText = new TextDisplayBuilder().setContent(
-		t('commands.locale.support_server', { locale: currentLocale })
+		client.getTranslation('commands.locale.support_server', currentLocale)
 	);
 	const supportSection = new SectionBuilder()
 		.addTextDisplayComponents(supportText)

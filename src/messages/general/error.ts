@@ -1,17 +1,7 @@
-// TODO: Locale Migration
-// keys:
-//   error.title: 'Uh Oh!'
-//   error.occurred: 'An error occurred while processing your request.'
-//   error.support_server: 'Support Server'
-//   error.instructions: 'Please try again later or report this to the developers.'
-//   error.error_id: 'Error ID'
-//   error.time: 'Time'
-
 import { Client, MessageBuilder } from '@/core/interfaces';
 import * as discord from 'discord.js';
 import { config } from '@/core/config/config';
 import { randomUUID } from 'crypto';
-import { t } from '@/core/utils/Locale';
 // import TestButton from '@/components/buttons/test'; // Uncomment if you have a test button component class
 
 // Example message builder demonstrating basic message construction
@@ -31,11 +21,11 @@ export const error: MessageBuilder = {
 			client.utils.Color.hexToNumber('#ff0000')
 		);
 		const uhoh = new discord.TextDisplayBuilder().setContent(
-			`# ${t('error.title', { locale })}`
+			`# ${client.getTranslation('error.title', locale)}`
 		);
 
 		const errorOccured = new discord.TextDisplayBuilder().setContent(
-			t('error.occurred', { locale })
+			client.getTranslation('error.occurred', locale)
 		);
 
 		const errorIcon = new discord.ThumbnailBuilder().setURL(
@@ -53,17 +43,18 @@ export const error: MessageBuilder = {
 		);
 
 		const supportServer = new discord.ButtonBuilder()
-			.setLabel(t('error.support_server', { locale }))
+			.setLabel(client.getTranslation('error.support_server', locale))
 			.setStyle(discord.ButtonStyle.Link)
 			.setURL(config.support_server);
 
 		const instructions = new discord.TextDisplayBuilder().setContent(
-			t('error.instructions', { locale })
+			client.getTranslation('error.instructions', locale)
 		);
 
 		// Developer info section (hidden in UI, but visible in logs or for advanced users)
 		const developerInfo = new discord.TextDisplayBuilder().setContent(
-			`**${t('error.error_id', { locale })}:** \`${id}\`\n**${t('error.time', { locale })}:** ${generalTimestamp}h UTC`
+			`**${client.getTranslation('error.error_id', locale)}:** \
+			\`${id}\`\n**${client.getTranslation('error.time', locale)}:** ${generalTimestamp}h UTC`
 		);
 
 		const instructionSection = new discord.SectionBuilder()

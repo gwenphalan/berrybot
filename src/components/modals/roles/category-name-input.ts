@@ -1,16 +1,7 @@
-// TODO: Locale Migration
-// keys:
-//   modal.category_name_input.title.create: 'Create Category'
-//   modal.category_name_input.title.edit: 'Edit Category Name'
-//   modal.category_name_input.label: 'Category Name'
-//   modal.category_name_input.placeholder.create: 'New Category'
-//   modal.category_name_input.placeholder.edit: '{{category}}'
-
 import { ModalSubmitInteraction, TextInputStyle } from 'discord.js';
 import { ModalComponent, ModalBuildOptions, TextInputOptions } from '@/core/classes/ModalComponent';
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
-import { t } from '@/core/utils/Locale';
 
 /**
  * CategoryNameInputModal - Modal for creating or editing a category name
@@ -43,12 +34,11 @@ export class CategoryNameInputModal extends ModalComponent<{
 			: 'modal.category_name_input.placeholder.edit';
 		const field: TextInputOptions = {
 			custom_id: 'category-name',
-			placeholder: t(placeholderKey, {
-				locale,
-				variables: { category: options.data.category || '' },
+			placeholder: client.getTranslation(placeholderKey, locale, {
+				category: options.data.category || '',
 			}),
 			style: TextInputStyle.Short,
-			label: t(labelKey, { locale }),
+			label: client.getTranslation(labelKey, locale),
 			required: true,
 			min_length: 0,
 			max_length: 32,
@@ -56,7 +46,7 @@ export class CategoryNameInputModal extends ModalComponent<{
 		return super.build(
 			client,
 			{
-				title: t(titleKey, { locale }),
+				title: client.getTranslation(titleKey, locale),
 				fields: [field],
 				data: options.data,
 			},

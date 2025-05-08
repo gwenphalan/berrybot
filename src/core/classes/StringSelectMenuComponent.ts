@@ -1,7 +1,6 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
 import { createCustomId } from '@/core/utils/CustomIdUtils';
-import { t } from '@/core/utils/Locale';
 import { StringSelectMenuComponent as IStringSelectMenuComponent } from '@/core/interfaces/components/StringSelectMenu';
 
 export interface StringSelectMenuBuildOptions<TData = unknown> {
@@ -41,7 +40,7 @@ export abstract class StringSelectMenuComponent<TData = unknown>
 	): Promise<discord.StringSelectMenuBuilder> {
 		let placeholder = options?.placeholder ?? this.placeholder;
 		if (placeholderKey && locale) {
-			placeholder = t(placeholderKey, { locale });
+			placeholder = client.getTranslation(placeholderKey, locale);
 		}
 		const min_values = options?.min_values ?? this.min_values;
 		const max_values = options?.max_values ?? this.max_values;

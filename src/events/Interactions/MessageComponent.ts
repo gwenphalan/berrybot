@@ -16,7 +16,6 @@ import { parseCustomId } from '@/core/utils/CustomIdUtils';
 import { error as errorMessageBuilder } from '@/messages/general/error';
 import { randomUUID } from 'crypto';
 import { database } from '@/core/config/database';
-import { buildErrorLogMessage } from '@/commands/dev/error-log';
 import { errorLog } from '@/messages/general/error-log';
 
 /**
@@ -77,8 +76,10 @@ export function parseData(customId: string): {
 export const event: Event = {
 	name: Events.InteractionCreate,
 	/**
-	 * Handles all types of message component interactions
-	 * @param {MessageComponentInteraction} interaction - The interaction object from Discord
+	 * Handles all types of message component interactions (buttons, select menus, modals)
+	 * - Routes to flow manager if sessionId is present
+	 * - Looks up the component handler and checks permissions
+	 * - Executes the component's logic and handles errors
 	 */
 	execute: async function (interaction: BaseInteraction, client: Client) {
 		logger.debug({ interaction }, '[MessageComponent.execute] Received interaction');
@@ -161,307 +162,322 @@ export const event: Event = {
 			logger.warn(`Component handler not found: ${key}:${type}`);
 			return;
 		}
-		logger.debug(`[MessageComponent.execute] Found component handler: ${key}:${type}`);
+		// Delegate to helper for permission checks and execution
+		await handleComponentExecution(
+			component,
+			messageComponentInteraction,
+			client,
+			data,
+			type,
+			key
+		);
+		return;
+	},
+};
 
-		// Check if component is developer-only
-		if (component.developer && config.developer !== messageComponentInteraction.user.id) {
+/**
+ * Handles permission checks, developer restrictions, and executes the component logic.
+ * Throws if the component does not implement an execute method.
+ * Handles all supported component types (button, select menu, modal, etc.).
+ */
+async function handleComponentExecution(
+	component: import('@/core/interfaces/MessageComponent').BaseMessageComponent,
+	messageComponentInteraction: MessageComponentInteraction | ModalSubmitInteraction,
+	client: Client,
+	data: any,
+	type: string,
+	key: string
+) {
+	// Check if component is developer-only
+	if (component.developer && config.developer !== messageComponentInteraction.user.id) {
+		logger.warn(
+			`User ${messageComponentInteraction.user.id} attempted to use developer-only component: ${key}:${type}`
+		);
+		return messageComponentInteraction.reply({
+			content: 'This is a developer only component.',
+			ephemeral: true,
+		});
+	}
+
+	// Ensure the component implements an execute method
+	if (typeof component.execute !== 'function') {
+		throw new Error(`Component ${key}:${type} does not implement an execute method.`);
+	}
+
+	// Check user permissions if component requires them
+	const member = messageComponentInteraction.member
+		? messageComponentInteraction.guild?.members.cache.get(
+				messageComponentInteraction.member.user.id
+			)
+		: null;
+
+	if (member) {
+		const permissions = new PermissionsBitField();
+		component.permissions?.forEach((p: bigint) => permissions.add(p));
+
+		if (!member.permissions.has(permissions)) {
 			logger.warn(
-				`User ${messageComponentInteraction.user.id} attempted to use developer-only component: ${key}:${type}`
+				`User ${messageComponentInteraction.user.id} lacks permissions for component: ${key}:${type}`
 			);
 			return messageComponentInteraction.reply({
-				content: 'This is a developer only component.',
+				content: 'You do not have permission to do this.',
 				ephemeral: true,
 			});
 		}
+		logger.debug(
+			`[MessageComponent.execute] User ${messageComponentInteraction.user.id} has required permissions for component: ${key}:${type}`
+		);
+	}
 
-		// Check user permissions if component requires them
-		const member = messageComponentInteraction.member
-			? messageComponentInteraction.guild?.members.cache.get(
-					messageComponentInteraction.member.user.id
-				)
-			: null;
-
-		if (member) {
-			const permissions = new PermissionsBitField();
-			component.permissions?.forEach((p: bigint) => permissions.add(p));
-
-			if (!member.permissions.has(permissions)) {
-				logger.warn(
-					`User ${messageComponentInteraction.user.id} lacks permissions for component: ${key}:${type}`
-				);
-				return messageComponentInteraction.reply({
-					content: 'You do not have permission to do this.',
-					ephemeral: true,
-				});
-			}
-			logger.debug(
-				`[MessageComponent.execute] User ${messageComponentInteraction.user.id} has required permissions for component: ${key}:${type}`
+	try {
+		// Handle different types of components (button, select menu, modal, etc.)
+		if ('isButton' in messageComponentInteraction && messageComponentInteraction.isButton()) {
+			// Handle button interactions
+			logger.debug(`[MessageComponent.execute] Executing button component: ${key}:${type}`);
+			await component.execute(
+				messageComponentInteraction,
+				client,
+				data.data,
+				messageComponentInteraction.guild ?? undefined
 			);
-		}
+		} else if (
+			'isStringSelectMenu' in messageComponentInteraction &&
+			messageComponentInteraction.isStringSelectMenu()
+		) {
+			// Handle select menu interactions
+			logger.debug(
+				`[MessageComponent.execute] Executing select menu component: ${key}:${type}`
+			);
+			const stringInteraction = messageComponentInteraction as StringSelectMenuInteraction;
+			const options = stringInteraction.component.options;
+			const selectedOptions = stringInteraction.values;
+			const selectedOption = options.find((option) => option.value === selectedOptions[0]);
 
-		try {
-			// Handle different types of components
-			if (
-				'isButton' in messageComponentInteraction &&
-				messageComponentInteraction.isButton()
-			) {
-				// Handle button interactions
+			if (component.multi_select) {
+				// Handle multi-select menus
 				logger.debug(
-					`[MessageComponent.execute] Executing button component: ${key}:${type}`
+					`Executing multi-select menu with ${selectedOptions.length} selections`
 				);
 				await component.execute(
 					messageComponentInteraction,
 					client,
 					data.data,
-					messageComponentInteraction.guild ?? undefined
+					messageComponentInteraction.guild ?? undefined,
+					undefined,
+					options.filter((option: import('discord.js').APISelectMenuOption) =>
+						selectedOptions.includes(option.value)
+					)
 				);
-			} else if (
-				'isStringSelectMenu' in messageComponentInteraction &&
-				messageComponentInteraction.isStringSelectMenu()
-			) {
-				// Handle select menu interactions
-				logger.debug(
-					`[MessageComponent.execute] Executing select menu component: ${key}:${type}`
-				);
-				const stringInteraction =
-					messageComponentInteraction as StringSelectMenuInteraction;
-				const options = stringInteraction.component.options;
-				const selectedOptions = stringInteraction.values;
-				const selectedOption = options.find(
-					(option) => option.value === selectedOptions[0]
-				);
-
-				if (component.multi_select) {
-					// Handle multi-select menus
-					logger.debug(
-						`Executing multi-select menu with ${selectedOptions.length} selections`
-					);
-					await component.execute(
-						messageComponentInteraction,
-						client,
-						data.data,
-						messageComponentInteraction.guild ?? undefined,
-						undefined,
-						options.filter((option: import('discord.js').APISelectMenuOption) =>
-							selectedOptions.includes(option.value)
-						)
-					);
-				} else {
-					// Handle single-select menus
-					if (!selectedOption) {
-						logger.warn(
-							`No valid option selected in single-select menu: ${key}:${type}`
-						);
-						return messageComponentInteraction.reply({
-							content: 'Something went wrong with your selection!',
-							ephemeral: true,
-						});
-					}
-					logger.debug(
-						`Executing single-select menu with selection: ${selectedOption.value}`
-					);
-					await component.execute(
-						messageComponentInteraction,
-						client,
-						data.data,
-						messageComponentInteraction.guild ?? undefined,
-						undefined,
-						selectedOption
-					);
+			} else {
+				// Handle single-select menus
+				if (!selectedOption) {
+					logger.warn(`No valid option selected in single-select menu: ${key}:${type}`);
+					return messageComponentInteraction.reply({
+						content: 'Something went wrong with your selection!',
+						ephemeral: true,
+					});
 				}
-			} else if (
-				'isModalSubmit' in messageComponentInteraction &&
-				messageComponentInteraction.isModalSubmit()
-			) {
-				// Handle modal submissions
 				logger.debug(
-					`[MessageComponent.execute] Executing modal component: ${key}:${type}`
-				);
-				const modalInteraction = messageComponentInteraction as ModalSubmitInteraction;
-				const fields = modalInteraction.fields.fields;
-				await component.execute(
-					modalInteraction,
-					client,
-					data.data,
-					modalInteraction.guild ?? undefined,
-					fields
-				);
-			} else if (
-				'messageComponentInteraction' in { messageComponentInteraction } &&
-				(messageComponentInteraction as any).isUserSelectMenu &&
-				(messageComponentInteraction as any).isUserSelectMenu()
-			) {
-				const userSelect =
-					messageComponentInteraction as import('discord.js').UserSelectMenuInteraction;
-				logger.debug(
-					`[MessageComponent.execute] Executing user select menu component: ${key}:${type}`
+					`Executing single-select menu with selection: ${selectedOption.value}`
 				);
 				await component.execute(
-					userSelect,
+					messageComponentInteraction,
 					client,
 					data.data,
-					userSelect.guild ?? undefined,
+					messageComponentInteraction.guild ?? undefined,
 					undefined,
-					undefined
-				);
-			} else if (
-				'messageComponentInteraction' in { messageComponentInteraction } &&
-				(messageComponentInteraction as any).isRoleSelectMenu &&
-				(messageComponentInteraction as any).isRoleSelectMenu()
-			) {
-				const roleSelect =
-					messageComponentInteraction as import('discord.js').RoleSelectMenuInteraction;
-				logger.debug(
-					`[MessageComponent.execute] Executing role select menu component: ${key}:${type}`
-				);
-				await component.execute(
-					roleSelect,
-					client,
-					data.data,
-					roleSelect.guild ?? undefined,
-					undefined,
-					undefined
-				);
-			} else if (
-				'messageComponentInteraction' in { messageComponentInteraction } &&
-				(messageComponentInteraction as any).isChannelSelectMenu &&
-				(messageComponentInteraction as any).isChannelSelectMenu()
-			) {
-				const channelSelect =
-					messageComponentInteraction as import('discord.js').ChannelSelectMenuInteraction;
-				logger.debug(
-					`[MessageComponent.execute] Executing channel select menu component: ${key}:${type}`
-				);
-				await component.execute(
-					channelSelect,
-					client,
-					data.data,
-					channelSelect.guild ?? undefined,
-					undefined,
-					undefined
-				);
-			} else if (
-				'messageComponentInteraction' in { messageComponentInteraction } &&
-				(messageComponentInteraction as any).isMentionableSelectMenu &&
-				(messageComponentInteraction as any).isMentionableSelectMenu()
-			) {
-				const mentionableSelect =
-					messageComponentInteraction as import('discord.js').MentionableSelectMenuInteraction;
-				logger.debug(
-					`[MessageComponent.execute] Executing mentionable select menu component: ${key}:${type}`
-				);
-				await component.execute(
-					mentionableSelect,
-					client,
-					data.data,
-					mentionableSelect.guild ?? undefined,
-					undefined,
-					undefined
+					selectedOption
 				);
 			}
-		} catch (error) {
-			const errorId = randomUUID();
-			prettyError(logger, {
+		} else if (
+			'isModalSubmit' in messageComponentInteraction &&
+			messageComponentInteraction.isModalSubmit()
+		) {
+			// Handle modal submissions
+			logger.debug(`[MessageComponent.execute] Executing modal component: ${key}:${type}`);
+			const modalInteraction = messageComponentInteraction as ModalSubmitInteraction;
+			const fields = modalInteraction.fields.fields;
+			await component.execute(
+				modalInteraction,
+				client,
+				data.data,
+				modalInteraction.guild ?? undefined,
+				fields
+			);
+		} else if (
+			'messageComponentInteraction' in { messageComponentInteraction } &&
+			(messageComponentInteraction as any).isUserSelectMenu &&
+			(messageComponentInteraction as any).isUserSelectMenu()
+		) {
+			const userSelect =
+				messageComponentInteraction as import('discord.js').UserSelectMenuInteraction;
+			logger.debug(
+				`[MessageComponent.execute] Executing user select menu component: ${key}:${type}`
+			);
+			await component.execute(
+				userSelect,
+				client,
+				data.data,
+				userSelect.guild ?? undefined,
+				undefined,
+				undefined
+			);
+		} else if (
+			'messageComponentInteraction' in { messageComponentInteraction } &&
+			(messageComponentInteraction as any).isRoleSelectMenu &&
+			(messageComponentInteraction as any).isRoleSelectMenu()
+		) {
+			const roleSelect =
+				messageComponentInteraction as import('discord.js').RoleSelectMenuInteraction;
+			logger.debug(
+				`[MessageComponent.execute] Executing role select menu component: ${key}:${type}`
+			);
+			await component.execute(
+				roleSelect,
+				client,
+				data.data,
+				roleSelect.guild ?? undefined,
+				undefined,
+				undefined
+			);
+		} else if (
+			'messageComponentInteraction' in { messageComponentInteraction } &&
+			(messageComponentInteraction as any).isChannelSelectMenu &&
+			(messageComponentInteraction as any).isChannelSelectMenu()
+		) {
+			const channelSelect =
+				messageComponentInteraction as import('discord.js').ChannelSelectMenuInteraction;
+			logger.debug(
+				`[MessageComponent.execute] Executing channel select menu component: ${key}:${type}`
+			);
+			await component.execute(
+				channelSelect,
+				client,
+				data.data,
+				channelSelect.guild ?? undefined,
+				undefined,
+				undefined
+			);
+		} else if (
+			'messageComponentInteraction' in { messageComponentInteraction } &&
+			(messageComponentInteraction as any).isMentionableSelectMenu &&
+			(messageComponentInteraction as any).isMentionableSelectMenu()
+		) {
+			const mentionableSelect =
+				messageComponentInteraction as import('discord.js').MentionableSelectMenuInteraction;
+			logger.debug(
+				`[MessageComponent.execute] Executing mentionable select menu component: ${key}:${type}`
+			);
+			await component.execute(
+				mentionableSelect,
+				client,
+				data.data,
+				mentionableSelect.guild ?? undefined,
+				undefined,
+				undefined
+			);
+		}
+	} catch (error) {
+		// Error handling: log, upload to DB, send error log to channel, and reply to user
+		const errorId = randomUUID();
+		prettyError(logger, {
+			errorId,
+			command: key,
+			subcommand: type,
+			user: messageComponentInteraction.user.id,
+			guild: messageComponentInteraction.guild?.id || null,
+			message: error instanceof Error ? error.message : String(error),
+			error: error instanceof Error ? error : String(error),
+		});
+
+		// Upload error to database
+		try {
+			await database.errorLogs.create({
 				errorId,
 				command: key,
 				subcommand: type,
 				user: messageComponentInteraction.user.id,
 				guild: messageComponentInteraction.guild?.id || null,
-				message: error instanceof Error ? error.message : String(error),
-				error: error instanceof Error ? error : String(error),
+				errorMessage: error instanceof Error ? error.message : String(error),
+				stackTrace: error instanceof Error && error.stack ? error.stack : '',
 			});
+		} catch (dbError) {
+			logger.error(
+				{ dbError },
+				'[MessageComponent.execute] Failed to upload error to database'
+			);
+		}
 
-			// Upload error to database
+		// Send error log to error log channel if configured
+		if (config.error_log_channel) {
 			try {
-				await database.errorLogs.create({
-					errorId,
-					command: key,
-					subcommand: type,
-					user: messageComponentInteraction.user.id,
-					guild: messageComponentInteraction.guild?.id || null,
-					errorMessage: error instanceof Error ? error.message : String(error),
-					stackTrace: error instanceof Error && error.stack ? error.stack : '',
-				});
-			} catch (dbError) {
-				logger.error(
-					{ dbError },
-					'[MessageComponent.execute] Failed to upload error to database'
-				);
-			}
-
-			// Send error log to error log channel if configured
-			if (config.error_log_channel) {
-				try {
-					const channel = await client.channels.fetch(config.error_log_channel);
-					if (channel && 'send' in channel) {
-						const errorLogMsg = await errorLog.build(
-							client,
-							error instanceof Error ? error : new Error(String(error)),
-							errorId,
-							{
-								command: key,
-								subcommand: type,
-								user: messageComponentInteraction.user.id,
-								guild: messageComponentInteraction.guild?.id || null,
-								createdAt: new Date(),
-							}
-						);
-						await channel.send(errorLogMsg);
-					} else {
-						logger.error(
-							'[MessageComponent.errorLog] The error log channel was not found or is not a text-based channel.',
-							{ channel }
-						);
-					}
-				} catch (sendError: any) {
-					let reason =
-						'[MessageComponent.errorLog] Failed to send error log to channel: ';
-					if (sendError.code === 50001) {
-						reason += 'Missing access to channel (bot may lack permissions).';
-					} else if (sendError.code === 10003) {
-						reason += 'Channel not found.';
-					} else if (sendError.message && sendError.message.includes('not a function')) {
-						reason += 'Channel does not support sending messages.';
-					} else {
-						reason += sendError.message || 'Unknown error.';
-					}
-					logger.error({ sendError }, reason);
-				}
-			}
-
-			try {
-				const errorMsg = await errorMessageBuilder.build(
-					client,
-					error instanceof Error ? error : new Error(String(error)),
-					errorId
-				);
-				// Only use editReply if isFromMessage exists and returns true
-				if (
-					'message' in messageComponentInteraction &&
-					typeof (messageComponentInteraction as any).isFromMessage === 'function' &&
-					(messageComponentInteraction as any).isFromMessage()
-				) {
-					await messageComponentInteraction.editReply({
-						...errorMsg,
-					});
-				} else if (
-					messageComponentInteraction.replied ||
-					messageComponentInteraction.deferred
-				) {
-					await messageComponentInteraction.followUp({
-						...errorMsg,
-						ephemeral: true,
-					});
+				const channel = await client.channels.fetch(config.error_log_channel);
+				if (channel && 'send' in channel) {
+					const errorLogMsg = await errorLog.build(
+						client,
+						error instanceof Error ? error : new Error(String(error)),
+						errorId,
+						{
+							command: key,
+							subcommand: type,
+							user: messageComponentInteraction.user.id,
+							guild: messageComponentInteraction.guild?.id || null,
+							createdAt: new Date(),
+						}
+					);
+					await channel.send(errorLogMsg);
 				} else {
-					await messageComponentInteraction.reply({
-						...errorMsg,
-						ephemeral: true,
-					});
+					logger.error(
+						'[MessageComponent.errorLog] The error log channel was not found or is not a text-based channel.',
+						{ channel }
+					);
 				}
-			} catch (err) {
-				logger.error({ err }, '[MessageComponent.execute] Failed to send error reply');
+			} catch (sendError: any) {
+				let reason = '[MessageComponent.errorLog] Failed to send error log to channel: ';
+				if (sendError.code === 50001) {
+					reason += 'Missing access to channel (bot may lack permissions).';
+				} else if (sendError.code === 10003) {
+					reason += 'Channel not found.';
+				} else if (sendError.message && sendError.message.includes('not a function')) {
+					reason += 'Channel does not support sending messages.';
+				} else {
+					reason += sendError.message || 'Unknown error.';
+				}
+				logger.error({ sendError }, reason);
 			}
 		}
-		return;
-	},
-};
+
+		try {
+			const errorMsg = await errorMessageBuilder.build(
+				client,
+				error instanceof Error ? error : new Error(String(error)),
+				errorId
+			);
+			// Only use editReply if isFromMessage exists and returns true
+			if (
+				'message' in messageComponentInteraction &&
+				typeof (messageComponentInteraction as any).isFromMessage === 'function' &&
+				(messageComponentInteraction as any).isFromMessage()
+			) {
+				await messageComponentInteraction.editReply({
+					...errorMsg,
+				});
+			} else if (
+				messageComponentInteraction.replied ||
+				messageComponentInteraction.deferred
+			) {
+				await messageComponentInteraction.followUp({
+					...errorMsg,
+					ephemeral: true,
+				});
+			} else {
+				await messageComponentInteraction.reply({
+					...errorMsg,
+					ephemeral: true,
+				});
+			}
+		} catch (err) {
+			logger.error({ err }, '[MessageComponent.execute] Failed to send error reply');
+		}
+	}
+}

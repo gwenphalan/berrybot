@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  berrybot:
+    build: .
+    container_name: berrybot
+    env_file:
+      - .env
+    restart: always
+    # Uncomment and edit if you need to mount volumes
+    # volumes:
+    #   - ./data:/app/data 

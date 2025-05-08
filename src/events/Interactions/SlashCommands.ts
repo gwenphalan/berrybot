@@ -5,7 +5,6 @@ import { logger, prettyError } from '@/core/logging/Logger';
 import { error as errorMessageBuilder } from '@/messages/general/error';
 import { randomUUID } from 'crypto';
 import { database } from '@/core/config/database';
-import { buildErrorLogMessage } from '@/commands/dev/error-log';
 import { errorLog } from '@/messages/general/error-log';
 import { toDiscordLocale } from '@/core/utils/Locale';
 

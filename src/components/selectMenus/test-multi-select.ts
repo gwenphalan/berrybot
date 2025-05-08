@@ -1,16 +1,7 @@
-// TODO: Locale Migration
-// keys:
-//   select.test_multi.placeholder: 'Test Select'
-//   select.test_multi.option1: 'Test Option 1'
-//   select.test_multi.option2: 'Test Option 2'
-//   select.test_multi.option3: 'Test Option 3'
-//   select.test_multi.reply: 'You selected {{labels}}'
-
 // Example multi-select menu component for testing purposes
 import { StringSelectMenuInteraction, APISelectMenuOption } from 'discord.js';
 import { StringSelectMenuComponent } from '@/core/classes/StringSelectMenuComponent';
 import type { Client } from '@/core/client/BerryClient';
-import { t } from '@/core/utils/Locale';
 
 class TestMultiSelectMenu extends StringSelectMenuComponent<object> {
 	id = 'test-multi-select';
@@ -24,7 +15,7 @@ class TestMultiSelectMenu extends StringSelectMenuComponent<object> {
 		locale: string = 'en-US'
 	) {
 		const placeholderKey = 'select.test_multi.placeholder';
-		const placeholder = t(placeholderKey, { locale });
+		const placeholder = client.getTranslation(placeholderKey, locale);
 		const select = await super.build(
 			client,
 			{
@@ -32,9 +23,18 @@ class TestMultiSelectMenu extends StringSelectMenuComponent<object> {
 				min_values: this.min_values,
 				max_values: this.max_values,
 				options: [
-					{ label: t('select.test_multi.option1', { locale }), value: 'test-option-1' },
-					{ label: t('select.test_multi.option2', { locale }), value: 'test-option-2' },
-					{ label: t('select.test_multi.option3', { locale }), value: 'test-option-3' },
+					{
+						label: client.getTranslation('select.test_multi.option1', locale),
+						value: 'test-option-1',
+					},
+					{
+						label: client.getTranslation('select.test_multi.option2', locale),
+						value: 'test-option-2',
+					},
+					{
+						label: client.getTranslation('select.test_multi.option3', locale),
+						value: 'test-option-3',
+					},
 				],
 				data: options.data,
 			},
@@ -53,9 +53,8 @@ class TestMultiSelectMenu extends StringSelectMenuComponent<object> {
 		locale: string = 'en-US'
 	) {
 		await interaction.reply({
-			content: t('select.test_multi.reply', {
-				locale,
-				variables: { labels: selected.map((option) => option.label).join(', ') },
+			content: client.getTranslation('select.test_multi.reply', locale, {
+				labels: selected.map((option) => option.label).join(', '),
 			}),
 			ephemeral: true,
 		});

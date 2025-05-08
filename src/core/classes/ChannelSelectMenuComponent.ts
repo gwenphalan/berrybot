@@ -1,6 +1,5 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
-import { t } from '@/core/utils/Locale';
 import { ChannelSelectMenuComponent as IChannelSelectMenuComponent } from '@/core/interfaces/components/ChannelSelectMenu';
 
 export interface ChannelSelectMenuBuildOptions<TData = unknown> {
@@ -41,7 +40,7 @@ export abstract class ChannelSelectMenuComponent<TData = unknown>
 	): Promise<discord.ChannelSelectMenuBuilder> {
 		let placeholder = options?.placeholder ?? this.placeholder;
 		if (placeholderKey && locale) {
-			placeholder = t(placeholderKey, { locale });
+			placeholder = client.getTranslation(placeholderKey, locale);
 		}
 		const min_values = options?.min_values ?? this.min_values;
 		const max_values = options?.max_values ?? this.max_values;

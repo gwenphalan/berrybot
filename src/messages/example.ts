@@ -1,13 +1,6 @@
-// TODO: Locale Migration
-// keys:
-//   example.title: 'Example'
-//   example.description: 'This is an example message.'
-//   example.button_label: 'Test Button'
-
 import { Client, MessageBuilder } from '@/core/interfaces';
 import * as discord from 'discord.js';
 import { createCustomId } from '@/core/utils/CustomIdUtils';
-import { t } from '@/core/utils/Locale';
 // import TestButton from '@/components/buttons/test'; // Uncomment if you have a test button component class
 
 // Example message builder demonstrating basic message construction
@@ -33,14 +26,14 @@ export const example: MessageBuilder = {
 		this.components[0].addComponents(
 			new discord.ButtonBuilder()
 				.setCustomId(createCustomId('test-button', { data: testJSON }))
-				.setLabel(t('example.button_label', { locale }))
+				.setLabel(_client.getTranslation('example.button_label', locale))
 				.setStyle(discord.ButtonStyle.Primary)
 		);
 		return {
 			embeds: [
 				new discord.EmbedBuilder()
-					.setTitle(t('example.title', { locale }))
-					.setDescription(t('example.description', { locale })),
+					.setTitle(_client.getTranslation('example.title', locale))
+					.setDescription(_client.getTranslation('example.description', locale)),
 			],
 			components: this.components,
 		};

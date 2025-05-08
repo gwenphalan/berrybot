@@ -10,7 +10,6 @@ import PaginatorNextButton from '@/components/buttons/paginator/next';
 import PaginatorCloseButton from '@/components/buttons/paginator/close';
 import { Collection } from 'discord.js';
 import { logger } from '@/core/logging/Logger';
-import { t } from '@/core/utils/Locale';
 
 export const books = new Collection<string, string[]>();
 
@@ -87,7 +86,7 @@ export const paginator: MessageBuilder = {
 		this.embeds[0].setColor(options.color as discord.ColorResolvable);
 		this.embeds[0].setDescription(pages[options.currentPage]);
 		this.embeds[0].setTitle(
-			`${t('paginator.title', { locale })} [${options.currentPage + 1}/${pages.length}]`
+			`${client.getTranslation('paginator.title', locale)} [${options.currentPage + 1}/${pages.length}]`
 		);
 
 		logger.debug(

@@ -1,7 +1,6 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
 import { logger } from '@/core/logging/Logger';
-import { t } from '@/core/utils/Locale';
 import { ButtonComponent as IButtonComponent } from '@/core/interfaces/components/Button';
 
 export abstract class ButtonComponent<TData = unknown> implements IButtonComponent<TData> {
@@ -32,7 +31,7 @@ export abstract class ButtonComponent<TData = unknown> implements IButtonCompone
 	): Promise<discord.ButtonBuilder> {
 		let label = this.label ?? '';
 		if (labelKey && locale) {
-			label = t(labelKey, { locale });
+			label = client.getTranslation(labelKey, locale);
 		}
 		const builder = new discord.ButtonBuilder()
 			.setStyle(this.style ?? discord.ButtonStyle.Primary)

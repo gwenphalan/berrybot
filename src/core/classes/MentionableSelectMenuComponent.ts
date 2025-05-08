@@ -1,6 +1,5 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
-import { t } from '@/core/utils/Locale';
 import { MentionableSelectMenuComponent as IMentionableSelectMenuComponent } from '@/core/interfaces/components/MentionableSelectMenu';
 
 export interface MentionableSelectMenuBuildOptions<TData = unknown> {
@@ -39,7 +38,7 @@ export abstract class MentionableSelectMenuComponent<TData = unknown>
 	): Promise<discord.MentionableSelectMenuBuilder> {
 		let placeholder = options?.placeholder ?? this.placeholder;
 		if (placeholderKey && locale) {
-			placeholder = t(placeholderKey, { locale });
+			placeholder = client.getTranslation(placeholderKey, locale);
 		}
 		const min_values = options?.min_values ?? this.min_values;
 		const max_values = options?.max_values ?? this.max_values;

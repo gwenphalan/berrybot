@@ -1,18 +1,9 @@
-// TODO: Locale Migration
-// keys:
-//   counter.title: 'Simple Counter'
-//   counter.description: 'Click the button below to increment the counter!'
-//   counter.error_description: 'Click the button below to throw an error!'
-//   counter.count_label: 'Count'
-//   counter.error_count_label: 'Error Count'
-
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder } from 'discord.js';
 import { MessageBuilder } from '@/core/interfaces/MessageBuilder';
 import { Client } from '@/core/client/BerryClient';
 import { FlowState } from '@/core/interfaces/Flow';
 import { logger } from '@/core/logging/Logger';
 import CounterButton from '@/components/buttons/counter';
-import { t } from '@/core/utils/Locale';
 
 export const CounterMessage: MessageBuilder = {
 	embeds: [
@@ -39,11 +30,11 @@ export const CounterMessage: MessageBuilder = {
 
 		// Update embed with current count
 		const embed = new EmbedBuilder()
-			.setTitle(t('counter.title', { locale }))
-			.setDescription(t('counter.error_description', { locale }))
+			.setTitle(client.getTranslation('counter.title', locale))
+			.setDescription(client.getTranslation('counter.error_description', locale))
 			.addFields([
 				{
-					name: t('counter.error_count_label', { locale }),
+					name: client.getTranslation('counter.error_count_label', locale),
 					value: count.toString(),
 					inline: true,
 				},

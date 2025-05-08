@@ -1,6 +1,5 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
-import { t } from '@/core/utils/Locale';
 import { ModalComponent as IModalComponent } from '@/core/interfaces/components/Modal';
 
 export interface TextInputOptions {
@@ -51,7 +50,7 @@ export abstract class ModalComponent<TData = unknown> implements IModalComponent
 	): Promise<discord.ModalBuilder> {
 		let title = options?.title ?? this.title;
 		if (titleKey && locale) {
-			title = t(titleKey, { locale });
+			title = client.getTranslation(titleKey, locale);
 		}
 		const builder = new discord.ModalBuilder().setTitle(title);
 

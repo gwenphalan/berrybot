@@ -8,6 +8,10 @@
 			"select_placeholder": "Select your language",
 			"support_server": "Support Server",
 			"updated": "Your locale has been updated to {{locale}}."
+		},
+		"role_config": {
+			"name": "role-config",
+			"description": "View or manage self-assignable roles."
 		}
 	},
 	"locales": {
@@ -59,5 +63,85 @@
 		"config_main_menu_create_button_error_no_flow": "No flow found for this message. Please try again.",
 		"config_main_menu_edit_button_error_no_flow": "No flow found for this message. Please try again.",
 		"config_main_menu_message_button_error_no_flow": "No flow found for this message. Please try again."
+	},
+	"error_log": {
+		"title": "Error Log",
+		"id": "ID",
+		"command": "Command",
+		"user": "User",
+		"guild": "Guild",
+		"created": "Created",
+		"message": "Message:",
+		"stack_trace": "Stack Trace:",
+		"developer_info": "Error ID",
+		"time": "Time"
+	},
+	"select": {
+		"test": {
+			"placeholder": "Test Select",
+			"option1": "Test Option 1",
+			"option2": "Test Option 2",
+			"option3": "Test Option 3",
+			"reply": "You selected {{label}}"
+		},
+		"test_multi": {
+			"placeholder": "Test Select",
+			"option1": "Test Option 1",
+			"option2": "Test Option 2",
+			"option3": "Test Option 3",
+			"reply": "You selected {{labels}}"
+		},
+		"locale": {
+			"placeholder": "Select your language"
+		},
+		"channel": {
+			"placeholder": "Select a channel"
+		}
+	},
+	"counter": {
+		"title": "Simple Counter",
+		"description": "Click the button below to increment the counter!",
+		"error_description": "Click the button below to throw an error!",
+		"count_label": "Count",
+		"error_count_label": "Error Count"
+	},
+	"modal": {
+		"category_delete_confirmation": {
+			"title": "Delete Confirmation",
+			"label": "Type {{category}} to confirm deletion."
+		},
+		"category_name_input": {
+			"title": {
+				"create": "Create Category",
+				"edit": "Edit Category Name"
+			},
+			"label": "Category Name",
+			"placeholder": {
+				"create": "New Category",
+				"edit": "{{category}}"
+			}
+		},
+		"test": {
+			"title": "Test Modal",
+			"label": "Test Input",
+			"placeholder": "Test Input",
+			"reply": "This is a test modal! You said: {{value}}"
+		}
+	},
+	"example": {
+		"title": "Example",
+		"description": "This is an example message.",
+		"button_label": "Test Button"
+	},
+	"channel_select": {
+		"title": "Please select a channel"
+	},
+	"error": {
+		"title": "Uh Oh!",
+		"occurred": "An error occurred while processing your request.",
+		"support_server": "Support Server",
+		"instructions": "Please try again later or report this to the developers.",
+		"error_id": "Error ID",
+		"time": "Time"
 	}
 }

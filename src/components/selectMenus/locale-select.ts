@@ -1,7 +1,3 @@
-// TODO: Locale Migration
-// keys:
-//   select.locale.placeholder: 'Select your language'
-
 import {
 	StringSelectMenuInteraction,
 	StringSelectMenuBuilder,

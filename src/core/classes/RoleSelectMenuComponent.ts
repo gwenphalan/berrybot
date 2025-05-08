@@ -1,7 +1,6 @@
 import { Client } from '../client/BerryClient';
 import * as discord from 'discord.js';
 import { createCustomId } from '@/core/utils/CustomIdUtils';
-import { t } from '@/core/utils/Locale';
 import { RoleSelectMenuComponent as IRoleSelectMenuComponent } from '@/core/interfaces/components/RoleSelectMenu';
 
 export interface RoleSelectMenuBuildOptions<TData = unknown> {
@@ -42,7 +41,7 @@ export abstract class RoleSelectMenuComponent<TData = unknown>
 	): Promise<discord.RoleSelectMenuBuilder> {
 		let placeholder = options?.placeholder ?? this.placeholder;
 		if (placeholderKey && locale) {
-			placeholder = t(placeholderKey, { locale });
+			placeholder = client.getTranslation(placeholderKey, locale);
 		}
 		const min_values = options?.min_values ?? this.min_values;
 		const max_values = options?.max_values ?? this.max_values;

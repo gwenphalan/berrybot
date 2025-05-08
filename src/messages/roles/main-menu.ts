@@ -31,14 +31,6 @@ interface BuildOptions {
 		| ChatInputCommandInteraction;
 }
 
-// TODO: Locale Migration
-// keys:
-//   roles.main_menu_error_title: 'Error'
-//   roles.main_menu_no_guild_settings: 'No guild settings found. Please configure your server.'
-//   roles.main_menu_edit_or_create: 'Edit or create a self-role category below.'
-//   roles.main_menu_create_to_start: 'Create a self-role category to get started.'
-//   roles.main_menu_no_roles: 'No roles'
-
 /**
  * Builds a formatted string representing all self-role categories and their roles for display.
  * Handles fetching roles that may not be cached.

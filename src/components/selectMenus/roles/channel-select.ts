@@ -1,7 +1,3 @@
-// TODO: Locale Migration
-// keys:
-//   select.channel.placeholder: 'Select a channel'
-
 import {
 	ChannelSelectMenuInteraction,
 	PermissionFlagsBits,
@@ -11,7 +7,6 @@ import {
 import { ChannelSelectMenuComponent } from '@/core/classes/ChannelSelectMenuComponent';
 import type { Client } from '@/core/client/BerryClient';
 import { logger } from '@/core/logging/Logger';
-import { t } from '@/core/utils/Locale';
 
 /**
  * ChannelSelectMenu - Selects a channel for the role message, single select
@@ -34,7 +29,7 @@ export class ChannelSelectMenu extends ChannelSelectMenuComponent<{
 		locale: string = 'en-US'
 	) {
 		const placeholderKey = 'select.channel.placeholder';
-		const placeholder = t(placeholderKey, { locale });
+		const placeholder = client.getTranslation(placeholderKey, locale);
 		logger.debug({ data: options.data }, 'Building channel select menu component with data');
 		const select = await super.build(
 			client,
