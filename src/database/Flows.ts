@@ -11,7 +11,7 @@ export interface Flows extends mongoose.Document {
 	userId?: string;
 	flowType: string;
 	currentState: FlowState;
-	data: Record<string, any>;
+	data: Record<string, unknown>;
 	createdAt: Date;
 	updatedAt: Date;
 	expiresAt?: Date;
@@ -40,7 +40,6 @@ const FlowsSchema = new mongoose.Schema(
 		flowType: {
 			type: String,
 			required: true,
-			enum: ['ROLE_SELECT'], // Add other flow types as needed
 			index: true,
 		},
 		currentState: {
