@@ -7,12 +7,15 @@ const command: Command = {
 	parent: 'test',
 	data: new LocalizedSlashCommandSubcommandBuilder()
 		.setName('button')
-		.setDescription('Test button'),
+		.setDescription('Test button')
+		.setLocalizedName('commands.test.button.name')
+		.setLocalizedDescription('commands.test.button.description'),
 	async execute(interaction: ChatInputCommandInteraction, client) {
+		const locale = interaction.locale || 'en-US';
 		// Validate guild context
 		if (!interaction.guild) {
 			await interaction.reply({
-				content: 'This command can only be used in a server.',
+				content: client.getTranslation('commands.test.button.guild_only', locale),
 				ephemeral: true,
 			});
 			return;

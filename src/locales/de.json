@@ -9,6 +9,71 @@
 			"support_server": "Support-Server",
 			"updated": "Deine Sprache wurde auf {{locale}} aktualisiert.",
 			"no_other_languages": "Es sind derzeit keine weiteren Sprachen verfügbar."
+		},
+		"role_config": {
+			"name": "rollen-konfiguration",
+			"description": "Selbstzuweisbare Rollen anzeigen oder verwalten."
+		},
+		"ping": {
+			"name": "ping",
+			"description": "Antwortet mit Pong!"
+		},
+		"error_log": {
+			"name": "fehlerprotokoll",
+			"description": "Fehlerprotokoll per UUID abrufen (nur für Entwickler)",
+			"invalid_uuid": "Ungültiges UUID-Format. Bitte gib eine gültige Fehlerprotokoll-UUID an.",
+			"not_found": "Kein Fehlerprotokoll für ID: {{uuid}} gefunden."
+		},
+		"emoji": {
+			"name": "emoji",
+			"description": "Erforderliche Emojis zum Server hochladen",
+			"error": "In diesem Server wurden keine Emojis gefunden.",
+			"permission_error": "Ich habe keine Berechtigung, Emojis in diesem Server zu verwalten."
+		},
+		"test": {
+			"name": "test",
+			"description": "Testbefehl",
+			"error": "Testfehler",
+			"reply": "Testbefehl ausgeführt!",
+			"embed": {
+				"name": "einbetten",
+				"description": "Test-Einbettung",
+				"embed_title": "Beispiel",
+				"embed_description": "Dies ist eine Beispielnachricht."
+			},
+			"select_menu": {
+				"name": "auswahlmenü",
+				"description": "Test Auswahlmenü",
+				"reply": "Test Auswahlmenü",
+				"option": {
+					"type": {
+						"description": "Typ des Auswahlmenüs",
+						"single": "Einzeln",
+						"multi": "Mehrfach"
+					}
+				}
+			},
+			"flow": {
+				"name": "fluss",
+				"description": "Fluss-Test",
+				"guild_only": "Dieser Befehl kann nur in einem Server verwendet werden.",
+				"error": "Beim Initialisieren des Flusses ist ein Fehler aufgetreten."
+			},
+			"modals": {
+				"name": "modale",
+				"description": "Test-Modale",
+				"guild_only": "Dieser Befehl kann nur in einem Server verwendet werden."
+			},
+			"button": {
+				"name": "knopf",
+				"description": "Testknopf",
+				"guild_only": "Dieser Befehl kann nur in einem Server verwendet werden."
+			},
+			"paginator": {
+				"name": "seitennummerierung",
+				"description": "Test der Seitennummerierung",
+				"title": "Seitennummerierung"
+			}
 		}
 	},
 	"locales": {
@@ -44,5 +109,142 @@
 		"hr": "Kroatisch",
 		"lt": "Litauisch",
 		"id": "Indonesisch"
+	},
+	"roles": {
+		"category_select_title": "Welche Kategorie möchtest du bearbeiten?",
+		"main_menu_no_guild_settings": "Keine Servereinstellungen gefunden",
+		"main_menu_edit_or_create": "## Möchtest du eine Kategorie bearbeiten oder erstellen?",
+		"main_menu_create_to_start": "## Klicke auf Erstellen, um zu beginnen!",
+		"main_menu_error_title": "Fehler",
+		"category_edit_delete_button_error_no_flow": "Kein Fluss für diese Nachricht gefunden. Bitte versuche es erneut.",
+		"category_edit_emoji_button_title": "Reagiere auf diese Nachricht mit dem Emoji, das du verwenden möchtest.",
+		"category_edit_emoji_button_error_no_guild": "Keine Server-ID für diese Interaktion gefunden.",
+		"category_edit_emoji_button_error_no_flow": "Kein Fluss für diese Nachricht gefunden. Bitte versuche es erneut.",
+		"category_edit_name_button_error_no_flow": "Kein Fluss für diese Nachricht gefunden. Bitte versuche es erneut.",
+		"category_edit_roles_button_error_no_flow": "Kein Fluss für diese Nachricht gefunden. Bitte versuche es erneut.",
+		"config_main_menu_create_button_error_no_flow": "Kein Fluss für diese Nachricht gefunden. Bitte versuche es erneut.",
+		"config_main_menu_edit_button_error_no_flow": "Kein Fluss für diese Nachricht gefunden. Bitte versuche es erneut.",
+		"config_main_menu_message_button_error_no_flow": "Kein Fluss für diese Nachricht gefunden. Bitte versuche es erneut.",
+		"main_menu_no_roles": "Keine Rollen in dieser Kategorie.",
+		"main_menu_title": "Rollen-Hauptmenü"
+	},
+	"error_log": {
+		"title": "Fehlerprotokoll",
+		"id": "ID",
+		"command": "Befehl",
+		"user": "Benutzer",
+		"guild": "Server",
+		"created": "Erstellt",
+		"message": "Nachricht:",
+		"stack_trace": "Stack-Trace:",
+		"developer_info": "Fehler-ID",
+		"time": "Zeit"
+	},
+	"select": {
+		"test": {
+			"placeholder": "Testauswahl",
+			"option1": "Testoption 1",
+			"option2": "Testoption 2",
+			"option3": "Testoption 3",
+			"reply": "Du hast {{label}} ausgewählt"
+		},
+		"test_multi": {
+			"placeholder": "Testauswahl",
+			"option1": "Testoption 1",
+			"option2": "Testoption 2",
+			"option3": "Testoption 3",
+			"reply": "Du hast {{labels}} ausgewählt"
+		},
+		"locale": {
+			"placeholder": "Wähle deine Sprache"
+		},
+		"channel": {
+			"placeholder": "Wähle einen Kanal"
+		}
+	},
+	"counter": {
+		"title": "Einfacher Zähler",
+		"description": "Klicke auf den Button unten, um den Zähler zu erhöhen!",
+		"error_description": "Klicke auf den Button unten, um einen Fehler auszulösen!",
+		"count_label": "Zähler",
+		"error_count_label": "Fehlerzähler"
+	},
+	"modal": {
+		"category_delete_confirmation": {
+			"title": "Löschbestätigung",
+			"label": "Gib {{category}} ein, um das Löschen zu bestätigen."
+		},
+		"category_name_input": {
+			"title": {
+				"create": "Kategorie erstellen",
+				"edit": "Kategoriename bearbeiten"
+			},
+			"label": "Kategoriename",
+			"placeholder": {
+				"create": "Neue Kategorie",
+				"edit": "{{category}}"
+			}
+		},
+		"test": {
+			"title": "Test-Modal",
+			"label": "Test-Eingabe",
+			"placeholder": "Test-Eingabe",
+			"reply": "Dies ist ein Test-Modal! Du hast gesagt: {{value}}"
+		}
+	},
+	"example": {
+		"title": "Beispiel",
+		"description": "Dies ist eine Beispielnachricht.",
+		"button_label": "Testknopf"
+	},
+	"channel_select": {
+		"title": "Bitte wähle einen Kanal"
+	},
+	"error": {
+		"title": "Oh nein!",
+		"occurred": "Beim Verarbeiten deiner Anfrage ist ein Fehler aufgetreten.",
+		"support_server": "Support-Server",
+		"instructions": "Bitte versuche es später erneut oder melde dies den Entwicklern.",
+		"error_id": "Fehler-ID",
+		"time": "Zeit"
+	},
+	"button": {
+		"counter": {
+			"label": "Klick mich!"
+		}
+	},
+	"countries": {
+		"en-US": "Vereinigte Staaten",
+		"en-GB": "Vereinigtes Königreich",
+		"fr": "Frankreich",
+		"de": "Deutschland",
+		"es-ES": "Spanien",
+		"es-419": "Mexiko",
+		"it": "Italien",
+		"pt-BR": "Brasilien",
+		"ru": "Russland",
+		"ja": "Japan",
+		"ko": "Korea",
+		"zh-CN": "China",
+		"zh-TW": "Taiwan",
+		"tr": "Türkei",
+		"pl": "Polen",
+		"uk": "Ukraine",
+		"cs": "Tschechien",
+		"fi": "Finnland",
+		"sv-SE": "Schweden",
+		"nl": "Niederlande",
+		"da": "Dänemark",
+		"no": "Norwegen",
+		"ro": "Rumänien",
+		"hu": "Ungarn",
+		"bg": "Bulgarien",
+		"el": "Griechenland",
+		"hi": "Indien",
+		"th": "Thailand",
+		"vi": "Vietnam",
+		"hr": "Kroatien",
+		"lt": "Litauen",
+		"id": "Indonesien"
 	}
 }

@@ -180,6 +180,14 @@ export interface FlowHandler {
 	getState(): FlowState;
 	setState(state: FlowState): void;
 	setMessageId(messageId: string): string | null;
+	createMessage(
+		interaction:
+			| ButtonInteraction
+			| StringSelectMenuInteraction
+			| ModalSubmitInteraction
+			| ChatInputCommandInteraction,
+		message: any
+	): Promise<Message | void>;
 	persistFlow?(client: Client): Promise<void>;
 	unpersistFlow?(client: Client): Promise<void>;
 }
@@ -635,7 +643,7 @@ export abstract class BaseFlowHandler implements FlowHandler {
 	 * Helper method to create a new message via interaction
 	 * Handles ephemeral and non-ephemeral messages correctly.
 	 */
-	protected async createMessage(
+	public async createMessage(
 		interaction:
 			| ButtonInteraction
 			| StringSelectMenuInteraction

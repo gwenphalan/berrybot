@@ -8,12 +8,17 @@ const command: SubCommand = {
 	data: new LocalizedSlashCommandSubcommandBuilder()
 		.setName('select-menu')
 		.setDescription('Test select menu')
+		.setLocalizedName('commands.test.select_menu.name')
+		.setLocalizedDescription('commands.test.select_menu.description')
 		.addStringOption((option) =>
 			option
 				.setName('type')
-				.setDescription('Type of select menu')
+				.setDescription('commands.test.select_menu.option.type.description')
 				.setRequired(true)
-				.addChoices({ name: 'Single', value: 'single' }, { name: 'Multi', value: 'multi' })
+				.addChoices(
+					{ name: 'commands.test.select_menu.option.type.single', value: 'single' },
+					{ name: 'commands.test.select_menu.option.type.multi', value: 'multi' }
+				)
 		),
 	async execute(interaction: ChatInputCommandInteraction, _client) {
 		// Validate guild context
@@ -43,8 +48,16 @@ const command: SubCommand = {
 				break;
 		}
 
+		// Infer locale from interaction or default
+		const locale = interaction.locale || 'en-US';
+
 		// Send message with select menu
-		await interaction.reply({ content: 'Test Select Menu', components: [row] });
+		await interaction.reply({
+			content:
+				_client.getTranslation('commands.test.select_menu.reply', locale) ||
+				'Test Select Menu',
+			components: [row],
+		});
 	},
 };
 

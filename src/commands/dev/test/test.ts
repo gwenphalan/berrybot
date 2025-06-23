@@ -7,12 +7,16 @@ const command: Command = {
 	data: new LocalizedSlashCommandBuilder()
 		.setName('test')
 		.setDescription('Test command')
+		.setLocalizedName('commands.test.name')
+		.setLocalizedDescription('commands.test.description')
 		.setDefaultMemberPermissions(0), // No permissions required
 	developer: true, // Only accessible to developers
 	async execute(interaction: ChatInputCommandInteraction, _client) {
-		throw new Error('Test error');
+		const locale = interaction.locale || 'en-US';
 		// Send test confirmation
-		await interaction.reply('Test command executed!');
+		await interaction.reply(
+			_client.getTranslation('commands.test.reply', locale) || 'Test command executed!'
+		);
 	},
 };
 

@@ -6,6 +6,8 @@ import { LocalizedSlashCommandBuilder } from '@/core/utils/Locale';
 const command: Command = {
 	guildOnly: true,
 	data: new LocalizedSlashCommandBuilder()
+		.setName('role-config')
+		.setDescription('View or manage self-assignable roles.')
 		.setLocalizedName('commands.role_config.name')
 		.setLocalizedDescription('commands.role_config.description')
 		.setDefaultMemberPermissions(discord.PermissionFlagsBits.ManageRoles),

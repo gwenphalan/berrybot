@@ -27,7 +27,7 @@ const UserSettingsSchema = new mongoose.Schema({
 	locale: {
 		type: String,
 		required: true,
-		default: 'en',
+		default: 'en-US',
 	},
 });
 

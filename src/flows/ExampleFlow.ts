@@ -1,7 +1,6 @@
 import {
 	ButtonInteraction,
 	ChatInputCommandInteraction,
-	Message,
 	ModalSubmitInteraction,
 	StringSelectMenuInteraction,
 	PermissionsBitField,
@@ -83,25 +82,11 @@ export class ExampleFlow extends BaseFlowHandler {
 	 * @param state - Current state of the flow
 	 * @returns Promise resolving to the message or void if build fails
 	 */
-	async build(client: Client, state: FlowState): Promise<Message | void> {
+	async build(client: Client, state: FlowState): Promise<any> {
 		logger.debug({ flowId: this.id, state }, '[ExampleFlow.build] Building ExampleFlow');
-		const { interaction } = state || {};
-
-		// Flow Logic
 		const locale = await this.resolveLocale();
 		const message = await CounterMessage.build(client, state, state.sessionId, locale);
-
-		// Handle updating an existing message
-		if (this.messageId && interaction?.channelId) {
-			return this.updateMessage(client, message);
-		}
-		// Handle creating a new message via interaction
-		else if (interaction) {
-			await this.createMessage(interaction, message);
-			return undefined; // Prevents double update!
-		}
-
-		logger.error({ flowId: this.id }, 'No valid message target found for build');
+		return message;
 	}
 
 	/**

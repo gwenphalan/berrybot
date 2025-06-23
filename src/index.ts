@@ -20,9 +20,12 @@ if (process.argv.includes('--dev')) {
 
 		// Initialize sharding manager with bot entry point
 		logger.info('Initializing sharding manager');
-		const manager: ShardingManagerType = new ShardingManager(__dirname + '/bot.js', {
-			token: config.token,
-		});
+		const manager: ShardingManagerType = new ShardingManager(
+			__dirname + '/core/startup/bot.js',
+			{
+				token: config.token,
+			}
+		);
 
 		// Handle shard creation and connection events
 		manager.on('shardCreate', (shard: Shard) => {

@@ -105,11 +105,12 @@ const command: Command = {
 	developer: true,
 	// Command data used for registration and display
 	data: new LocalizedSlashCommandBuilder()
-		.setName('emoji') // Command name (lowercase, no spaces)
-		.setDescription('Upload required emojis to the guild'), // User-facing command description
+		.setLocalizedName('commands.emoji.name')
+		.setLocalizedDescription('commands.emoji.description'),
 
 	// Command execution handler
 	async execute(interaction: CommandInteraction, client: Client) {
+		const locale = interaction.locale || 'en-US';
 		// First, acknowledge the interaction to prevent timeout
 		await interaction.deferReply({ ephemeral: true });
 
@@ -118,7 +119,7 @@ const command: Command = {
 		if (!emojis || !interaction.guild) {
 			const errorEmbed = new EmbedBuilder()
 				.setTitle('Error')
-				.setDescription('No emojis found in this guild.')
+				.setDescription(client.getTranslation('commands.emoji.error', locale))
 				.setColor(Colors.Red);
 			await interaction.editReply({ embeds: [errorEmbed] });
 			return;
@@ -129,7 +130,7 @@ const command: Command = {
 		if (!botMember.permissions.has('ManageEmojisAndStickers')) {
 			const permissionErrorEmbed = new EmbedBuilder()
 				.setTitle('Permission Error')
-				.setDescription("I don't have permission to manage emojis in this server.")
+				.setDescription(client.getTranslation('commands.emoji.permission_error', locale))
 				.addFields({
 					name: 'Required Permission',
 					value: '`Manage Emojis and Stickers`',

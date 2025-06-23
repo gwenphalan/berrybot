@@ -216,24 +216,6 @@ export class RoleConfigFlow extends BaseFlowHandler {
 					}
 					break;
 			}
-
-			if (!this.messageId && interaction) {
-				logger.debug(
-					{ flowId: this.id, interaction, messageOpts },
-					'[RoleConfigFlow.build] Creating new message'
-				);
-				const result = await this.createMessage(interaction, messageOpts);
-				logger.debug(
-					{ flowId: this.id, result },
-					'[RoleConfigFlow.build] Created new message'
-				);
-				return result;
-			}
-
-			logger.debug(
-				{ flowId: this.id, messageOpts },
-				'[RoleConfigFlow.build] Returning messageOpts for update'
-			);
 			return messageOpts;
 		} catch (error) {
 			logger.error(

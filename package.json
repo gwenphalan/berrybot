@@ -4,9 +4,9 @@
 	"version": "0.0.1",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "tsc && yarn copy-locales",
-		"start": "yarn build && cross-env NODE_ENV=production node -r dotenv/config dist/index.js",
-		"start:dev": "yarn build && cross-env NODE_ENV=development node -r dotenv/config dist/index.js --dev",
+		"build": "tsc --noEmit && tsc-alias && yarn copy-locales",
+		"start": "yarn build && cross-env NODE_ENV=PRODUCTION node -r dotenv/config dist/index.js",
+		"start:dev": "yarn build && cross-env NODE_ENV=DEVELOPMENT node -r dotenv/config dist/index.js --dev",
 		"lint": "eslint ./src/**/*.ts --fix",
 		"format": "prettier --write \"src/**/*.{ts,js,json}\"",
 		"format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
@@ -21,7 +21,9 @@
 		"emojis": "node scripts/filter-emojis.js",
 		"setup": "node setup.js",
 		"name-clash": "ts-node scripts/fix_name_clash.ts",
-		"copy-locales": "ts-node scripts/copy-locales.ts"
+		"copy-locales": "ts-node scripts/copy-locales.ts",
+		"pm2:dev": "pm2 start ecosystem.config.js --only berrybot-dev && pm2 logs berrybot-dev",
+		"pm2:prod": "cross-env NODE_ENV=production pm2 start ecosystem.config.js --only berrybot-dev"
 	},
 	"keywords": [
 		"discord",
@@ -56,6 +58,7 @@
 		"pino": "^9.6.0",
 		"pino-pretty": "^13.0.0",
 		"sharp": "^0.34.1",
+		"tsc-alias": "^1.8.16",
 		"winston": "^3.17.0",
 		"yargs": "^17.7.2",
 		"zlib-sync": "^0.1.10",
@@ -82,7 +85,8 @@
 		"ts-node": "^10.9.2",
 		"typescript": "^5.8.3",
 		"typescript-eslint": "^8.32.0",
-		"yarn": "^1.22.22"
+		"yarn": "^1.22.22",
+		"pm2": "^5.3.0"
 	},
 	"lint-staged": {
 		"*.{ts,js}": [

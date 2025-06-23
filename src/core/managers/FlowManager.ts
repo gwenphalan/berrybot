@@ -189,6 +189,9 @@ export class FlowManager implements FlowManagerInt {
 				},
 				'No message object returned for ephemeral flow, this is expected.'
 			);
+		} else if (message) {
+			// Always send the initial reply here
+			await handler.createMessage(interaction, message);
 		}
 
 		// Register handler with the sessionId

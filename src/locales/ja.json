@@ -1,0 +1,253 @@
+{
+	"commands": {
+		"locale": {
+			"name": "言語",
+			"description": "言語/ロケールの設定を変更します。",
+			"title": "言語を変更する",
+			"current": "現在の言語: {{locale}}",
+			"select_placeholder": "言語を選択してください",
+			"support_server": "サポートサーバー",
+			"updated": "言語が{{locale}}に更新されました。",
+			"no_other_languages": "現在、他の言語は利用できません。"
+		},
+		"role_config": {
+			"name": "ロール設定",
+			"description": "自己割り当てロールを表示または管理します。"
+		},
+		"ping": {
+			"name": "ping",
+			"description": "Pong! と返答します"
+		},
+		"error_log": {
+			"name": "エラーログ",
+			"description": "UUIDでエラーログを取得（開発者専用）",
+			"invalid_uuid": "無効なUUID形式です。有効なエラーログUUIDを入力してください。",
+			"not_found": "ID: {{uuid}} のエラーログが見つかりません。"
+		},
+		"emoji": {
+			"name": "絵文字",
+			"description": "必要な絵文字をサーバーにアップロードします",
+			"error": "このサーバーに絵文字が見つかりません。",
+			"permission_error": "このサーバーで絵文字を管理する権限がありません。"
+		},
+		"test": {
+			"name": "テスト",
+			"description": "テストコマンド",
+			"error": "テストエラー",
+			"reply": "テストコマンドが実行されました！",
+			"embed": {
+				"name": "埋め込み",
+				"description": "埋め込みテスト",
+				"embed_title": "サンプル",
+				"embed_description": "これはサンプルメッセージです。"
+			},
+			"select_menu": {
+				"name": "セレクトメニュー",
+				"description": "セレクトメニューのテスト",
+				"reply": "セレクトメニューのテスト",
+				"option": {
+					"type": {
+						"description": "セレクトメニューのタイプ",
+						"single": "単一",
+						"multi": "複数"
+					}
+				}
+			},
+			"flow": {
+				"name": "フロー",
+				"description": "フローテスト",
+				"guild_only": "このコマンドはサーバー内でのみ使用できます。",
+				"error": "フローの初期化中にエラーが発生しました。"
+			},
+			"modals": {
+				"name": "モーダル",
+				"description": "モーダルのテスト",
+				"guild_only": "このコマンドはサーバー内でのみ使用できます。"
+			},
+			"button": {
+				"name": "ボタン",
+				"description": "ボタンのテスト",
+				"guild_only": "このコマンドはサーバー内でのみ使用できます。"
+			},
+			"paginator": {
+				"name": "ページネーター",
+				"description": "ページネーターのテスト",
+				"title": "ページネーターテスト"
+			}
+		}
+	},
+	"locales": {
+		"en-US": "英語（米国）",
+		"en-GB": "英語（英国）",
+		"fr": "フランス語",
+		"de": "ドイツ語",
+		"es-ES": "スペイン語（スペイン）",
+		"es-419": "スペイン語（ラテンアメリカ）",
+		"it": "イタリア語",
+		"pt-BR": "ポルトガル語（ブラジル）",
+		"ru": "ロシア語",
+		"ja": "日本語",
+		"ko": "韓国語",
+		"zh-CN": "中国語（簡体字）",
+		"zh-TW": "中国語（台湾）",
+		"tr": "トルコ語",
+		"pl": "ポーランド語",
+		"uk": "ウクライナ語",
+		"cs": "チェコ語",
+		"fi": "フィンランド語",
+		"sv-SE": "スウェーデン語",
+		"nl": "オランダ語",
+		"da": "デンマーク語",
+		"no": "ノルウェー語",
+		"ro": "ルーマニア語",
+		"hu": "ハンガリー語",
+		"bg": "ブルガリア語",
+		"el": "ギリシャ語",
+		"hi": "ヒンディー語",
+		"th": "タイ語",
+		"vi": "ベトナム語",
+		"hr": "クロアチア語",
+		"lt": "リトアニア語",
+		"id": "インドネシア語"
+	},
+	"roles": {
+		"category_select_title": "どのカテゴリを編集しますか？",
+		"main_menu_no_guild_settings": "サーバー設定が見つかりません",
+		"main_menu_edit_or_create": "## カテゴリを編集または作成しますか？",
+		"main_menu_create_to_start": "## 作成をクリックして開始！",
+		"main_menu_error_title": "エラー",
+		"category_edit_delete_button_error_no_flow": "このメッセージのフローが見つかりません。もう一度お試しください。",
+		"category_edit_emoji_button_title": "使用したい絵文字でこのメッセージにリアクションしてください。",
+		"category_edit_emoji_button_error_no_guild": "このインタラクションのサーバーIDが見つかりません。",
+		"category_edit_emoji_button_error_no_flow": "このメッセージのフローが見つかりません。もう一度お試しください。",
+		"category_edit_name_button_error_no_flow": "このメッセージのフローが見つかりません。もう一度お試しください。",
+		"category_edit_roles_button_error_no_flow": "このメッセージのフローが見つかりません。もう一度お試しください。",
+		"config_main_menu_create_button_error_no_flow": "このメッセージのフローが見つかりません。もう一度お試しください。",
+		"config_main_menu_edit_button_error_no_flow": "このメッセージのフローが見つかりません。もう一度お試しください。",
+		"config_main_menu_message_button_error_no_flow": "このメッセージのフローが見つかりません。もう一度お試しください。",
+		"main_menu_no_roles": "このカテゴリにはロールがありません。",
+		"main_menu_title": "ロールメインメニュー"
+	},
+	"error_log": {
+		"title": "エラーログ",
+		"id": "ID",
+		"command": "コマンド",
+		"user": "ユーザー",
+		"guild": "サーバー",
+		"created": "作成日",
+		"message": "メッセージ：",
+		"stack_trace": "スタックトレース：",
+		"developer_info": "エラーID",
+		"time": "時間"
+	},
+	"select": {
+		"test": {
+			"placeholder": "テスト選択",
+			"option1": "テストオプション1",
+			"option2": "テストオプション2",
+			"option3": "テストオプション3",
+			"reply": "{{label}} を選択しました"
+		},
+		"test_multi": {
+			"placeholder": "テスト選択",
+			"option1": "テストオプション1",
+			"option2": "テストオプション2",
+			"option3": "テストオプション3",
+			"reply": "{{labels}} を選択しました"
+		},
+		"locale": {
+			"placeholder": "言語を選択してください"
+		},
+		"channel": {
+			"placeholder": "チャンネルを選択してください"
+		}
+	},
+	"counter": {
+		"title": "シンプルカウンター",
+		"description": "下のボタンをクリックしてカウントを増やしましょう！",
+		"error_description": "下のボタンをクリックしてエラーを発生させます！",
+		"count_label": "カウント",
+		"error_count_label": "エラーカウント"
+	},
+	"modal": {
+		"category_delete_confirmation": {
+			"title": "削除の確認",
+			"label": "削除を確認するには {{category}} を入力してください。"
+		},
+		"category_name_input": {
+			"title": {
+				"create": "カテゴリを作成",
+				"edit": "カテゴリ名を編集"
+			},
+			"label": "カテゴリ名",
+			"placeholder": {
+				"create": "新しいカテゴリ",
+				"edit": "{{category}}"
+			}
+		},
+		"test": {
+			"title": "テストモーダル",
+			"label": "テスト入力",
+			"placeholder": "テスト入力",
+			"reply": "これはテストモーダルです！あなたは「{{value}}」と言いました"
+		}
+	},
+	"example": {
+		"title": "サンプル",
+		"description": "これはサンプルメッセージです。",
+		"button_label": "テストボタン"
+	},
+	"channel_select": {
+		"title": "チャンネルを選択してください"
+	},
+	"error": {
+		"title": "おっと！",
+		"occurred": "リクエストの処理中にエラーが発生しました。",
+		"support_server": "サポートサーバー",
+		"instructions": "後でもう一度お試しいただくか、開発者にご連絡ください。",
+		"error_id": "エラーID",
+		"time": "時間"
+	},
+	"button": {
+		"counter": {
+			"label": "クリック！"
+		}
+	},
+	"paginator": {
+		"title": "ページネーター"
+	},
+	"countries": {
+		"en-US": "アメリカ合衆国",
+		"en-GB": "イギリス",
+		"fr": "フランス",
+		"de": "ドイツ",
+		"es-ES": "スペイン",
+		"es-419": "メキシコ",
+		"it": "イタリア",
+		"pt-BR": "ブラジル",
+		"ru": "ロシア",
+		"ja": "日本",
+		"ko": "韓国",
+		"zh-CN": "中国",
+		"zh-TW": "台湾",
+		"tr": "トルコ",
+		"pl": "ポーランド",
+		"uk": "ウクライナ",
+		"cs": "チェコ",
+		"fi": "フィンランド",
+		"sv-SE": "スウェーデン",
+		"nl": "オランダ",
+		"da": "デンマーク",
+		"no": "ノルウェー",
+		"ro": "ルーマニア",
+		"hu": "ハンガリー",
+		"bg": "ブルガリア",
+		"el": "ギリシャ",
+		"hi": "インド",
+		"th": "タイ",
+		"vi": "ベトナム",
+		"hr": "クロアチア",
+		"lt": "リトアニア",
+		"id": "インドネシア"
+	}
+}

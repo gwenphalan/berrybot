@@ -9,6 +9,71 @@
 			"support_server": "Serveur d'assistance",
 			"updated": "Votre langue a été mise à jour en {{locale}}.",
 			"no_other_languages": "Aucune autre langue n'est disponible pour le moment."
+		},
+		"role_config": {
+			"name": "configuration-rôle",
+			"description": "Afficher ou gérer les rôles auto-attribuables."
+		},
+		"ping": {
+			"name": "ping",
+			"description": "Répond avec Pong !"
+		},
+		"error_log": {
+			"name": "journal-erreur",
+			"description": "Récupérer un journal d'erreur par UUID (développeur uniquement)",
+			"invalid_uuid": "Format UUID invalide. Veuillez fournir un UUID de journal d'erreur valide.",
+			"not_found": "Aucun journal d'erreur trouvé pour l'ID : {{uuid}}"
+		},
+		"emoji": {
+			"name": "emoji",
+			"description": "Télécharger les emojis requis sur le serveur",
+			"error": "Aucun emoji trouvé sur ce serveur.",
+			"permission_error": "Je n'ai pas la permission de gérer les emojis sur ce serveur."
+		},
+		"test": {
+			"name": "test",
+			"description": "Commande de test",
+			"error": "Erreur de test",
+			"reply": "Commande de test exécutée !",
+			"embed": {
+				"name": "intégrer",
+				"description": "Test d'intégration",
+				"embed_title": "Exemple",
+				"embed_description": "Ceci est un message d'exemple."
+			},
+			"select_menu": {
+				"name": "menu-sélection",
+				"description": "Tester le menu de sélection",
+				"reply": "Tester le menu de sélection",
+				"option": {
+					"type": {
+						"description": "Type de menu de sélection",
+						"single": "Unique",
+						"multi": "Multiple"
+					}
+				}
+			},
+			"flow": {
+				"name": "flux",
+				"description": "Test de flux",
+				"guild_only": "Cette commande ne peut être utilisée que sur un serveur.",
+				"error": "Une erreur s'est produite lors de l'initialisation du flux."
+			},
+			"modals": {
+				"name": "modales",
+				"description": "Tester les modales",
+				"guild_only": "Cette commande ne peut être utilisée que sur un serveur."
+			},
+			"button": {
+				"name": "bouton",
+				"description": "Tester le bouton",
+				"guild_only": "Cette commande ne peut être utilisée que sur un serveur."
+			},
+			"paginator": {
+				"name": "pagineur",
+				"description": "Tester le pagineur",
+				"title": "Test du pagineur"
+			}
 		}
 	},
 	"locales": {
@@ -44,5 +109,142 @@
 		"hr": "Croate",
 		"lt": "Lituanien",
 		"id": "Indonésien"
+	},
+	"roles": {
+		"category_select_title": "Quelle catégorie souhaitez-vous modifier ?",
+		"main_menu_no_guild_settings": "Aucun paramètre de serveur trouvé",
+		"main_menu_edit_or_create": "## Voulez-vous modifier ou créer une catégorie ?",
+		"main_menu_create_to_start": "## Cliquez sur créer pour commencer !",
+		"main_menu_error_title": "Erreur",
+		"category_edit_delete_button_error_no_flow": "Aucun flux trouvé pour ce message. Veuillez réessayer.",
+		"category_edit_emoji_button_title": "Réagissez à ce message avec l'emoji que vous souhaitez utiliser.",
+		"category_edit_emoji_button_error_no_guild": "Aucun ID de serveur trouvé pour cette interaction.",
+		"category_edit_emoji_button_error_no_flow": "Aucun flux trouvé pour ce message. Veuillez réessayer.",
+		"category_edit_name_button_error_no_flow": "Aucun flux trouvé pour ce message. Veuillez réessayer.",
+		"category_edit_roles_button_error_no_flow": "Aucun flux trouvé pour ce message. Veuillez réessayer.",
+		"config_main_menu_create_button_error_no_flow": "Aucun flux trouvé pour ce message. Veuillez réessayer.",
+		"config_main_menu_edit_button_error_no_flow": "Aucun flux trouvé pour ce message. Veuillez réessayer.",
+		"config_main_menu_message_button_error_no_flow": "Aucun flux trouvé pour ce message. Veuillez réessayer.",
+		"main_menu_no_roles": "Aucun rôle dans cette catégorie.",
+		"main_menu_title": "Menu principal des rôles"
+	},
+	"error_log": {
+		"title": "Journal d'erreur",
+		"id": "ID",
+		"command": "Commande",
+		"user": "Utilisateur",
+		"guild": "Serveur",
+		"created": "Créé",
+		"message": "Message :",
+		"stack_trace": "Trace de la pile :",
+		"developer_info": "ID d'erreur",
+		"time": "Heure"
+	},
+	"select": {
+		"test": {
+			"placeholder": "Sélection de test",
+			"option1": "Option de test 1",
+			"option2": "Option de test 2",
+			"option3": "Option de test 3",
+			"reply": "Vous avez sélectionné {{label}}"
+		},
+		"test_multi": {
+			"placeholder": "Sélection de test",
+			"option1": "Option de test 1",
+			"option2": "Option de test 2",
+			"option3": "Option de test 3",
+			"reply": "Vous avez sélectionné {{labels}}"
+		},
+		"locale": {
+			"placeholder": "Sélectionnez votre langue"
+		},
+		"channel": {
+			"placeholder": "Sélectionnez un canal"
+		}
+	},
+	"counter": {
+		"title": "Compteur simple",
+		"description": "Cliquez sur le bouton ci-dessous pour incrémenter le compteur !",
+		"error_description": "Cliquez sur le bouton ci-dessous pour générer une erreur !",
+		"count_label": "Compteur",
+		"error_count_label": "Compteur d'erreurs"
+	},
+	"modal": {
+		"category_delete_confirmation": {
+			"title": "Confirmation de suppression",
+			"label": "Tapez {{category}} pour confirmer la suppression."
+		},
+		"category_name_input": {
+			"title": {
+				"create": "Créer une catégorie",
+				"edit": "Modifier le nom de la catégorie"
+			},
+			"label": "Nom de la catégorie",
+			"placeholder": {
+				"create": "Nouvelle catégorie",
+				"edit": "{{category}}"
+			}
+		},
+		"test": {
+			"title": "Modal de test",
+			"label": "Entrée de test",
+			"placeholder": "Entrée de test",
+			"reply": "Ceci est un modal de test ! Vous avez dit : {{value}}"
+		}
+	},
+	"example": {
+		"title": "Exemple",
+		"description": "Ceci est un message d'exemple.",
+		"button_label": "Bouton de test"
+	},
+	"channel_select": {
+		"title": "Veuillez sélectionner un canal"
+	},
+	"error": {
+		"title": "Oh non !",
+		"occurred": "Une erreur s'est produite lors du traitement de votre demande.",
+		"support_server": "Serveur d'assistance",
+		"instructions": "Veuillez réessayer plus tard ou signaler ceci aux développeurs.",
+		"error_id": "ID d'erreur",
+		"time": "Heure"
+	},
+	"button": {
+		"counter": {
+			"label": "Cliquez-moi !"
+		}
+	},
+	"countries": {
+		"en-US": "États-Unis",
+		"en-GB": "Royaume-Uni",
+		"fr": "France",
+		"de": "Allemagne",
+		"es-ES": "Espagne",
+		"es-419": "Mexique",
+		"it": "Italie",
+		"pt-BR": "Brésil",
+		"ru": "Russie",
+		"ja": "Japon",
+		"ko": "Corée",
+		"zh-CN": "Chine",
+		"zh-TW": "Taïwan",
+		"tr": "Turquie",
+		"pl": "Pologne",
+		"uk": "Ukraine",
+		"cs": "Tchéquie",
+		"fi": "Finlande",
+		"sv-SE": "Suède",
+		"nl": "Pays-Bas",
+		"da": "Danemark",
+		"no": "Norvège",
+		"ro": "Roumanie",
+		"hu": "Hongrie",
+		"bg": "Bulgarie",
+		"el": "Grèce",
+		"hi": "Inde",
+		"th": "Thaïlande",
+		"vi": "Viêt Nam",
+		"hr": "Croatie",
+		"lt": "Lituanie",
+		"id": "Indonésie"
 	}
 }

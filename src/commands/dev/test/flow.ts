@@ -5,15 +5,20 @@ import { LocalizedSlashCommandSubcommandBuilder } from '@/core/utils/Locale';
 // Description of what this subcommand does
 const command: Command = {
 	parent: 'test',
-	data: new LocalizedSlashCommandSubcommandBuilder().setName('flow').setDescription('Flow test'),
+	data: new LocalizedSlashCommandSubcommandBuilder()
+		.setName('flow')
+		.setDescription('Test flow')
+		.setLocalizedName('commands.test.flow.name')
+		.setLocalizedDescription('commands.test.flow.description'),
 
 	async execute(interaction, client) {
+		const locale = interaction.locale || 'en-US';
 		logger.debug('Initializing flow test command');
 		// Validate guild context
 		if (!interaction.guild) {
 			logger.debug('Command used outside of guild context');
 			await interaction.reply({
-				content: 'This command can only be used in a server.',
+				content: client.getTranslation('commands.test.flow.guild_only', locale),
 				ephemeral: true,
 			});
 			return;
@@ -45,7 +50,7 @@ const command: Command = {
 			);
 
 			await interaction.reply({
-				content: 'An error occurred while initializing the flow.',
+				content: client.getTranslation('commands.test.flow.error', locale),
 				ephemeral: true,
 			});
 			return;

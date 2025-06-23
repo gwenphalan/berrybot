@@ -19,10 +19,11 @@ export class CounterButton extends ButtonComponent<{ count: number }> {
 		client: Client,
 		data?: { count: number },
 		sessionId?: string,
+		labelKey: string = 'button.counter.label',
 		locale: string = 'en-US'
 	) {
 		// Use the translation key and locale for the label
-		return super.build(client, data, sessionId, 'button.counter.label', locale);
+		return super.build(client, data, sessionId, labelKey, locale);
 	}
 
 	async execute(interaction: ButtonInteraction, client: Client, data: { count: number }) {

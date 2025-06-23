@@ -1,0 +1,253 @@
+{
+	"commands": {
+		"locale": {
+			"name": "언어",
+			"description": "언어/로케일 환경설정을 변경합니다.",
+			"title": "언어 변경",
+			"current": "현재 언어: {{locale}}",
+			"select_placeholder": "언어를 선택하세요",
+			"support_server": "지원 서버",
+			"updated": "언어가 {{locale}}(으)로 변경되었습니다.",
+			"no_other_languages": "현재 사용할 수 있는 다른 언어가 없습니다."
+		},
+		"role_config": {
+			"name": "역할-설정",
+			"description": "자기 할당 역할을 확인하거나 관리합니다."
+		},
+		"ping": {
+			"name": "핑",
+			"description": "퐁!으로 응답합니다."
+		},
+		"error_log": {
+			"name": "오류-로그",
+			"description": "UUID로 오류 로그를 가져옵니다 (개발자 전용)",
+			"invalid_uuid": "잘못된 UUID 형식입니다. 올바른 오류 로그 UUID를 입력하세요.",
+			"not_found": "ID: {{uuid}}에 대한 오류 로그를 찾을 수 없습니다."
+		},
+		"emoji": {
+			"name": "이모지",
+			"description": "필요한 이모지를 서버에 업로드합니다.",
+			"error": "이 서버에서 이모지를 찾을 수 없습니다.",
+			"permission_error": "이 서버에서 이모지를 관리할 권한이 없습니다."
+		},
+		"test": {
+			"name": "테스트",
+			"description": "테스트 명령어",
+			"error": "테스트 오류",
+			"reply": "테스트 명령어가 실행되었습니다!",
+			"embed": {
+				"name": "임베드",
+				"description": "임베드 테스트",
+				"embed_title": "예시",
+				"embed_description": "이것은 예시 메시지입니다."
+			},
+			"select_menu": {
+				"name": "선택-메뉴",
+				"description": "선택 메뉴 테스트",
+				"reply": "선택 메뉴 테스트",
+				"option": {
+					"type": {
+						"description": "선택 메뉴 유형",
+						"single": "단일",
+						"multi": "다중"
+					}
+				}
+			},
+			"flow": {
+				"name": "플로우",
+				"description": "플로우 테스트",
+				"guild_only": "이 명령어는 서버에서만 사용할 수 있습니다.",
+				"error": "플로우 초기화 중 오류가 발생했습니다."
+			},
+			"modals": {
+				"name": "모달",
+				"description": "모달 테스트",
+				"guild_only": "이 명령어는 서버에서만 사용할 수 있습니다."
+			},
+			"button": {
+				"name": "버튼",
+				"description": "버튼 테스트",
+				"guild_only": "이 명령어는 서버에서만 사용할 수 있습니다."
+			},
+			"paginator": {
+				"name": "페이지네이터",
+				"description": "페이지네이터 테스트",
+				"title": "페이지네이터 테스트"
+			}
+		}
+	},
+	"locales": {
+		"en-US": "영어(미국)",
+		"en-GB": "영어(영국)",
+		"fr": "프랑스어",
+		"de": "독일어",
+		"es-ES": "스페인어(스페인)",
+		"es-419": "스페인어(라틴아메리카)",
+		"it": "이탈리아어",
+		"pt-BR": "포르투갈어(브라질)",
+		"ru": "러시아어",
+		"ja": "일본어",
+		"ko": "한국어",
+		"zh-CN": "중국어(간체)",
+		"zh-TW": "중국어(대만)",
+		"tr": "터키어",
+		"pl": "폴란드어",
+		"uk": "우크라이나어",
+		"cs": "체코어",
+		"fi": "핀란드어",
+		"sv-SE": "스웨덴어",
+		"nl": "네덜란드어",
+		"da": "덴마크어",
+		"no": "노르웨이어",
+		"ro": "루마니아어",
+		"hu": "헝가리어",
+		"bg": "불가리아어",
+		"el": "그리스어",
+		"hi": "힌디어",
+		"th": "태국어",
+		"vi": "베트남어",
+		"hr": "크로아티아어",
+		"lt": "리투아니아어",
+		"id": "인도네시아어"
+	},
+	"roles": {
+		"category_select_title": "어떤 카테고리를 편집하시겠습니까?",
+		"main_menu_no_guild_settings": "서버 설정을 찾을 수 없습니다.",
+		"main_menu_edit_or_create": "## 카테고리를 편집하거나 새로 만드시겠습니까?",
+		"main_menu_create_to_start": "## 시작하려면 생성 버튼을 클릭하세요!",
+		"main_menu_error_title": "오류",
+		"category_edit_delete_button_error_no_flow": "이 메시지에 대한 플로우를 찾을 수 없습니다. 다시 시도해 주세요.",
+		"category_edit_emoji_button_title": "사용할 이모지로 이 메시지에 반응하세요.",
+		"category_edit_emoji_button_error_no_guild": "이 상호작용에 대한 서버 ID를 찾을 수 없습니다.",
+		"category_edit_emoji_button_error_no_flow": "이 메시지에 대한 플로우를 찾을 수 없습니다. 다시 시도해 주세요.",
+		"category_edit_name_button_error_no_flow": "이 메시지에 대한 플로우를 찾을 수 없습니다. 다시 시도해 주세요.",
+		"category_edit_roles_button_error_no_flow": "이 메시지에 대한 플로우를 찾을 수 없습니다. 다시 시도해 주세요.",
+		"config_main_menu_create_button_error_no_flow": "이 메시지에 대한 플로우를 찾을 수 없습니다. 다시 시도해 주세요.",
+		"config_main_menu_edit_button_error_no_flow": "이 메시지에 대한 플로우를 찾을 수 없습니다. 다시 시도해 주세요.",
+		"config_main_menu_message_button_error_no_flow": "이 메시지에 대한 플로우를 찾을 수 없습니다. 다시 시도해 주세요.",
+		"main_menu_no_roles": "이 카테고리에는 역할이 없습니다.",
+		"main_menu_title": "역할 메인 메뉴"
+	},
+	"error_log": {
+		"title": "오류 로그",
+		"id": "ID",
+		"command": "명령어",
+		"user": "사용자",
+		"guild": "서버",
+		"created": "생성일",
+		"message": "메시지:",
+		"stack_trace": "스택 추적:",
+		"developer_info": "오류 ID",
+		"time": "시간"
+	},
+	"select": {
+		"test": {
+			"placeholder": "테스트 선택",
+			"option1": "테스트 옵션 1",
+			"option2": "테스트 옵션 2",
+			"option3": "테스트 옵션 3",
+			"reply": "{{label}}을(를) 선택했습니다."
+		},
+		"test_multi": {
+			"placeholder": "테스트 선택",
+			"option1": "테스트 옵션 1",
+			"option2": "테스트 옵션 2",
+			"option3": "테스트 옵션 3",
+			"reply": "{{labels}}을(를) 선택했습니다."
+		},
+		"locale": {
+			"placeholder": "언어를 선택하세요"
+		},
+		"channel": {
+			"placeholder": "채널을 선택하세요"
+		}
+	},
+	"counter": {
+		"title": "간단한 카운터",
+		"description": "아래 버튼을 클릭하여 카운트를 증가시키세요!",
+		"error_description": "아래 버튼을 클릭하여 오류를 발생시킵니다!",
+		"count_label": "카운트",
+		"error_count_label": "오류 카운트"
+	},
+	"modal": {
+		"category_delete_confirmation": {
+			"title": "삭제 확인",
+			"label": "삭제를 확인하려면 {{category}}를 입력하세요."
+		},
+		"category_name_input": {
+			"title": {
+				"create": "카테고리 생성",
+				"edit": "카테고리 이름 편집"
+			},
+			"label": "카테고리 이름",
+			"placeholder": {
+				"create": "새 카테고리",
+				"edit": "{{category}}"
+			}
+		},
+		"test": {
+			"title": "테스트 모달",
+			"label": "테스트 입력",
+			"placeholder": "테스트 입력",
+			"reply": "이것은 테스트 모달입니다! 입력한 값: {{value}}"
+		}
+	},
+	"example": {
+		"title": "예시",
+		"description": "이것은 예시 메시지입니다.",
+		"button_label": "테스트 버튼"
+	},
+	"channel_select": {
+		"title": "채널을 선택하세요"
+	},
+	"error": {
+		"title": "앗!",
+		"occurred": "요청을 처리하는 중 오류가 발생했습니다.",
+		"support_server": "지원 서버",
+		"instructions": "나중에 다시 시도하거나 개발자에게 문의하세요.",
+		"error_id": "오류 ID",
+		"time": "시간"
+	},
+	"button": {
+		"counter": {
+			"label": "클릭!"
+		}
+	},
+	"paginator": {
+		"title": "페이지네이터"
+	},
+	"countries": {
+		"en-US": "미국",
+		"en-GB": "영국",
+		"fr": "프랑스",
+		"de": "독일",
+		"es-ES": "스페인",
+		"es-419": "멕시코",
+		"it": "이탈리아",
+		"pt-BR": "브라질",
+		"ru": "러시아",
+		"ja": "일본",
+		"ko": "대한민국",
+		"zh-CN": "중국",
+		"zh-TW": "대만",
+		"tr": "터키",
+		"pl": "폴란드",
+		"uk": "우크라이나",
+		"cs": "체코",
+		"fi": "핀란드",
+		"sv-SE": "스웨덴",
+		"nl": "네덜란드",
+		"da": "덴마크",
+		"no": "노르웨이",
+		"ro": "루마니아",
+		"hu": "헝가리",
+		"bg": "불가리아",
+		"el": "그리스",
+		"hi": "인도",
+		"th": "태국",
+		"vi": "베트남",
+		"hr": "크로아티아",
+		"lt": "리투아니아",
+		"id": "인도네시아"
+	}
+}

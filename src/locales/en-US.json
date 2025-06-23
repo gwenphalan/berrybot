@@ -12,6 +12,67 @@
 		"role_config": {
 			"name": "role-config",
 			"description": "View or manage self-assignable roles."
+		},
+		"ping": {
+			"name": "ping",
+			"description": "Replies with Pong!"
+		},
+		"error_log": {
+			"name": "error-log",
+			"description": "Fetch an error log by UUID (developer only)",
+			"invalid_uuid": "Invalid UUID format. Please provide a valid error log UUID.",
+			"not_found": "No error log found for ID: {{uuid}}"
+		},
+		"emoji": {
+			"name": "emoji",
+			"description": "Upload required emojis to the guild",
+			"error": "No emojis found in this guild.",
+			"permission_error": "I don't have permission to manage emojis in this server."
+		},
+		"test": {
+			"name": "test",
+			"description": "Test command",
+			"error": "Test error",
+			"reply": "Test command executed!",
+			"embed": {
+				"name": "embed",
+				"description": "Test embed",
+				"embed_title": "Example",
+				"embed_description": "This is an example message."
+			},
+			"select_menu": {
+				"name": "select-menu",
+				"description": "Test select menu",
+				"reply": "Test Select Menu",
+				"option": {
+					"type": {
+						"description": "Type of select menu",
+						"single": "Single",
+						"multi": "Multi"
+					}
+				}
+			},
+			"flow": {
+				"name": "flow",
+				"description": "Flow test",
+				"guild_only": "This command can only be used in a server.",
+				"error": "An error occurred while initializing the flow."
+			},
+			"modals": {
+				"name": "modals",
+				"description": "Test modals",
+				"guild_only": "This command can only be used in a server."
+			},
+			"button": {
+				"name": "button",
+				"description": "Test button",
+				"guild_only": "This command can only be used in a server."
+			},
+			"paginator": {
+				"name": "paginator",
+				"description": "Test the paginator",
+				"title": "Test Paginator"
+			}
 		}
 	},
 	"locales": {
@@ -143,5 +204,39 @@
 		"instructions": "Please try again later or report this to the developers.",
 		"error_id": "Error ID",
 		"time": "Time"
+	},
+	"countries": {
+		"en-US": "United States",
+		"en-GB": "United Kingdom",
+		"fr": "France",
+		"de": "Germany",
+		"es-ES": "Spain",
+		"es-419": "Mexico",
+		"it": "Italy",
+		"pt-BR": "Brazil",
+		"ru": "Russia",
+		"ja": "Japan",
+		"ko": "Korea",
+		"zh-CN": "China",
+		"zh-TW": "Taiwan",
+		"tr": "Turkey",
+		"pl": "Poland",
+		"uk": "Ukraine",
+		"cs": "Czechia",
+		"fi": "Finland",
+		"sv-SE": "Sweden",
+		"nl": "Netherlands",
+		"da": "Denmark",
+		"no": "Norway",
+		"ro": "Romania",
+		"hu": "Hungary",
+		"bg": "Bulgaria",
+		"el": "Greece",
+		"hi": "India",
+		"th": "Thailand",
+		"vi": "Vietnam",
+		"hr": "Croatia",
+		"lt": "Lithuania",
+		"id": "Indonesia"
 	}
 }

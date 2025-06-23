@@ -77,14 +77,14 @@ export const event: Event = {
 				logger.debug(
 					`[SlashCommands.execute] Found subcommand handler for: ${interaction.commandName}.${subCommand}`
 				);
-				const locale = await resolveLocale(interaction);
+				const locale = await resolveLocale(interaction, client);
 				await subCommandFile.execute(interaction, client, locale);
 			} else {
 				// Execute main command if no subcommand
 				logger.debug(
 					`[SlashCommands.execute] Executing main command: ${interaction.commandName}`
 				);
-				const locale = await resolveLocale(interaction);
+				const locale = await resolveLocale(interaction, client);
 				await command.execute(interaction, client, locale);
 			}
 		} catch (error) {
@@ -190,10 +190,10 @@ export const event: Event = {
 };
 
 // Helper to resolve locale
-async function resolveLocale(interaction: ChatInputCommandInteraction) {
+async function resolveLocale(interaction: ChatInputCommandInteraction, client: Client) {
 	const userId = interaction.user?.id;
-	if (userId) {
-		const userSettings = await database.userSettings.get(userId);
+	if (userId && client.database?.userSettings?.get) {
+		const userSettings = await client.database.userSettings.get(userId);
 		return toDiscordLocale(userSettings?.locale || interaction.locale || 'en-US');
 	}
 	return toDiscordLocale(interaction.locale || 'en-US');

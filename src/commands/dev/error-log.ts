@@ -1,6 +1,5 @@
 import {
 	ChatInputCommandInteraction,
-	MessageFlags,
 	ContainerBuilder,
 	SectionBuilder,
 	TextDisplayBuilder,
@@ -62,13 +61,16 @@ export function buildErrorLogMessage(log: Partial<ErrorLog>, client: any) {
 const command: Command = {
 	data: new LocalizedSlashCommandBuilder()
 		.setName('error-log')
-		.setDescription('Fetch an error log by UUID (developer only)')
+		.setDescription('Get an error log by UUID')
+		.setLocalizedName('commands.error_log.name')
+		.setLocalizedDescription('commands.error_log.description')
 		.addStringOption((option) =>
 			option.setName('uuid').setDescription('The error log UUID').setRequired(true)
 		)
 		.setDefaultMemberPermissions(0),
 	developer: true,
 	async execute(interaction: ChatInputCommandInteraction, client) {
+		const locale = interaction.locale || 'en-US';
 		const uuid = interaction.options.getString('uuid', true);
 		logger.debug({ uuid }, '[ErrorLogCommand] Received /error-log command');
 
@@ -77,7 +79,7 @@ const command: Command = {
 		if (!parseResult.success) {
 			logger.warn({ uuid }, '[ErrorLogCommand] Invalid UUID provided');
 			await interaction.reply({
-				content: 'Invalid UUID format. Please provide a valid error log UUID.',
+				content: client.getTranslation('commands.error_log.invalid_uuid', locale),
 				ephemeral: true,
 			});
 			return;
@@ -89,7 +91,7 @@ const command: Command = {
 		if (!log) {
 			logger.warn({ uuid }, '[ErrorLogCommand] No error log found for UUID');
 			await interaction.editReply({
-				content: `No error log found for ID: \`${uuid}\``,
+				content: client.getTranslation('commands.error_log.not_found', locale, { uuid }),
 			});
 			return;
 		}

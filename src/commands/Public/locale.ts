@@ -23,6 +23,8 @@ export const LocaleCommand: Command = {
 	 * Command data for Discord registration, using localized name and description.
 	 */
 	data: new LocalizedSlashCommandBuilder()
+		.setName('locale')
+		.setDescription('Change your language/locale preference.')
 		.setLocalizedName('commands.locale.name')
 		.setLocalizedDescription('commands.locale.description'),
 	/**
@@ -48,10 +50,15 @@ export const LocaleCommand: Command = {
 			const currentLocale = toDiscordLocale(userSettings.locale || 'en-US') as DiscordLocale;
 
 			// Get all available locales from the loaded locale files.
-			// This determines which languages the user can pick from.
-			const availableLocales = Object.keys(localeManager['locales'])
-				.map(toDiscordLocale)
-				.filter((v, i, arr) => arr.indexOf(v) === i) as DiscordLocale[];
+			// Only include valid Discord locales and those for which there is a translation file.
+			const validDiscordLocales = new Set(Object.values(DiscordLocale));
+			const availableLocales = Array.from(
+				new Set(
+					Object.keys(localeManager['locales'])
+						.map(toDiscordLocale)
+						.filter((loc) => validDiscordLocales.has(loc as DiscordLocale))
+				)
+			) as DiscordLocale[];
 
 			// Guard: If only one locale is available, show a message and return
 			if (availableLocales.length < 2) {

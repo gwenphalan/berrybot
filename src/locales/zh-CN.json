@@ -1,0 +1,253 @@
+{
+	"commands": {
+		"locale": {
+			"name": "语言",
+			"description": "更改您的语言/本地化偏好。",
+			"title": "更改您的语言",
+			"current": "您当前的语言：{{locale}}",
+			"select_placeholder": "选择您的语言",
+			"support_server": "支持服务器",
+			"updated": "您的语言已更新为{{locale}}。",
+			"no_other_languages": "目前没有其他可用语言。"
+		},
+		"role_config": {
+			"name": "角色配置",
+			"description": "查看或管理可自选的角色。"
+		},
+		"ping": {
+			"name": "ping",
+			"description": "回复 Pong!"
+		},
+		"error_log": {
+			"name": "错误日志",
+			"description": "通过 UUID 获取错误日志（仅限开发者）",
+			"invalid_uuid": "无效的 UUID 格式。请提供有效的错误日志 UUID。",
+			"not_found": "未找到 ID 为 {{uuid}} 的错误日志。"
+		},
+		"emoji": {
+			"name": "表情",
+			"description": "上传所需表情到服务器",
+			"error": "此服务器中未找到表情。",
+			"permission_error": "我没有权限管理此服务器的表情。"
+		},
+		"test": {
+			"name": "测试",
+			"description": "测试命令",
+			"error": "测试错误",
+			"reply": "测试命令已执行！",
+			"embed": {
+				"name": "嵌入",
+				"description": "测试嵌入",
+				"embed_title": "示例",
+				"embed_description": "这是一条示例消息。"
+			},
+			"select_menu": {
+				"name": "选择菜单",
+				"description": "测试选择菜单",
+				"reply": "测试选择菜单",
+				"option": {
+					"type": {
+						"description": "选择菜单类型",
+						"single": "单选",
+						"multi": "多选"
+					}
+				}
+			},
+			"flow": {
+				"name": "流程",
+				"description": "流程测试",
+				"guild_only": "此命令只能在服务器中使用。",
+				"error": "初始化流程时发生错误。"
+			},
+			"modals": {
+				"name": "模态框",
+				"description": "测试模态框",
+				"guild_only": "此命令只能在服务器中使用。"
+			},
+			"button": {
+				"name": "按钮",
+				"description": "测试按钮",
+				"guild_only": "此命令只能在服务器中使用。"
+			},
+			"paginator": {
+				"name": "分页器",
+				"description": "测试分页器",
+				"title": "分页器测试"
+			}
+		}
+	},
+	"locales": {
+		"en-US": "英语（美国）",
+		"en-GB": "英语（英国）",
+		"fr": "法语",
+		"de": "德语",
+		"es-ES": "西班牙语（西班牙）",
+		"es-419": "西班牙语（拉丁美洲）",
+		"it": "意大利语",
+		"pt-BR": "葡萄牙语（巴西）",
+		"ru": "俄语",
+		"ja": "日语",
+		"ko": "韩语",
+		"zh-CN": "中文（简体）",
+		"zh-TW": "中文（台湾）",
+		"tr": "土耳其语",
+		"pl": "波兰语",
+		"uk": "乌克兰语",
+		"cs": "捷克语",
+		"fi": "芬兰语",
+		"sv-SE": "瑞典语",
+		"nl": "荷兰语",
+		"da": "丹麦语",
+		"no": "挪威语",
+		"ro": "罗马尼亚语",
+		"hu": "匈牙利语",
+		"bg": "保加利亚语",
+		"el": "希腊语",
+		"hi": "印地语",
+		"th": "泰语",
+		"vi": "越南语",
+		"hr": "克罗地亚语",
+		"lt": "立陶宛语",
+		"id": "印尼语"
+	},
+	"roles": {
+		"category_select_title": "您想编辑哪个类别？",
+		"main_menu_no_guild_settings": "未找到服务器设置",
+		"main_menu_edit_or_create": "## 您想编辑还是创建一个类别？",
+		"main_menu_create_to_start": "## 点击创建开始！",
+		"main_menu_error_title": "错误",
+		"category_edit_delete_button_error_no_flow": "未找到此消息的流程。请重试。",
+		"category_edit_emoji_button_title": "请用您想要的表情回复此消息。",
+		"category_edit_emoji_button_error_no_guild": "未找到此交互的服务器 ID。",
+		"category_edit_emoji_button_error_no_flow": "未找到此消息的流程。请重试。",
+		"category_edit_name_button_error_no_flow": "未找到此消息的流程。请重试。",
+		"category_edit_roles_button_error_no_flow": "未找到此消息的流程。请重试。",
+		"config_main_menu_create_button_error_no_flow": "未找到此消息的流程。请重试。",
+		"config_main_menu_edit_button_error_no_flow": "未找到此消息的流程。请重试。",
+		"config_main_menu_message_button_error_no_flow": "未找到此消息的流程。请重试。",
+		"main_menu_no_roles": "此类别下没有角色。",
+		"main_menu_title": "角色主菜单"
+	},
+	"error_log": {
+		"title": "错误日志",
+		"id": "ID",
+		"command": "命令",
+		"user": "用户",
+		"guild": "服务器",
+		"created": "创建时间",
+		"message": "消息：",
+		"stack_trace": "堆栈跟踪：",
+		"developer_info": "错误 ID",
+		"time": "时间"
+	},
+	"select": {
+		"test": {
+			"placeholder": "测试选择",
+			"option1": "测试选项 1",
+			"option2": "测试选项 2",
+			"option3": "测试选项 3",
+			"reply": "您选择了 {{label}}"
+		},
+		"test_multi": {
+			"placeholder": "测试选择",
+			"option1": "测试选项 1",
+			"option2": "测试选项 2",
+			"option3": "测试选项 3",
+			"reply": "您选择了 {{labels}}"
+		},
+		"locale": {
+			"placeholder": "选择您的语言"
+		},
+		"channel": {
+			"placeholder": "选择一个频道"
+		}
+	},
+	"counter": {
+		"title": "简单计数器",
+		"description": "点击下方按钮增加计数！",
+		"error_description": "点击下方按钮抛出错误！",
+		"count_label": "计数",
+		"error_count_label": "错误计数"
+	},
+	"modal": {
+		"category_delete_confirmation": {
+			"title": "删除确认",
+			"label": "输入 {{category}} 以确认删除。"
+		},
+		"category_name_input": {
+			"title": {
+				"create": "创建类别",
+				"edit": "编辑类别名称"
+			},
+			"label": "类别名称",
+			"placeholder": {
+				"create": "新类别",
+				"edit": "{{category}}"
+			}
+		},
+		"test": {
+			"title": "测试模态框",
+			"label": "测试输入",
+			"placeholder": "测试输入",
+			"reply": "这是一个测试模态框！您输入了：{{value}}"
+		}
+	},
+	"example": {
+		"title": "示例",
+		"description": "这是一条示例消息。",
+		"button_label": "测试按钮"
+	},
+	"channel_select": {
+		"title": "请选择一个频道"
+	},
+	"error": {
+		"title": "哎呀！",
+		"occurred": "处理您的请求时发生错误。",
+		"support_server": "支持服务器",
+		"instructions": "请稍后再试或报告给开发者。",
+		"error_id": "错误 ID",
+		"time": "时间"
+	},
+	"button": {
+		"counter": {
+			"label": "点击我！"
+		}
+	},
+	"paginator": {
+		"title": "分页器"
+	},
+	"countries": {
+		"en-US": "美国",
+		"en-GB": "英国",
+		"fr": "法国",
+		"de": "德国",
+		"es-ES": "西班牙",
+		"es-419": "墨西哥",
+		"it": "意大利",
+		"pt-BR": "巴西",
+		"ru": "俄罗斯",
+		"ja": "日本",
+		"ko": "韩国",
+		"zh-CN": "中国",
+		"zh-TW": "台湾",
+		"tr": "土耳其",
+		"pl": "波兰",
+		"uk": "乌克兰",
+		"cs": "捷克",
+		"fi": "芬兰",
+		"sv-SE": "瑞典",
+		"nl": "荷兰",
+		"da": "丹麦",
+		"no": "挪威",
+		"ro": "罗马尼亚",
+		"hu": "匈牙利",
+		"bg": "保加利亚",
+		"el": "希腊",
+		"hi": "印度",
+		"th": "泰国",
+		"vi": "越南",
+		"hr": "克罗地亚",
+		"lt": "立陶宛",
+		"id": "印度尼西亚"
+	}
+}

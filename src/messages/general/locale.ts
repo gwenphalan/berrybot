@@ -51,6 +51,13 @@ const localeToCountryCode: Record<string, string> = {
 	id: 'ID',
 };
 
+// Add this helper function after imports
+function toDiscordLocaleEnum(locale: string): DiscordLocale {
+	return (Object.values(DiscordLocale) as string[]).includes(locale)
+		? (locale as DiscordLocale)
+		: DiscordLocale.EnglishUS;
+}
+
 /**
  * Builds the locale selection message for both the /locale command and select menu updates.
  * @param client - The Discord client instance
@@ -71,9 +78,11 @@ export async function buildLocaleMessage(
 		)
 		.addOptions(
 			availableLocales.map((locale) => {
-				const { region, emoji } = getRegionNameAndEmoji(locale as DiscordLocale);
+				const discordLocale = toDiscordLocaleEnum(locale);
+				const { region, emoji } = getRegionNameAndEmoji(discordLocale);
+				const label = client.getTranslation(`countries.${locale}`, currentLocale) || region;
 				return {
-					label: region,
+					label,
 					value: locale,
 					emoji,
 					description:

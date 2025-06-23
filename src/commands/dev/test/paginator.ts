@@ -9,11 +9,14 @@ import { LocalizedSlashCommandBuilder } from '@/core/utils/Locale';
 const command: Command = {
 	// Command data used for registration and display
 	data: new LocalizedSlashCommandBuilder()
-		.setName('paginator') // Command name (lowercase, no spaces)
-		.setDescription('Test the paginator'), // User-facing command description
+		.setName('paginator')
+		.setDescription('Test the paginator')
+		.setLocalizedName('commands.test.paginator.name')
+		.setLocalizedDescription('commands.test.paginator.description'),
 
 	// Command execution handler
 	async execute(interaction, client) {
+		const locale = interaction.locale || 'en-US';
 		// Add command logic here
 
 		// 5 pages of lorum ipsum
@@ -24,11 +27,17 @@ const command: Command = {
 			'Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae.',
 		];
 
-		const message = await paginator.build(client, 'paginator', pages, 'Test Paginator', {
-			currentPage: 0,
-			color: '#00FFFF',
-			ephemeral: true,
-		});
+		const message = await paginator.build(
+			client,
+			'paginator',
+			pages,
+			client.getTranslation('commands.test.paginator.title', locale),
+			{
+				currentPage: 0,
+				color: '#00FFFF',
+				ephemeral: true,
+			}
+		);
 
 		await interaction.reply(message);
 	},

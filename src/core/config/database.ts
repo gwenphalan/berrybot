@@ -161,14 +161,23 @@ export const userSettings = {
 	 * @returns Promise resolving to the user settings
 	 */
 	get: async (userId: string): Promise<UserSettings> => {
-		logger.debug(`Fetching settings for user: ${userId}`);
-		const settings = await UserSettings.findOne({ userId });
-		if (settings) {
-			logger.debug(`Found existing settings for user: ${userId}`);
-			return settings;
+		logger.debug(`[userSettings.get] Fetching settings for user: ${userId}`);
+		try {
+			logger.debug(`[userSettings.get] Calling UserSettings.findOne for user: ${userId}`);
+			const settings = await UserSettings.findOne({ userId });
+			logger.debug(
+				`[userSettings.get] UserSettings.findOne result for user: ${userId}: ${settings ? 'found' : 'not found'}`
+			);
+			if (settings) {
+				logger.debug(`[userSettings.get] Found existing settings for user: ${userId}`);
+				return settings;
+			}
+			logger.debug(`[userSettings.get] Creating default settings for user: ${userId}`);
+			return await UserSettings.create({ userId, locale: 'en-US' });
+		} catch (err) {
+			logger.error(`[userSettings.get] Error fetching settings for user: ${userId}`, err);
+			throw err;
 		}
-		logger.debug(`Creating default settings for user: ${userId}`);
-		return await UserSettings.create({ userId, locale: 'en' });
 	},
 
 	/**

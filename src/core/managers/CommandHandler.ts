@@ -6,6 +6,7 @@ import { load } from '@/core/utils/Files';
 import { logger } from '@/core/logging/Logger';
 import AsciiTable from 'ascii-table';
 import { localeManager } from '@/core/managers/LocaleManager';
+import { config } from '@/core/config/config';
 
 // Main function to load and register all commands with Discord
 export async function loadCommands(client: Client) {
@@ -101,20 +102,51 @@ export async function loadCommands(client: Client) {
 			parentCommand.data.addSubcommand(command.data as SlashCommandSubcommandBuilder);
 		});
 
-		// Prepare command data for Discord API
-		logger.debug('Preparing command data for Discord API...');
-		const commandData: ApplicationCommandDataResolvable[] = [];
+		// Prepare command data
+		const isDev = (process.env.NODE_ENV || '').toLowerCase() === 'development';
+		const testGuildId = config.testing_server_id;
 
-		commandsArray.forEach((cmd) => {
-			const data = (cmd.data as any).toJSON();
-			commandData.push(data);
-			logger.debug(`Prepared command data for: ${cmd.data.name}`);
-		});
+		// Separate dev-only and public commands
+		const devCommands: Command[] = [];
+		const publicCommands: Command[] = [];
+		for (const cmd of commandsArray) {
+			if ((cmd as any).developer) {
+				devCommands.push(cmd);
+			} else {
+				publicCommands.push(cmd);
+			}
+		}
 
-		// Register commands with Discord
-		logger.debug(`Registering ${commandData.length} commands with Discord API...`);
-		await client.application?.commands.set(commandData);
-		logger.debug('Successfully registered commands with Discord API');
+		// Prepare command data
+		const devCommandData: ApplicationCommandDataResolvable[] = devCommands.map((cmd) =>
+			(cmd.data as any).toJSON()
+		);
+		const publicCommandData: ApplicationCommandDataResolvable[] = publicCommands.map((cmd) =>
+			(cmd.data as any).toJSON()
+		);
+
+		if (isDev) {
+			// In dev mode, register all commands (dev and public) as guild commands in the test guild
+			logger.info(
+				`[CommandHandler] Registering ALL commands as GUILD commands for guild: ${testGuildId}`
+			);
+			await client.application?.commands.set(
+				[...publicCommandData, ...devCommandData],
+				testGuildId
+			);
+		} else {
+			// In production, register public commands globally, dev commands only in the test guild
+			if (publicCommandData.length > 0) {
+				logger.info('[CommandHandler] Registering PUBLIC commands as GLOBAL commands');
+				await client.application?.commands.set(publicCommandData);
+			}
+			if (devCommandData.length > 0 && testGuildId) {
+				logger.info(
+					`[CommandHandler] Registering DEV-ONLY commands as GUILD commands for guild: ${testGuildId}`
+				);
+				await client.application?.commands.set(devCommandData, testGuildId);
+			}
+		}
 
 		// Display command loading results
 		logger.info('\n' + table.toString());

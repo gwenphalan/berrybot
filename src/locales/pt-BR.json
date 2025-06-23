@@ -1,0 +1,253 @@
+{
+	"commands": {
+		"locale": {
+			"name": "idioma",
+			"description": "Altere sua preferência de idioma/localização.",
+			"title": "Altere seu idioma",
+			"current": "Seu idioma atual: {{locale}}",
+			"select_placeholder": "Selecione seu idioma",
+			"support_server": "Servidor de Suporte",
+			"updated": "Seu idioma foi atualizado para {{locale}}.",
+			"no_other_languages": "Não há outros idiomas disponíveis no momento."
+		},
+		"role_config": {
+			"name": "config-roles",
+			"description": "Visualize ou gerencie cargos auto-atribuíveis."
+		},
+		"ping": {
+			"name": "ping",
+			"description": "Responde com Pong!"
+		},
+		"error_log": {
+			"name": "registro-de-erros",
+			"description": "Buscar um registro de erro por UUID (apenas para desenvolvedores)",
+			"invalid_uuid": "Formato de UUID inválido. Por favor, forneça um UUID de registro de erro válido.",
+			"not_found": "Nenhum registro de erro encontrado para o ID: {{uuid}}"
+		},
+		"emoji": {
+			"name": "emoji",
+			"description": "Enviar emojis necessários para o servidor",
+			"error": "Nenhum emoji encontrado neste servidor.",
+			"permission_error": "Não tenho permissão para gerenciar emojis neste servidor."
+		},
+		"test": {
+			"name": "teste",
+			"description": "Comando de teste",
+			"error": "Erro de teste",
+			"reply": "Comando de teste executado!",
+			"embed": {
+				"name": "embedar",
+				"description": "Teste de embed",
+				"embed_title": "Exemplo",
+				"embed_description": "Esta é uma mensagem de exemplo."
+			},
+			"select_menu": {
+				"name": "menu-selecao",
+				"description": "Testar menu de seleção",
+				"reply": "Testar menu de seleção",
+				"option": {
+					"type": {
+						"description": "Tipo de menu de seleção",
+						"single": "Único",
+						"multi": "Múltiplo"
+					}
+				}
+			},
+			"flow": {
+				"name": "fluxo",
+				"description": "Teste de fluxo",
+				"guild_only": "Este comando só pode ser usado em um servidor.",
+				"error": "Ocorreu um erro ao inicializar o fluxo."
+			},
+			"modals": {
+				"name": "modais",
+				"description": "Testar modais",
+				"guild_only": "Este comando só pode ser usado em um servidor."
+			},
+			"button": {
+				"name": "botao",
+				"description": "Testar botão",
+				"guild_only": "Este comando só pode ser usado em um servidor."
+			},
+			"paginator": {
+				"name": "paginador",
+				"description": "Testar o paginador",
+				"title": "Paginador de teste"
+			}
+		}
+	},
+	"locales": {
+		"en-US": "Inglês (EUA)",
+		"en-GB": "Inglês (Reino Unido)",
+		"fr": "Francês",
+		"de": "Alemão",
+		"es-ES": "Espanhol (Espanha)",
+		"es-419": "Espanhol (América Latina)",
+		"it": "Italiano",
+		"pt-BR": "Português (Brasil)",
+		"ru": "Russo",
+		"ja": "Japonês",
+		"ko": "Coreano",
+		"zh-CN": "Chinês (Simplificado)",
+		"zh-TW": "Chinês (Taiwan)",
+		"tr": "Turco",
+		"pl": "Polonês",
+		"uk": "Ucraniano",
+		"cs": "Tcheco",
+		"fi": "Finlandês",
+		"sv-SE": "Sueco",
+		"nl": "Holandês",
+		"da": "Dinamarquês",
+		"no": "Norueguês",
+		"ro": "Romeno",
+		"hu": "Húngaro",
+		"bg": "Búlgaro",
+		"el": "Grego",
+		"hi": "Hindi",
+		"th": "Tailandês",
+		"vi": "Vietnamita",
+		"hr": "Croata",
+		"lt": "Lituano",
+		"id": "Indonésio"
+	},
+	"roles": {
+		"category_select_title": "Qual categoria você gostaria de editar?",
+		"main_menu_no_guild_settings": "Nenhuma configuração de servidor encontrada",
+		"main_menu_edit_or_create": "## Você gostaria de editar ou criar uma categoria?",
+		"main_menu_create_to_start": "## Clique em criar para começar!",
+		"main_menu_error_title": "Erro",
+		"category_edit_delete_button_error_no_flow": "Nenhum fluxo encontrado para esta mensagem. Por favor, tente novamente.",
+		"category_edit_emoji_button_title": "Reaja a esta mensagem com o emoji que deseja usar.",
+		"category_edit_emoji_button_error_no_guild": "Nenhum ID de servidor encontrado para esta interação.",
+		"category_edit_emoji_button_error_no_flow": "Nenhum fluxo encontrado para esta mensagem. Por favor, tente novamente.",
+		"category_edit_name_button_error_no_flow": "Nenhum fluxo encontrado para esta mensagem. Por favor, tente novamente.",
+		"category_edit_roles_button_error_no_flow": "Nenhum fluxo encontrado para esta mensagem. Por favor, tente novamente.",
+		"config_main_menu_create_button_error_no_flow": "Nenhum fluxo encontrado para esta mensagem. Por favor, tente novamente.",
+		"config_main_menu_edit_button_error_no_flow": "Nenhum fluxo encontrado para esta mensagem. Por favor, tente novamente.",
+		"config_main_menu_message_button_error_no_flow": "Nenhum fluxo encontrado para esta mensagem. Por favor, tente novamente.",
+		"main_menu_no_roles": "Não há cargos nesta categoria.",
+		"main_menu_title": "Menu principal de cargos"
+	},
+	"error_log": {
+		"title": "Registro de erros",
+		"id": "ID",
+		"command": "Comando",
+		"user": "Usuário",
+		"guild": "Servidor",
+		"created": "Criado",
+		"message": "Mensagem:",
+		"stack_trace": "Rastreamento de pilha:",
+		"developer_info": "ID do erro",
+		"time": "Hora"
+	},
+	"select": {
+		"test": {
+			"placeholder": "Seleção de teste",
+			"option1": "Opção de teste 1",
+			"option2": "Opção de teste 2",
+			"option3": "Opção de teste 3",
+			"reply": "Você selecionou {{label}}"
+		},
+		"test_multi": {
+			"placeholder": "Seleção de teste",
+			"option1": "Opção de teste 1",
+			"option2": "Opção de teste 2",
+			"option3": "Opção de teste 3",
+			"reply": "Você selecionou {{labels}}"
+		},
+		"locale": {
+			"placeholder": "Selecione seu idioma"
+		},
+		"channel": {
+			"placeholder": "Selecione um canal"
+		}
+	},
+	"counter": {
+		"title": "Contador simples",
+		"description": "Clique no botão abaixo para incrementar o contador!",
+		"error_description": "Clique no botão abaixo para lançar um erro!",
+		"count_label": "Contador",
+		"error_count_label": "Contador de erros"
+	},
+	"modal": {
+		"category_delete_confirmation": {
+			"title": "Confirmação de exclusão",
+			"label": "Digite {{category}} para confirmar a exclusão."
+		},
+		"category_name_input": {
+			"title": {
+				"create": "Criar categoria",
+				"edit": "Editar nome da categoria"
+			},
+			"label": "Nome da categoria",
+			"placeholder": {
+				"create": "Nova categoria",
+				"edit": "{{category}}"
+			}
+		},
+		"test": {
+			"title": "Modal de teste",
+			"label": "Entrada de teste",
+			"placeholder": "Entrada de teste",
+			"reply": "Este é um modal de teste! Você disse: {{value}}"
+		}
+	},
+	"example": {
+		"title": "Exemplo",
+		"description": "Esta é uma mensagem de exemplo.",
+		"button_label": "Botão de teste"
+	},
+	"channel_select": {
+		"title": "Por favor, selecione um canal"
+	},
+	"error": {
+		"title": "Ops!",
+		"occurred": "Ocorreu um erro ao processar sua solicitação.",
+		"support_server": "Servidor de Suporte",
+		"instructions": "Por favor, tente novamente mais tarde ou informe aos desenvolvedores.",
+		"error_id": "ID do erro",
+		"time": "Hora"
+	},
+	"button": {
+		"counter": {
+			"label": "Clique!"
+		}
+	},
+	"paginator": {
+		"title": "Paginador"
+	},
+	"countries": {
+		"en-US": "Estados Unidos",
+		"en-GB": "Reino Unido",
+		"fr": "França",
+		"de": "Alemanha",
+		"es-ES": "Espanha",
+		"es-419": "México",
+		"it": "Itália",
+		"pt-BR": "Brasil",
+		"ru": "Rússia",
+		"ja": "Japão",
+		"ko": "Coreia",
+		"zh-CN": "China",
+		"zh-TW": "Taiwan",
+		"tr": "Turquia",
+		"pl": "Polônia",
+		"uk": "Ucrânia",
+		"cs": "Tchéquia",
+		"fi": "Finlândia",
+		"sv-SE": "Suécia",
+		"nl": "Países Baixos",
+		"da": "Dinamarca",
+		"no": "Noruega",
+		"ro": "Romênia",
+		"hu": "Hungria",
+		"bg": "Bulgária",
+		"el": "Grécia",
+		"hi": "Índia",
+		"th": "Tailândia",
+		"vi": "Vietnã",
+		"hr": "Croácia",
+		"lt": "Lituânia",
+		"id": "Indonésia"
+	}
+}

@@ -41,7 +41,13 @@ export const CounterMessage: MessageBuilder = {
 			]);
 
 		// Create button using the new class-based system
-		const button = await new CounterButton().build(client, { count }, sessionId, locale);
+		const button = await new CounterButton().build(
+			client,
+			{ count },
+			sessionId,
+			'button.counter.label',
+			locale
+		);
 		logger.debug({ button }, '[CounterMessage.build] Built counter button');
 
 		// Create action row with button

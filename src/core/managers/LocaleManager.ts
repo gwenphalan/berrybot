@@ -1,5 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import AsciiTable from 'ascii-table';
+import { logger } from '@/core/logging/Logger';
 
 /**
  * LocaleManager handles loading and retrieving translations for the bot.
@@ -10,7 +12,7 @@ export class LocaleManager {
 	private locales: Record<string, Record<string, any>> = {};
 	private loaded = false;
 	private readonly localesDir = path.resolve(__dirname, '../../locales');
-	private readonly defaultLocale = 'en';
+	private readonly defaultLocale = 'en-US';
 
 	private constructor() {}
 
@@ -26,21 +28,33 @@ export class LocaleManager {
 	 */
 	public async loadLocales(): Promise<void> {
 		if (this.loaded) return;
+		const table = new AsciiTable().setHeading('Locale', 'Status');
+		let loadedCount = 0;
 		try {
 			const files = await fs.readdir(this.localesDir);
 			for (const file of files) {
 				if (file.endsWith('.json')) {
 					const locale = file.replace('.json', '');
 					const filePath = path.join(this.localesDir, file);
-					const data = await fs.readFile(filePath, 'utf-8');
-					this.locales[locale] = JSON.parse(data);
+					try {
+						const data = await fs.readFile(filePath, 'utf-8');
+						this.locales[locale] = JSON.parse(data);
+						table.addRow(locale, '🟩');
+						loadedCount++;
+					} catch (err) {
+						table.addRow(locale, '🟥');
+						logger.error(
+							{ locale, file: filePath, error: err },
+							'[LocaleManager] Failed to load locale'
+						);
+					}
 				}
 			}
 			this.loaded = true;
+			logger.info('\n' + table.toString());
+			logger.info(`[LocaleManager] Locales Loaded - Total: ${loadedCount}`);
 		} catch (error) {
-			// [LocaleManager.loadLocales] error
-			// Use your custom logger here if available
-			// Logger.error('[LocaleManager.loadLocales]', error);
+			logger.error('[LocaleManager.loadLocales]', error);
 			throw new Error(`[LocaleManager.loadLocales] Failed to load locales: ${error}`);
 		}
 	}

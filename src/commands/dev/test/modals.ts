@@ -6,12 +6,15 @@ const command: Command = {
 	parent: 'test',
 	data: new LocalizedSlashCommandSubcommandBuilder()
 		.setName('modals')
-		.setDescription('Test modals'),
+		.setDescription('Test modals')
+		.setLocalizedName('commands.test.modals.name')
+		.setLocalizedDescription('commands.test.modals.description'),
 	async execute(interaction, _client) {
+		const locale = interaction.locale || 'en-US';
 		// Validate guild context
 		if (!interaction.guild) {
 			await interaction.reply({
-				content: 'This command can only be used in a server.',
+				content: _client.getTranslation('commands.test.modals.guild_only', locale),
 				ephemeral: true,
 			});
 			return;

@@ -92,10 +92,10 @@ export class LocalizedSlashCommandBuilder extends SlashCommandBuilder {
 	 * Sets the command or option name and its localizations from the locale files.
 	 *
 	 * @param key The translation key in the locale file (e.g., 'commands.ping.name').
-	 * @param defaultLocale The default locale to use for the base name (default: 'en').
+	 * @param defaultLocale The default locale to use for the base name (default: 'en-US').
 	 * @returns This builder instance for chaining.
 	 */
-	setLocalizedName(key: string, defaultLocale = 'en'): this {
+	setLocalizedName(key: string, defaultLocale = 'en-US'): this {
 		// Prepare an object to hold all localizations for Discord-supported locales
 		const localizations: Partial<Record<Locale, string>> = {};
 		// Get all Discord-supported locale values
@@ -105,7 +105,6 @@ export class LocalizedSlashCommandBuilder extends SlashCommandBuilder {
 			const discordLocale = toDiscordLocale(locale);
 			// Only add if this locale is supported by Discord
 			if (!supportedDiscordLocales.includes(discordLocale as Locale)) continue;
-			if (!(discordLocale in Locale)) continue;
 			// Get the translation for this key and locale
 			const value = localeManager.getTranslation(key, locale);
 			// If a translation exists, add it to the localizations object
@@ -122,16 +121,17 @@ export class LocalizedSlashCommandBuilder extends SlashCommandBuilder {
 	/**
 	 * Set the description and its localizations from the locale files.
 	 * @param key The key in the locale file (e.g., 'commands.ping.description')
-	 * @param defaultLocale The default locale to use (default: 'en')
+	 * @param defaultLocale The default locale to use (default: 'en-US')
 	 */
-	setLocalizedDescription(key: string, defaultLocale = 'en'): this {
+	setLocalizedDescription(key: string, defaultLocale = 'en-US'): this {
 		const localizations: Partial<Record<Locale, string>> = {};
 		const supportedDiscordLocales = Object.values(Locale) as Locale[];
 		for (const locale of Object.keys(localeManager['locales'])) {
 			const discordLocale = toDiscordLocale(locale);
 			if (!supportedDiscordLocales.includes(discordLocale as Locale)) continue;
-			if (!(discordLocale in Locale)) continue;
+			// Get the translation for this key and locale
 			const value = localeManager.getTranslation(key, locale);
+			// If a translation exists, add it to the localizations object
 			if (value) localizations[discordLocale as Locale] = value;
 		}
 		const defaultDesc = localeManager.getTranslation(key, defaultLocale) || key;
@@ -193,16 +193,17 @@ export class LocalizedSlashCommandSubcommandBuilder extends SlashCommandSubcomma
 	/**
 	 * Set the name and its localizations from the locale files.
 	 * @param key The key in the locale file (e.g., 'commands.ping.subcommand.name')
-	 * @param defaultLocale The default locale to use (default: 'en')
+	 * @param defaultLocale The default locale to use (default: 'en-US')
 	 */
-	setLocalizedName(key: string, defaultLocale = 'en'): this {
+	setLocalizedName(key: string, defaultLocale = 'en-US'): this {
 		const localizations: Partial<Record<Locale, string>> = {};
 		const supportedDiscordLocales = Object.values(Locale) as Locale[];
 		for (const locale of Object.keys(localeManager['locales'])) {
 			const discordLocale = toDiscordLocale(locale);
 			if (!supportedDiscordLocales.includes(discordLocale as Locale)) continue;
-			if (!(discordLocale in Locale)) continue;
+			// Get the translation for this key and locale
 			const value = localeManager.getTranslation(key, locale);
+			// If a translation exists, add it to the localizations object
 			if (value) localizations[discordLocale as Locale] = value;
 		}
 		const defaultName = localeManager.getTranslation(key, defaultLocale) || key;
@@ -214,16 +215,17 @@ export class LocalizedSlashCommandSubcommandBuilder extends SlashCommandSubcomma
 	/**
 	 * Set the description and its localizations from the locale files.
 	 * @param key The key in the locale file (e.g., 'commands.ping.subcommand.description')
-	 * @param defaultLocale The default locale to use (default: 'en')
+	 * @param defaultLocale The default locale to use (default: 'en-US')
 	 */
-	setLocalizedDescription(key: string, defaultLocale = 'en'): this {
+	setLocalizedDescription(key: string, defaultLocale = 'en-US'): this {
 		const localizations: Partial<Record<Locale, string>> = {};
 		const supportedDiscordLocales = Object.values(Locale) as Locale[];
 		for (const locale of Object.keys(localeManager['locales'])) {
 			const discordLocale = toDiscordLocale(locale);
 			if (!supportedDiscordLocales.includes(discordLocale as Locale)) continue;
-			if (!(discordLocale in Locale)) continue;
+			// Get the translation for this key and locale
 			const value = localeManager.getTranslation(key, locale);
+			// If a translation exists, add it to the localizations object
 			if (value) localizations[discordLocale as Locale] = value;
 		}
 		const defaultDesc = localeManager.getTranslation(key, defaultLocale) || key;
@@ -299,7 +301,7 @@ export const localeMap: Record<string, string> = {
 
 /**
  * Converts a user locale code to a Discord-supported locale code.
- * @param userLocale - The user locale code (e.g., 'en', 'es')
+ * @param userLocale - The user locale code (e.g., 'en	', 'es')
  * @returns The Discord-supported locale code (e.g., 'en-US', 'es-ES')
  */
 export function toDiscordLocale(userLocale: string): string {

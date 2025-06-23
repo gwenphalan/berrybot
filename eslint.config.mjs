@@ -36,5 +36,31 @@ export default tseslint.config(
 			'.yarn/sdks/',
 			'.eslintrc.js',
 		],
+	},
+	{
+		files: ['src/**/*.ts'],
+		rules: {
+			'@typescript-eslint/no-explicit-any': 'warn',
+		},
+	},
+	{
+		files: ['*.js', '*.mjs'],
+		languageOptions: {
+			globals: {
+				module: 'readonly',
+				require: 'readonly',
+				process: 'readonly',
+				__dirname: 'readonly',
+			},
+		},
+	},
+	{
+		ignores: [
+			'dist/',
+			'.yarn/',
+			'.yarn/sdks/',
+			'.eslintrc.js',
+			'eslint.config.mjs',
+		],
 	}
 ); 
