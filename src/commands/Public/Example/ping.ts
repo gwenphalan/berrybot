@@ -4,7 +4,9 @@ import { LocalizedSlashCommandBuilder } from '@/core/utils/Locale';
 
 // Simple example command that 	responds with 'Pong!'
 const command: Command = {
-	data: new LocalizedSlashCommandBuilder().setName('ping').setDescription('Replies with Pong!'),
+	data: new LocalizedSlashCommandBuilder()
+		.setLocalizedName('commands.ping.name')
+		.setLocalizedDescription('commands.ping.description'),
 	async execute(interaction: ChatInputCommandInteraction, _client) {
 		// Send simple response
 		await interaction.reply({
